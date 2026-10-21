@@ -64,8 +64,7 @@ const SECTIONS_CRED = [
   { id: 'faculty', label: 'Faculty', portal: '/login/faculty', badge: 'info', desc: 'Course instruction, attendance & marks portal' },
   { id: 'parent', label: 'Parent', portal: '/login/parent', badge: 'teal', desc: 'Parent / Guardian tracking & fee portal' },
   { id: 'placement', label: 'Placement', portal: '/login/placement', badge: 'success', desc: 'Placement cell recruitment drives portal' },
-  { id: 'staff', label: 'Hostel & Transport Staff', portal: '/login/staff', badge: 'warning', desc: 'Hostel blocks & transport fleet operations' },
-  { id: 'superadmin', label: 'Super Admin', portal: '/login/super-admin', badge: 'danger', desc: 'Root security governance & audit telemetry' },
+  { id: 'staff', label: 'Hostel Portal', portal: '/login/hostel', badge: 'teal', desc: 'Hostel blocks & estate operations' },
 ];
 
 export const AdminDashboard = () => {
@@ -173,7 +172,7 @@ export const AdminDashboard = () => {
         }
         badge={<Badge variant="navy" size="sm">Academic Year 2025-2026</Badge>}
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             {currentSection && (
               <Link to="/admin">
                 <Button variant="secondary" size="sm" leftIcon={<ArrowLeft className="w-3.5 h-3.5" />}>
@@ -182,7 +181,7 @@ export const AdminDashboard = () => {
               </Link>
             )}
             <Button
-              variant="teal"
+              variant="primary"
               size="sm"
               leftIcon={<Key className="w-3.5 h-3.5" />}
               onClick={() => {
@@ -203,7 +202,7 @@ export const AdminDashboard = () => {
       />
 
       {/* Quick Navigation Scroll Strip */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none border-b border-slate-200">
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none border-b border-[#CCFBF1]">
         {SECTIONS_NAV.map((tab) => {
           const Icon = tab.icon;
           const isCurrent = currentSection === tab.id;
@@ -211,13 +210,13 @@ export const AdminDashboard = () => {
             <Link
               key={tab.id || 'overview'}
               to={tab.id ? `/admin/${tab.id}` : '/admin'}
-              className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+              className={`inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                 isCurrent
-                  ? 'bg-navy-900 text-white shadow-xs'
-                  : 'bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200'
+                  ? 'bg-[#0D9488] text-white shadow-sm border border-[#0D9488]'
+                  : 'bg-white text-[#102A43] hover:bg-[#CCFBF1] border border-[#CCFBF1]'
               }`}
             >
-              <Icon className="w-3.5 h-3.5" />
+              <Icon className="w-4 h-4" />
               <span>{tab.label}</span>
             </Link>
           );
@@ -247,7 +246,7 @@ export const AdminDashboard = () => {
         title="Create Section Credentials"
         description="Provision secure login credentials for Student, Faculty, Parent, Placement, Hostel & Transport Staff, or Super Admin."
         footer={
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <Button
               variant="secondary"
               size="sm"
@@ -256,9 +255,9 @@ export const AdminDashboard = () => {
               Cancel
             </Button>
             <Button
-              variant="teal"
+              variant="primary"
               size="sm"
-              loading={createLoading}
+              isLoading={createLoading}
               disabled={createLoading}
               leftIcon={<Key className="w-3.5 h-3.5" />}
               onClick={handleCreateCredentials}
@@ -281,7 +280,7 @@ export const AdminDashboard = () => {
 
           {createError && (
             <AlertBanner
-              variant="danger"
+              variant="error"
               title="Error"
               message={createError}
               dismissible
@@ -290,13 +289,13 @@ export const AdminDashboard = () => {
           )}
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-              Target Section / Portal Role <span className="text-rose-500">*</span>
+            <label className="block text-xs font-bold text-[#102A43] uppercase tracking-wider mb-2">
+              Target Section / Portal Role <span className="text-[#0D9488]">*</span>
             </label>
             <select
               value={credForm.section}
               onChange={(e) => setCredForm((prev) => ({ ...prev, section: e.target.value }))}
-              className="w-full h-10 px-3 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium"
+              className="w-full h-11 px-4 text-sm font-semibold rounded-xl border border-[#CCFBF1] bg-white text-[#102A43] focus:outline-none focus:ring-2 focus:ring-[#0D9488]"
             >
               {SECTIONS_CRED.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -330,7 +329,7 @@ export const AdminDashboard = () => {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-8 text-slate-400 hover:text-slate-600 p-1 focus:outline-none"
+                className="absolute right-3.5 top-9 text-[#102A43]/60 hover:text-[#102A43] p-1 focus:outline-none"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>

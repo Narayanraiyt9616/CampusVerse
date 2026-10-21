@@ -106,6 +106,13 @@ async function initializeAccounts() {
         name: 'M. Karthikeyan',
         role: ROLES.STAFF,
       },
+      {
+        username: 'hosteldemo',
+        email: 'hostel@campusverse.edu',
+        password: process.env.HOSTEL_PASSWORD || 'Hostel@2026',
+        name: 'M. Karthikeyan (Chief Warden)',
+        role: ROLES.STAFF,
+      },
     ];
 
     for (const acc of portalAccounts) {

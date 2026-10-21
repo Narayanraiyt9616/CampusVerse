@@ -80,6 +80,9 @@ const createApp = () => {
   app.use('/api/fees', authMiddleware, require('./routes/feeRoutes'));
   app.use('/api/admin', authMiddleware, require('./routes/adminRoutes'));
   app.use('/api/superadmin', authMiddleware, require('./routes/superAdminRoutes'));
+  app.use('/api/parent', authMiddleware, require('./routes/parentRoutes'));
+  app.use('/api/staff', authMiddleware, require('./routes/staffRoutes'));
+  app.use('/api/placement', authMiddleware, require('./routes/placementRoutes'));
 
 
   // 404 and error handling

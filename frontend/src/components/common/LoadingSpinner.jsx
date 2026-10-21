@@ -2,6 +2,7 @@ import React from 'react';
 
 /**
  * Loading Spinner Component for CampusVerse AI
+ * Strictly adhering to 5 colors: #102A43, #0D9488, #F0FDFA, #FFFFFF, #CCFBF1
  */
 export const LoadingSpinner = ({
   size = 'md', // 'sm' | 'md' | 'lg'
@@ -16,8 +17,8 @@ export const LoadingSpinner = ({
   };
 
   const colorClasses = {
-    teal: 'border-teal-200 border-t-teal-600',
-    navy: 'border-slate-300 border-t-navy-900',
+    teal: 'border-[#CCFBF1] border-t-[#0D9488]',
+    navy: 'border-[#CCFBF1] border-t-[#102A43]',
     white: 'border-white/30 border-t-white',
   };
 
@@ -28,7 +29,7 @@ export const LoadingSpinner = ({
         role="status"
         aria-label="Loading"
       />
-      {text && <span className="text-xs text-slate-500 font-medium">{text}</span>}
+      {text && <span className="text-xs text-[#102A43] font-bold">{text}</span>}
     </div>
   );
 };

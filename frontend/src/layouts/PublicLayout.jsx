@@ -8,7 +8,7 @@ import Footer from '../components/navigation/Footer';
  */
 export const PublicLayout = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800">
+    <div className="min-h-screen flex flex-col bg-[#FFFEFA] text-[#111827]">
       <LandingNavbar />
       <main className="flex-1">
         <Outlet />

@@ -95,7 +95,7 @@ export const AdminReports = () => {
           if (v === 'Pending') {
             return <Badge variant="warning" size="sm">{v}</Badge>;
           }
-          return <span className="text-xs text-slate-700 font-medium">{String(v)}</span>;
+          return <span className="text-xs text-[#102A43] font-medium">{String(v)}</span>;
         },
       }))
     : [];
@@ -124,21 +124,21 @@ export const AdminReports = () => {
               onClick={() => setSelectedType(t.id)}
               className={`p-4 rounded-xl border text-left transition-all flex flex-col justify-between ${
                 isSelected
-                  ? 'border-teal-500 bg-teal-50/60 ring-2 ring-teal-500/20 shadow-xs'
-                  : 'border-slate-200 bg-white hover:border-slate-300'
+                  ? 'border-[#0D9488] bg-[#CCFBF1]/40 ring-1 ring-[#0D9488] shadow-xs'
+                  : 'border-[#CCFBF1] bg-white hover:border-[#0D9488]/40'
               }`}
             >
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                    isSelected ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-600'
+                    isSelected ? 'bg-[#0D9488] text-white' : 'bg-[#CCFBF1]/30 text-[#102A43]'
                   }`}>
                     <Icon className="w-4 h-4" />
                   </div>
                   {isSelected && <Badge variant="teal" size="sm">Active</Badge>}
                 </div>
-                <h4 className="text-xs font-bold text-slate-900">{t.label}</h4>
-                <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">{t.desc}</p>
+                <h4 className="text-xs font-bold text-[#102A43]">{t.label}</h4>
+                <p className="text-[11px] text-[#102A43]/70 mt-1 leading-relaxed font-medium">{t.desc}</p>
               </div>
             </button>
           );
@@ -149,7 +149,7 @@ export const AdminReports = () => {
       <Card
         title={reportTitle}
         subtitle={`Real database records aggregated live from MongoDB (${reportData.length} records)`}
-        badge={<Badge variant="navy" size="sm">{reportData.length} Data Rows</Badge>}
+        badge={<Badge variant="teal" size="sm">{reportData.length} Data Rows</Badge>}
         actions={
           <div className="flex items-center gap-2">
             <Button
@@ -161,7 +161,7 @@ export const AdminReports = () => {
               Refresh
             </Button>
             <Button
-              variant="teal"
+              variant="primary"
               size="sm"
               leftIcon={<Download className="w-3.5 h-3.5" />}
               onClick={handleExportCSV}

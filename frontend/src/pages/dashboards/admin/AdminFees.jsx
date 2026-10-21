@@ -201,15 +201,15 @@ export const AdminFees = () => {
       header: 'Invoiced / Paid',
       render: (v, r) => (
         <div>
-          <span className="font-mono text-xs font-bold text-slate-900">₹{v.toLocaleString()}</span>
-          <p className="text-[11px] text-emerald-600 font-mono font-semibold">Paid: ₹{(r.paidAmount || 0).toLocaleString()}</p>
+          <span className="font-mono text-xs font-bold text-[#102A43]">₹{v.toLocaleString()}</span>
+          <p className="text-[11px] text-[#0D9488] font-mono font-bold">Paid: ₹{(r.paidAmount || 0).toLocaleString()}</p>
         </div>
       ),
     },
     {
       key: 'dueDate',
       header: 'Due Date',
-      render: (v) => <span className="font-mono text-xs text-slate-600">{v ? new Date(v).toLocaleDateString() : 'N/A'}</span>,
+      render: (v) => <span className="font-mono text-xs text-[#102A43]/70 font-medium">{v ? new Date(v).toLocaleDateString() : 'N/A'}</span>,
     },
     {
       key: 'status',
@@ -228,7 +228,7 @@ export const AdminFees = () => {
         <div className="flex items-center justify-end gap-1.5">
           {r.status !== 'Paid' && (
             <Button
-              variant="teal"
+              variant="primary"
               size="sm"
               className="text-xs"
               onClick={() => handleOpenPayment(r)}
@@ -279,28 +279,28 @@ export const AdminFees = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-xs">
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Invoiced</p>
-          <p className="text-2xl font-bold text-slate-900 mt-1 font-mono">₹{totalInvoiced.toLocaleString()}</p>
-          <p className="text-[11px] text-slate-400 mt-0.5">Annual billed tuition & fees</p>
+        <div className="p-4 bg-white border border-[#CCFBF1] rounded-xl shadow-xs">
+          <p className="text-xs font-bold text-[#102A43]/70 uppercase tracking-wider">Total Invoiced</p>
+          <p className="text-2xl font-black text-[#102A43] mt-1 font-mono">₹{totalInvoiced.toLocaleString()}</p>
+          <p className="text-[11px] text-[#102A43]/60 mt-0.5">Annual billed tuition & fees</p>
         </div>
 
-        <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-xs">
-          <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wider">Realized Collections</p>
-          <p className="text-2xl font-bold text-emerald-700 mt-1 font-mono">₹{totalCollected.toLocaleString()}</p>
-          <p className="text-[11px] text-emerald-600 mt-0.5">{rate}% Recovery Rate</p>
+        <div className="p-4 bg-white border border-[#CCFBF1] rounded-xl shadow-xs">
+          <p className="text-xs font-bold text-[#0D9488] uppercase tracking-wider">Realized Collections</p>
+          <p className="text-2xl font-black text-[#0D9488] mt-1 font-mono">₹{totalCollected.toLocaleString()}</p>
+          <p className="text-[11px] text-[#0D9488] font-bold mt-0.5">{rate}% Recovery Rate</p>
         </div>
 
-        <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-xs">
-          <p className="text-xs font-semibold text-rose-600 uppercase tracking-wider">Pending Institutional Dues</p>
-          <p className="text-2xl font-bold text-rose-700 mt-1 font-mono">₹{totalPending.toLocaleString()}</p>
-          <p className="text-[11px] text-rose-600 mt-0.5">Outstanding student balances</p>
+        <div className="p-4 bg-white border border-[#CCFBF1] rounded-xl shadow-xs">
+          <p className="text-xs font-bold text-[#102A43]/80 uppercase tracking-wider">Pending Institutional Dues</p>
+          <p className="text-2xl font-black text-[#102A43] mt-1 font-mono">₹{totalPending.toLocaleString()}</p>
+          <p className="text-[11px] text-[#102A43]/60 mt-0.5">Outstanding student balances</p>
         </div>
 
-        <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-xs">
-          <p className="text-xs font-semibold text-amber-600 uppercase tracking-wider">Total Invoices Tracked</p>
-          <p className="text-2xl font-bold text-amber-700 mt-1 font-mono">{fees.length}</p>
-          <p className="text-[11px] text-slate-500 mt-0.5">Real MongoDB fee documents</p>
+        <div className="p-4 bg-white border border-[#CCFBF1] rounded-xl shadow-xs">
+          <p className="text-xs font-bold text-[#102A43]/80 uppercase tracking-wider">Total Invoices Tracked</p>
+          <p className="text-2xl font-black text-[#102A43] mt-1 font-mono">{fees.length}</p>
+          <p className="text-[11px] text-[#102A43]/60 mt-0.5">Real MongoDB fee documents</p>
         </div>
       </div>
 
@@ -310,7 +310,7 @@ export const AdminFees = () => {
         badge={<Badge variant="teal" size="sm">{fees.length} Invoices</Badge>}
         actions={
           <Button
-            variant="teal"
+            variant="primary"
             size="sm"
             leftIcon={<Plus className="w-3.5 h-3.5" />}
             onClick={() => {
@@ -333,13 +333,13 @@ export const AdminFees = () => {
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
             <div className="relative flex-1 max-w-md">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-[#0D9488] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Search by invoice ID, student name, or roll no..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full h-9 pl-9 pr-3 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full h-9 pl-9 pr-3 text-xs rounded-lg border border-[#CCFBF1] bg-[#F0FDFA] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
               />
             </div>
 
@@ -347,7 +347,7 @@ export const AdminFees = () => {
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="h-9 px-2.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="h-9 px-2.5 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
               >
                 <option value="all">All Categories</option>
                 {FEE_CATEGORIES.map((c) => (
@@ -358,7 +358,7 @@ export const AdminFees = () => {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="h-9 px-2.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="h-9 px-2.5 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
               >
                 <option value="all">All Statuses</option>
                 <option value="Pending">Pending</option>
@@ -399,7 +399,7 @@ export const AdminFees = () => {
               Cancel
             </Button>
             <Button
-              variant="teal"
+              variant="primary"
               size="sm"
               loading={createLoading}
               disabled={createLoading}
@@ -413,13 +413,13 @@ export const AdminFees = () => {
         <form onSubmit={handleCreateInvoice} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Target Student <span className="text-rose-500">*</span>
+              <label className="block text-xs font-bold text-[#102A43] mb-1.5">
+                Target Student <span className="text-[#0D9488]">*</span>
               </label>
               <select
                 value={createForm.student}
                 onChange={(e) => setCreateForm((p) => ({ ...p, student: e.target.value }))}
-                className="w-full h-10 px-3 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium"
+                className="w-full h-10 px-3 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
                 required
               >
                 {students.map((s) => (
@@ -429,13 +429,13 @@ export const AdminFees = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Fee Category <span className="text-rose-500">*</span>
+              <label className="block text-xs font-bold text-[#102A43] mb-1.5">
+                Fee Category <span className="text-[#0D9488]">*</span>
               </label>
               <select
                 value={createForm.category}
                 onChange={(e) => setCreateForm((p) => ({ ...p, category: e.target.value }))}
-                className="w-full h-10 px-3 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium"
+                className="w-full h-10 px-3 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
               >
                 {FEE_CATEGORIES.map((c) => (
                   <option key={c} value={c}>{c}</option>
@@ -464,11 +464,11 @@ export const AdminFees = () => {
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Semester</label>
+              <label className="block text-xs font-bold text-[#102A43] mb-1.5">Semester</label>
               <select
                 value={createForm.semester}
                 onChange={(e) => setCreateForm((p) => ({ ...p, semester: Number(e.target.value) }))}
-                className="w-full h-10 px-3 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium"
+                className="w-full h-10 px-3 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
               >
                 {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
                   <option key={s} value={s}>Semester {s}</option>
@@ -501,7 +501,7 @@ export const AdminFees = () => {
               Cancel
             </Button>
             <Button
-              variant="teal"
+              variant="primary"
               size="sm"
               loading={paymentLoading}
               disabled={paymentLoading}
@@ -514,7 +514,7 @@ export const AdminFees = () => {
       >
         {paymentModalFee && (
           <form onSubmit={handleRecordPayment} className="space-y-4">
-            <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs space-y-1">
+            <div className="p-3 bg-[#CCFBF1]/30 border border-[#CCFBF1] rounded-lg text-xs text-[#102A43] space-y-1">
               <p><strong>Student:</strong> {paymentModalFee.student?.name} ({paymentModalFee.student?.studentId})</p>
               <p><strong>Total Invoiced:</strong> ₹{paymentModalFee.amount.toLocaleString()}</p>
               <p><strong>Previously Paid:</strong> ₹{(paymentModalFee.paidAmount || 0).toLocaleString()}</p>
@@ -533,11 +533,11 @@ export const AdminFees = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Payment Mode</label>
+                <label className="block text-xs font-bold text-[#102A43] mb-1.5">Payment Mode</label>
                 <select
                   value={paymentForm.paymentMode}
                   onChange={(e) => setPaymentForm((p) => ({ ...p, paymentMode: e.target.value }))}
-                  className="w-full h-10 px-3 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium"
+                  className="w-full h-10 px-3 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
                 >
                   <option value="Online">Online Gateway / NetBanking</option>
                   <option value="Cash">Cash at University Cashier</option>
@@ -577,7 +577,7 @@ export const AdminFees = () => {
           </div>
         }
       >
-        <p className="text-xs text-slate-600">This action will update the financial telemetry in MongoDB.</p>
+        <p className="text-xs text-[#102A43]/80">This action will update the financial telemetry in MongoDB.</p>
       </Modal>
     </div>
   );

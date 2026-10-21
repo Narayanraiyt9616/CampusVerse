@@ -92,46 +92,46 @@ function CredentialModal({ isOpen, onClose, data }) {
     >
       {data && (
         <div className="space-y-4">
-          <div className="p-4 bg-teal-50 border border-teal-200 rounded-xl space-y-3">
+          <div className="p-4 bg-[#CCFBF1] border border-[#0D9488] rounded-2xl space-y-3">
             <div className="flex justify-between items-center text-sm">
-              <span className="text-slate-500 font-medium">Name</span>
-              <span className="font-semibold text-slate-800">{data.user?.name}</span>
+              <span className="text-[#102A43]/70 font-bold">Name</span>
+              <span className="font-bold text-[#102A43]">{data.user?.name}</span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-slate-500 font-medium">Email</span>
-              <span className="font-mono text-slate-800">{data.user?.email}</span>
+              <span className="text-[#102A43]/70 font-bold">Email</span>
+              <span className="font-mono font-semibold text-[#102A43]">{data.user?.email}</span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-slate-500 font-medium">Username</span>
-              <span className="font-mono font-bold text-teal-700">{data.user?.username}</span>
+              <span className="text-[#102A43]/70 font-bold">Username</span>
+              <span className="font-mono font-extrabold text-[#0D9488]">@{data.user?.username}</span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-slate-500 font-medium">Role</span>
-              <Badge variant={ROLE_BADGE[data.user?.role] || 'neutral'} size="sm">
+              <span className="text-[#102A43]/70 font-bold">Role</span>
+              <Badge variant="teal" size="sm">
                 {data.user?.role}
               </Badge>
             </div>
-            <div className="flex justify-between items-center text-sm border-t border-teal-200 pt-3">
-              <span className="text-slate-500 font-medium">Temporary Password</span>
-              <span className="font-mono font-bold text-lg text-teal-800 tracking-wider bg-teal-100 px-3 py-1 rounded-lg">
+            <div className="flex justify-between items-center text-sm border-t border-[#0D9488]/30 pt-3">
+              <span className="text-[#102A43]/70 font-bold">Temporary Password</span>
+              <span className="font-mono font-extrabold text-lg text-[#102A43] tracking-wider bg-white px-3.5 py-1 rounded-xl border border-[#0D9488]">
                 {data.temporaryPassword}
               </span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-slate-500 font-medium">Portal URL</span>
-              <span className="font-mono text-xs text-slate-600">
+              <span className="text-[#102A43]/70 font-bold">Portal URL</span>
+              <span className="font-mono text-xs font-semibold text-[#102A43]">
                 {window.location.origin}{PORTAL_MAP[data.user?.role] || '/'}
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-            <p className="text-xs text-amber-700">
+          <div className="flex items-center gap-2.5 p-3.5 bg-[#F0FDFA] border border-[#CCFBF1] rounded-xl">
+            <AlertTriangle className="w-4 h-4 text-[#0D9488] shrink-0" />
+            <p className="text-xs text-[#102A43] font-semibold">
               This password will not be shown again. Copy and share it securely with the user.
             </p>
           </div>
           <Button
-            variant="teal"
+            variant="primary"
             className="w-full"
             leftIcon={copied ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
             onClick={handleCopy}

@@ -516,6 +516,9 @@ exports.createCredentials = async (req, res) => {
       placement: ROLES.PLACEMENT,
       'placement-officer': ROLES.PLACEMENT,
       staff: ROLES.STAFF,
+      hostel: ROLES.STAFF,
+      'hostel-portal': ROLES.STAFF,
+      'hostel_portal': ROLES.STAFF,
       superadmin: ROLES.SUPERADMIN,
       'super-admin': ROLES.SUPERADMIN,
     };

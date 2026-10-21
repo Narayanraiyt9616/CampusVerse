@@ -283,4 +283,55 @@ export const superAdminService = {
   },
 };
 
+export const parentService = {
+  getDashboard: async (params = {}) => apiClient.get('/parent/dashboard', { params }),
+  getStudentInfo: async (params = {}) => apiClient.get('/parent/student', { params }),
+  getAttendanceAndResults: async (params = {}) => apiClient.get('/parent/attendance-and-results', { params }),
+  getAssignmentsAndTimetable: async (params = {}) => apiClient.get('/parent/assignments-and-timetable', { params }),
+  getFees: async (params = {}) => apiClient.get('/parent/fees', { params }),
+  getNotices: async (params = {}) => apiClient.get('/parent/notices', { params }),
+  getWards: async () => apiClient.get('/parent/wards'),
+};
+
+export const staffService = {
+  getDashboard: async () => apiClient.get('/staff/dashboard'),
+  getHostelRooms: async (params = {}) => apiClient.get('/staff/hostel/rooms', { params }),
+  createHostelRoom: async (data) => apiClient.post('/staff/hostel/rooms', data),
+  updateHostelRoom: async (id, data) => apiClient.put(`/staff/hostel/rooms/${id}`, data),
+  getHostelAllocations: async () => apiClient.get('/staff/hostel/allocations'),
+  allocateHostelBed: async (data) => apiClient.post('/staff/hostel/allocate', data),
+  vacateHostelBed: async (id) => apiClient.put(`/staff/hostel/vacate/${id}`),
+  getTransportVehicles: async () => apiClient.get('/staff/transport/vehicles'),
+  createTransportVehicle: async (data) => apiClient.post('/staff/transport/vehicles', data),
+  updateTransportVehicle: async (id, data) => apiClient.put(`/staff/transport/vehicles/${id}`, data),
+  getTransportRoutes: async () => apiClient.get('/staff/transport/routes'),
+  createTransportRoute: async (data) => apiClient.post('/staff/transport/routes', data),
+  updateTransportRoute: async (id, data) => apiClient.put(`/staff/transport/routes/${id}`, data),
+  getTransportAllocations: async () => apiClient.get('/staff/transport/allocations'),
+  allocateTransportPass: async (data) => apiClient.post('/staff/transport/allocate', data),
+  getStudentRecords: async (params = {}) => apiClient.get('/staff/students', { params }),
+  getComplaints: async (params = {}) => apiClient.get('/staff/complaints', { params }),
+  createComplaint: async (data) => apiClient.post('/staff/complaints', data),
+  updateComplaint: async (id, data) => apiClient.put(`/staff/complaints/${id}`, data),
+  getNotices: async () => apiClient.get('/staff/notices'),
+  createNotice: async (data) => apiClient.post('/staff/notices', data),
+};
+
+export const placementService = {
+  getDashboard: async () => apiClient.get('/placement/dashboard'),
+  getCompanies: async (params = {}) => apiClient.get('/placement/companies', { params }),
+  createCompany: async (data) => apiClient.post('/placement/companies', data),
+  updateCompany: async (id, data) => apiClient.put(`/placement/companies/${id}`, data),
+  getDrives: async (params = {}) => apiClient.get('/placement/drives', { params }),
+  createDrive: async (data) => apiClient.post('/placement/drives', data),
+  updateDrive: async (id, data) => apiClient.put(`/placement/drives/${id}`, data),
+  getStudents: async (params = {}) => apiClient.get('/placement/students', { params }),
+  updateStudentProfile: async (id, data) => apiClient.put(`/placement/students/${id}`, data),
+  getApplications: async (params = {}) => apiClient.get('/placement/applications', { params }),
+  createApplication: async (data) => apiClient.post('/placement/applications', data),
+  updateApplication: async (id, data) => apiClient.put(`/placement/applications/${id}`, data),
+  getNotices: async (params = {}) => apiClient.get('/placement/notices', { params }),
+  createNotice: async (data) => apiClient.post('/placement/notices', data),
+};
+
 export default apiClient;

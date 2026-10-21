@@ -96,23 +96,23 @@ export const AdminSettings = () => {
     {
       key: 'action',
       header: 'Security Event Action',
-      render: (v) => <span className="font-mono font-bold text-xs text-navy-900">{v}</span>,
+      render: (v) => <span className="font-mono font-bold text-xs text-[#102A43]">{v}</span>,
     },
     {
       key: 'details',
       header: 'Event Notation',
-      render: (v) => <span className="text-xs text-slate-700 font-medium">{v}</span>,
+      render: (v) => <span className="text-xs text-[#102A43] font-semibold">{v}</span>,
     },
     {
       key: 'ipAddress',
       header: 'Origin IP',
-      render: (v) => <span className="font-mono text-[11px] text-slate-500">{v || '127.0.0.1'}</span>,
+      render: (v) => <span className="font-mono text-[11px] text-[#102A43]/70">{v || '127.0.0.1'}</span>,
     },
     {
       key: 'createdAt',
       header: 'Timestamp',
       render: (v) => (
-        <span className="font-mono text-xs text-slate-500">
+        <span className="font-mono text-xs text-[#102A43]/70">
           {v ? new Date(v).toLocaleString() : ''}
         </span>
       ),
@@ -123,44 +123,44 @@ export const AdminSettings = () => {
     <div className="space-y-6">
       {/* System Status Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-xs">
+        <div className="p-4 bg-white border border-[#CCFBF1] rounded-xl shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-600">
+            <div className="w-10 h-10 rounded-lg bg-[#CCFBF1] flex items-center justify-center text-[#0D9488]">
               <Database className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs text-slate-500 font-medium">Database Node</p>
-              <p className="text-sm font-bold text-slate-800">MongoDB Atlas Cluster</p>
-              <span className="inline-flex items-center gap-1 text-[10px] text-emerald-600 font-bold mt-0.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <p className="text-xs text-[#102A43]/70 font-semibold">Database Node</p>
+              <p className="text-sm font-bold text-[#102A43]">MongoDB Atlas Cluster</p>
+              <span className="inline-flex items-center gap-1 text-[10px] text-[#0D9488] font-bold mt-0.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#0D9488] animate-pulse" />
                 Active ReplicaSet Connected
               </span>
             </div>
           </div>
         </div>
 
-        <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-xs">
+        <div className="p-4 bg-white border border-[#CCFBF1] rounded-xl shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600">
+            <div className="w-10 h-10 rounded-lg bg-[#CCFBF1] flex items-center justify-center text-[#0D9488]">
               <Shield className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs text-slate-500 font-medium">Security Mode</p>
-              <p className="text-sm font-bold text-slate-800">RBAC Role Enforcement</p>
-              <span className="text-[10px] text-indigo-600 font-semibold">JWT Bearer Verification Active</span>
+              <p className="text-xs text-[#102A43]/70 font-semibold">Security Mode</p>
+              <p className="text-sm font-bold text-[#102A43]">RBAC Role Enforcement</p>
+              <span className="text-[10px] text-[#0D9488] font-bold">JWT Bearer Verification Active</span>
             </div>
           </div>
         </div>
 
-        <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-xs">
+        <div className="p-4 bg-white border border-[#CCFBF1] rounded-xl shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-600">
+            <div className="w-10 h-10 rounded-lg bg-[#CCFBF1] flex items-center justify-center text-[#0D9488]">
               <Server className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs text-slate-500 font-medium">Academic Year</p>
-              <p className="text-sm font-bold text-slate-800">{settings?.currentAcademicYear || '2025-2026'}</p>
-              <span className="text-[10px] text-purple-600 font-semibold">{settings?.activeSemesterSeason || 'Odd Semester'}</span>
+              <p className="text-xs text-[#102A43]/70 font-semibold">Academic Year</p>
+              <p className="text-sm font-bold text-[#102A43]">{settings?.currentAcademicYear || '2025-2026'}</p>
+              <span className="text-[10px] text-[#0D9488] font-bold">{settings?.activeSemesterSeason || 'Odd Semester'}</span>
             </div>
           </div>
         </div>
@@ -212,7 +212,7 @@ export const AdminSettings = () => {
 
               <Button
                 type="submit"
-                variant="teal"
+                variant="primary"
                 size="md"
                 className="w-full"
                 loading={passLoading}
@@ -229,17 +229,17 @@ export const AdminSettings = () => {
             subtitle="CampusVerse AI Core Parameters"
           >
             <div className="space-y-2.5 text-xs">
-              <div className="flex justify-between py-1.5 border-b border-slate-100">
-                <span className="text-slate-500">Institution:</span>
-                <span className="font-semibold text-slate-800 text-right">{settings?.institutionName || 'CampusVerse AI'}</span>
+              <div className="flex justify-between py-1.5 border-b border-[#CCFBF1]">
+                <span className="text-[#102A43]/70 font-semibold">Institution:</span>
+                <span className="font-bold text-[#102A43] text-right">{settings?.institutionName || 'CampusVerse AI'}</span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-slate-100">
-                <span className="text-slate-500">Attendance Bar:</span>
-                <span className="font-bold text-rose-600">{settings?.attendanceShortageThreshold || 75}% Minimum</span>
+              <div className="flex justify-between py-1.5 border-b border-[#CCFBF1]">
+                <span className="text-[#102A43]/70 font-semibold">Attendance Bar:</span>
+                <span className="font-bold text-[#0D9488]">{settings?.attendanceShortageThreshold || 75}% Minimum</span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-slate-100">
-                <span className="text-slate-500">Active Admin:</span>
-                <span className="font-mono text-slate-800">{user?.email || 'admin@campusverse.edu'}</span>
+              <div className="flex justify-between py-1.5 border-b border-[#CCFBF1]">
+                <span className="text-[#102A43]/70 font-semibold">Active Admin:</span>
+                <span className="font-mono font-bold text-[#102A43]">{user?.email || 'admin@campusverse.edu'}</span>
               </div>
             </div>
           </Card>
@@ -250,7 +250,7 @@ export const AdminSettings = () => {
           <Card
             title="Administrative Security & Audit Log Stream"
             subtitle="Immutable records of administrative mutations and authentication events"
-            badge={<Badge variant="navy" size="sm">Audit Roster</Badge>}
+            badge={<Badge variant="teal" size="sm">Audit Roster</Badge>}
             actions={
               <Button
                 variant="secondary"
@@ -272,7 +272,7 @@ export const AdminSettings = () => {
               />
 
               {totalPages > 1 && (
-                <div className="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-100">
+                <div className="flex items-center justify-between text-xs text-[#102A43]/70 pt-2 border-t border-[#CCFBF1]">
                   <span>Page {page} of {totalPages}</span>
                   <div className="flex items-center gap-2">
                     <Button

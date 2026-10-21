@@ -102,8 +102,11 @@ export const StudentManagementList = () => {
 
   return (
     <div className="p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-semibold">Student Management</h1>
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-[#102A43]">Student Management</h1>
+          <p className="text-xs text-[#102A43]/70 mt-0.5">View and manage enrolled student directories</p>
+        </div>
         {user && (user.role === 'admin' || user.role === 'super-admin') && (
           <Button onClick={handleAddStudent}>Add Student</Button>
         )}

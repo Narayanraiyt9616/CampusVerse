@@ -193,9 +193,9 @@ export const AdminFaculty = () => {
       header: 'Faculty Member',
       render: (_, r) => (
         <div>
-          <p className="font-semibold text-slate-800 text-xs">{r.user?.name || 'Faculty Member'}</p>
-          <p className="text-[11px] text-slate-500 font-mono flex items-center gap-1">
-            <Mail className="w-3 h-3 text-slate-400" />
+          <p className="font-bold text-[#102A43] text-xs">{r.user?.name || 'Faculty Member'}</p>
+          <p className="text-[11px] text-[#102A43]/70 font-mono flex items-center gap-1">
+            <Mail className="w-3 h-3 text-[#0D9488]" />
             {r.user?.email}
           </p>
         </div>
@@ -206,8 +206,8 @@ export const AdminFaculty = () => {
       header: 'Department & Designation',
       render: (v, r) => (
         <div>
-          <p className="font-medium text-slate-800 text-xs">{v}</p>
-          <p className="text-[11px] text-slate-500">{r.position || 'Faculty'}</p>
+          <p className="font-bold text-[#102A43] text-xs">{v}</p>
+          <p className="text-[11px] text-[#102A43]/70 font-medium">{r.position || 'Faculty'}</p>
         </div>
       ),
     },
@@ -218,10 +218,10 @@ export const AdminFaculty = () => {
         <div className="flex flex-wrap gap-1">
           {(v || []).length > 0 ? (
             v.map((s) => (
-              <Badge key={s} variant="navy" size="sm">Sem {s}</Badge>
+              <Badge key={s} variant="teal" size="sm">Sem {s}</Badge>
             ))
           ) : (
-            <span className="text-[11px] text-slate-400">All Assigned</span>
+            <span className="text-[11px] text-[#102A43]/60">All Assigned</span>
           )}
         </div>
       ),
@@ -231,10 +231,10 @@ export const AdminFaculty = () => {
       header: 'Authorized Academic Powers',
       render: (p) => (
         <div className="flex flex-wrap gap-1 text-[10px]">
-          {p?.attendance && <span className="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">Attendance</span>}
-          {p?.assignments && <span className="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">Assignments</span>}
-          {p?.marks && <span className="px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">Marks Entry</span>}
-          {p?.examinations && <span className="px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">Exams</span>}
+          {p?.attendance && <span className="px-1.5 py-0.5 rounded bg-[#CCFBF1] text-[#0D9488] font-bold border border-[#0D9488]/30">Attendance</span>}
+          {p?.assignments && <span className="px-1.5 py-0.5 rounded bg-[#CCFBF1] text-[#0D9488] font-bold border border-[#0D9488]/30">Assignments</span>}
+          {p?.marks && <span className="px-1.5 py-0.5 rounded bg-[#CCFBF1] text-[#0D9488] font-bold border border-[#0D9488]/30">Marks Entry</span>}
+          {p?.examinations && <span className="px-1.5 py-0.5 rounded bg-[#CCFBF1] text-[#0D9488] font-bold border border-[#0D9488]/30">Exams</span>}
         </div>
       ),
     },
@@ -304,7 +304,7 @@ export const AdminFaculty = () => {
         badge={<Badge variant="info" size="sm">{facultyList.length} Faculty</Badge>}
         actions={
           <Button
-            variant="teal"
+            variant="primary"
             size="sm"
             leftIcon={<UserPlus className="w-3.5 h-3.5" />}
             onClick={handleOpenAdd}
@@ -316,13 +316,13 @@ export const AdminFaculty = () => {
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
             <div className="relative flex-1 max-w-md">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-[#0D9488] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Search by faculty name, email, or department..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full h-9 pl-9 pr-3 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full h-9 pl-9 pr-3 text-xs rounded-lg border border-[#CCFBF1] bg-[#F0FDFA] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
               />
             </div>
             <Button
@@ -357,7 +357,7 @@ export const AdminFaculty = () => {
               Cancel
             </Button>
             <Button
-              variant="teal"
+              variant="primary"
               size="sm"
               loading={formLoading}
               disabled={formLoading}
@@ -395,13 +395,13 @@ export const AdminFaculty = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Department <span className="text-rose-500">*</span>
+              <label className="block text-xs font-bold text-[#102A43] mb-1.5">
+                Department <span className="text-[#0D9488]">*</span>
               </label>
               <select
                 value={formData.department}
                 onChange={(e) => setFormData((p) => ({ ...p, department: e.target.value }))}
-                className="w-full h-10 px-3 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium"
+                className="w-full h-10 px-3 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
               >
                 {departments.map((d) => (
                   <option key={d._id} value={d.name}>{d.name} ({d.code})</option>
@@ -422,16 +422,16 @@ export const AdminFaculty = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-2">
+            <label className="block text-xs font-bold text-[#102A43] mb-2">
               Authorized Portal Permissions
             </label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-3 bg-[#F0FDFA] border border-[#CCFBF1] rounded-lg text-xs font-medium text-[#102A43]">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={formData.permissions.attendance}
                   onChange={(e) => setFormData((p) => ({ ...p, permissions: { ...p.permissions, attendance: e.target.checked } }))}
-                  className="rounded text-teal-600 focus:ring-teal-500"
+                  className="rounded text-[#0D9488] focus:ring-[#0D9488]"
                 />
                 <span>Attendance Entry</span>
               </label>
@@ -441,7 +441,7 @@ export const AdminFaculty = () => {
                   type="checkbox"
                   checked={formData.permissions.assignments}
                   onChange={(e) => setFormData((p) => ({ ...p, permissions: { ...p.permissions, assignments: e.target.checked } }))}
-                  className="rounded text-teal-600 focus:ring-teal-500"
+                  className="rounded text-[#0D9488] focus:ring-[#0D9488]"
                 />
                 <span>Post Assignments</span>
               </label>
@@ -451,7 +451,7 @@ export const AdminFaculty = () => {
                   type="checkbox"
                   checked={formData.permissions.marks}
                   onChange={(e) => setFormData((p) => ({ ...p, permissions: { ...p.permissions, marks: e.target.checked } }))}
-                  className="rounded text-teal-600 focus:ring-teal-500"
+                  className="rounded text-[#0D9488] focus:ring-[#0D9488]"
                 />
                 <span>Enter Marks & Grades</span>
               </label>
@@ -461,7 +461,7 @@ export const AdminFaculty = () => {
                   type="checkbox"
                   checked={formData.permissions.examinations}
                   onChange={(e) => setFormData((p) => ({ ...p, permissions: { ...p.permissions, examinations: e.target.checked } }))}
-                  className="rounded text-teal-600 focus:ring-teal-500"
+                  className="rounded text-[#0D9488] focus:ring-[#0D9488]"
                 />
                 <span>Schedule Exams</span>
               </label>
@@ -471,7 +471,7 @@ export const AdminFaculty = () => {
                   type="checkbox"
                   checked={formData.permissions.materials}
                   onChange={(e) => setFormData((p) => ({ ...p, permissions: { ...p.permissions, materials: e.target.checked } }))}
-                  className="rounded text-teal-600 focus:ring-teal-500"
+                  className="rounded text-[#0D9488] focus:ring-[#0D9488]"
                 />
                 <span>Upload Materials</span>
               </label>
@@ -481,7 +481,7 @@ export const AdminFaculty = () => {
                   type="checkbox"
                   checked={formData.permissions.questionPapers}
                   onChange={(e) => setFormData((p) => ({ ...p, permissions: { ...p.permissions, questionPapers: e.target.checked } }))}
-                  className="rounded text-teal-600 focus:ring-teal-500"
+                  className="rounded text-[#0D9488] focus:ring-[#0D9488]"
                 />
                 <span>Question Papers</span>
               </label>
@@ -497,7 +497,7 @@ export const AdminFaculty = () => {
                 onChange={(e) => setFormData((p) => ({ ...p, password: e.target.value }))}
                 placeholder="Default: Faculty@Campus2026"
               />
-              <p className="text-[11px] text-slate-500 mt-1">
+              <p className="text-[11px] text-[#102A43]/70 mt-1">
                 Faculty will log in to the Faculty Portal with this password.
               </p>
             </div>
@@ -529,10 +529,10 @@ export const AdminFaculty = () => {
         }
       >
         {deletingFaculty && (
-          <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-900">
+          <div className="p-3 bg-[#CCFBF1]/30 border border-[#CCFBF1] rounded-lg text-xs text-[#102A43]">
             <p><strong>Faculty:</strong> {deletingFaculty.user?.name}</p>
             <p><strong>Department:</strong> {deletingFaculty.department}</p>
-            <p className="mt-2 text-[11px] text-rose-700">
+            <p className="mt-2 text-[11px] text-[#102A43]/80">
               Their user login account will be disabled in the system.
             </p>
           </div>

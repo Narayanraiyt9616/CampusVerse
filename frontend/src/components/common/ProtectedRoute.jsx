@@ -8,6 +8,7 @@ const normalizeRole = (r) => {
   const s = String(r).toLowerCase().trim();
   if (s === 'super-admin' || s === 'super_admin') return 'superadmin';
   if (s === 'placement_officer' || s === 'placement-officer') return 'placement';
+  if (s === 'hostel' || s === 'hostel-portal' || s === 'hostel_portal') return 'staff';
   return s;
 };
 

@@ -1,223 +1,185 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
-  Briefcase,
-  Award,
-  TrendingUp,
+  LayoutDashboard,
   Building2,
-  Download,
-  ArrowLeft,
-  Users
+  Users,
+  Award,
+  FileCheck2,
+  ChevronRight,
+  ShieldCheck,
 } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
-import StatCard from '../../components/common/StatCard';
-import Card from '../../components/common/Card';
 import Badge from '../../components/common/Badge';
-import Button from '../../components/common/Button';
-import Table from '../../components/common/Table';
-import DemoNotice from '../../components/common/DemoNotice';
-import { DEMO_PLACEMENT } from '../../utils/demoData';
 import { useAuth } from '../../context/AuthContext';
+
+// Subcomponents for the 5 Placement Cell Portal modules
+import PlacementOverview from './placement/PlacementOverview';
+import PlacementDrives from './placement/PlacementDrives';
+import PlacementStudents from './placement/PlacementStudents';
+import PlacementApplications from './placement/PlacementApplications';
+import PlacementNotices from './placement/PlacementNotices';
+
+const SECTIONS = [
+  { id: 'dashboard', path: '/placement', label: 'Placement Dashboard', icon: LayoutDashboard },
+  { id: 'companies', path: '/placement/companies', label: 'Company & Drives', icon: Building2 },
+  { id: 'students', path: '/placement/students', label: 'Candidate Profiles', icon: Users },
+  { id: 'applications', path: '/placement/applications', label: 'Applications & Offers', icon: Award },
+  { id: 'notices', path: '/placement/notices', label: 'Placement Notices', icon: FileCheck2 },
+];
 
 export const PlacementDashboard = () => {
   const { section } = useParams();
   const { user } = useAuth();
-  const currentSection = section ? section.toLowerCase() : null;
-  const loggedInName = user?.name || user?.username || DEMO_PLACEMENT.officerName;
-  const stats = DEMO_PLACEMENT.stats;
+  const currentSection = section ? section.toLowerCase() : 'dashboard';
+  const loggedInName = user?.name || user?.username || 'Prof. Vikramaditya';
 
-  const sectionTitles = {
-    recruiters: 'Hiring Company Partners & Corporate Drives',
-    students: 'Candidate Eligibility & Placement Shortlists',
+  const sectionMetadata = {
+    dashboard: {
+      title: `Welcome, ${loggedInName}`,
+      subtitle: 'Training & Corporate Placement Cell • Recruitment analytics, active drives, and batch placement rate',
+      breadcrumb: 'Placement Dashboard',
+    },
+    companies: {
+      title: 'Hiring Corporate Partners & Placement Drives',
+      subtitle: 'Manage MNC recruiters, active job openings, required competencies, CTC packages, and drive dates',
+      breadcrumb: 'Company & Drives',
+    },
+    drives: {
+      title: 'Hiring Corporate Partners & Placement Drives',
+      subtitle: 'Manage MNC recruiters, active job openings, required competencies, CTC packages, and drive dates',
+      breadcrumb: 'Company & Drives',
+    },
+    recruiters: {
+      title: 'Hiring Corporate Partners & Placement Drives',
+      subtitle: 'Manage MNC recruiters, active job openings, required competencies, CTC packages, and drive dates',
+      breadcrumb: 'Company & Drives',
+    },
+    students: {
+      title: 'Candidate Profiles & Placement Eligibility',
+      subtitle: 'Review graduating student academic CGPA, verified skill stacks, résumés, and drive eligibility flags',
+      breadcrumb: 'Candidate Profiles',
+    },
+    candidates: {
+      title: 'Candidate Profiles & Placement Eligibility',
+      subtitle: 'Review graduating student academic CGPA, verified skill stacks, résumés, and drive eligibility flags',
+      breadcrumb: 'Candidate Profiles',
+    },
+    applications: {
+      title: 'Applications & Recruitment Pipeline',
+      subtitle: 'Screen student applicants, coordinate interview panels, and authorize formal placement offer letters',
+      breadcrumb: 'Applications & Offers',
+    },
+    recruitment: {
+      title: 'Applications & Recruitment Pipeline',
+      subtitle: 'Screen student applicants, coordinate interview panels, and authorize formal placement offer letters',
+      breadcrumb: 'Applications & Offers',
+    },
+    notices: {
+      title: 'Placement Announcements & Guidelines',
+      subtitle: 'Broadcast company assessment credentials, shortlist notices, PPO regulations, and drive guidelines',
+      breadcrumb: 'Placement Notices',
+    },
+    announcements: {
+      title: 'Placement Announcements & Guidelines',
+      subtitle: 'Broadcast company assessment credentials, shortlist notices, PPO regulations, and drive guidelines',
+      breadcrumb: 'Placement Notices',
+    },
   };
 
-  const driveColumns = [
-    {
-      key: 'company',
-      header: 'Hiring Partner',
-      render: (v) => <span className="font-bold text-navy-900 text-xs">{v}</span>,
-    },
-    {
-      key: 'role',
-      header: 'Job Profile',
-      render: (v) => <span className="font-medium text-slate-800 text-xs">{v}</span>,
-    },
-    {
-      key: 'date',
-      header: 'Drive Date',
-      render: (v) => <span className="font-mono text-xs text-slate-600">{v}</span>,
-    },
-    {
-      key: 'eligibility',
-      header: 'Eligibility Criteria',
-      render: (v) => <Badge variant="teal" size="sm">{v}</Badge>,
-    },
-    {
-      key: 'registeredCount',
-      header: 'Registered',
-      render: (v) => <span className="font-semibold text-slate-700 text-xs">{v} Candidates</span>,
-    },
-    {
-      key: 'rounds',
-      header: 'Evaluation Process',
-      render: (v) => <span className="text-xs text-slate-500">{v}</span>,
-    },
-  ];
+  const meta = sectionMetadata[currentSection] || sectionMetadata.dashboard;
 
-  const candidateColumns = [
-    {
-      key: 'rollNo',
-      header: 'Roll Number',
-      render: (v) => <span className="font-mono font-bold text-navy-900 text-xs">{v}</span>,
-    },
-    {
-      key: 'name',
-      header: 'Candidate Name',
-      render: (v) => <span className="font-semibold text-slate-900 text-xs">{v}</span>,
-    },
-    {
-      key: 'cgpa',
-      header: 'CGPA',
-      render: (v) => <span className="font-mono font-bold text-teal-700 text-xs">{v}</span>,
-    },
-    {
-      key: 'shortlistedFor',
-      header: 'Offers / Shortlists',
-      render: (v) => <Badge variant="teal" size="sm">{v}</Badge>,
-    },
-    {
-      key: 'status',
-      header: 'Placement Status',
-      render: (v) => (
-        <Badge variant={v === 'Placed' ? 'success' : 'info'} size="sm" hasDot>
-          {v}
-        </Badge>
-      ),
-    },
-  ];
-
-  const candidateData = [
-    { rollNo: 'CS21B1042', name: 'Aarav Singhania', cgpa: '9.42', shortlistedFor: 'Google, Microsoft', status: 'Placed' },
-    { rollNo: 'CS21B1015', name: 'Ananya Sharma', cgpa: '9.18', shortlistedFor: 'Amazon, Adobe', status: 'Placed' },
-    { rollNo: 'CS21B1089', name: 'Rohan Varma', cgpa: '8.85', shortlistedFor: 'Goldman Sachs', status: 'Shortlisted' },
-    { rollNo: 'CS21B1033', name: 'Pooja Iyer', cgpa: '8.72', shortlistedFor: 'Oracle Cloud', status: 'Shortlisted' },
-  ];
+  const renderSectionContent = () => {
+    switch (currentSection) {
+      case 'companies':
+      case 'drives':
+      case 'recruiters':
+        return <PlacementDrives />;
+      case 'students':
+      case 'candidates':
+        return <PlacementStudents />;
+      case 'applications':
+      case 'recruitment':
+        return <PlacementApplications />;
+      case 'notices':
+      case 'announcements':
+        return <PlacementNotices />;
+      case 'dashboard':
+      case 'overview':
+      default:
+        return <PlacementOverview />;
+    }
+  };
 
   return (
     <div className="space-y-6">
-      {/* Top navigation back button when viewing a specific section */}
-      {currentSection && (
-        <div className="flex items-center justify-between pb-1">
+      {/* Top Breadcrumb Header Strip */}
+      <div className="flex items-center justify-between pb-2 border-b border-[#CCFBF1]">
+        <div className="flex items-center gap-2 text-xs font-bold text-[#102A43]/70">
           <Link
             to="/placement"
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-teal-700 hover:text-teal-800 hover:underline transition-colors"
+            className="hover:text-[#0D9488] flex items-center gap-1 transition-colors"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            Back to Placement Overview
+            Placement Cell
           </Link>
-          <span className="text-xs font-medium text-slate-500">
-            Dedicated Page: <strong className="text-slate-800">{sectionTitles[currentSection] || currentSection}</strong>
-          </span>
+          <ChevronRight className="w-3.5 h-3.5 text-[#0D9488]" />
+          <span className="text-[#102A43] font-bold">{meta.breadcrumb}</span>
         </div>
-      )}
+
+        <div className="flex items-center gap-1.5 text-xs text-[#102A43] font-bold">
+          <ShieldCheck className="w-4 h-4 text-[#0D9488]" />
+          <span>Corporate Relations Desk</span>
+        </div>
+      </div>
 
       {/* Page Header */}
       <PageHeader
-        title={currentSection ? `${sectionTitles[currentSection] || currentSection}` : `Welcome, ${loggedInName}`}
-        subtitle={currentSection ? `Training & Placement Cell • ${loggedInName}` : `Graduating Batch ${DEMO_PLACEMENT.season}`}
-        breadcrumbs={
-          currentSection
-            ? [{ label: 'Placement Portal', to: '/placement' }, { label: sectionTitles[currentSection] || currentSection }]
-            : [{ label: 'Placement Portal', to: '/placement' }, { label: 'Recruitment Season' }]
-        }
-        badge={<Badge variant="success" size="sm">Active Drive Phase</Badge>}
-        actions={
-          <div className="flex items-center gap-2">
-            <Button
-              variant="secondary"
-              size="sm"
-              leftIcon={<Download className="w-3.5 h-3.5" />}
-              onClick={() => alert('Placement brochure and recruiter metrics export will connect in Part 2.')}
-            >
-              Export Placement Metrics
-            </Button>
-          </div>
+        title={meta.title}
+        subtitle={meta.subtitle}
+        breadcrumbs={[
+          { label: 'Placement Cell', to: '/placement' },
+          { label: meta.breadcrumb },
+        ]}
+        badge={
+          <Badge variant="teal" size="sm" hasDot>
+            Placement Active
+          </Badge>
         }
       />
 
-      <DemoNotice roleName="Placement Officer Portal" />
+      {/* Modern Navigation Pills Strip for all 5 Modules */}
+      <div className="bg-white p-2 rounded-2xl border border-[#CCFBF1] shadow-sm flex items-center gap-2 overflow-x-auto scrollbar-none">
+        {SECTIONS.map((sec) => {
+          const Icon = sec.icon;
+          const isActive =
+            (currentSection === 'dashboard' && sec.id === 'dashboard') ||
+            currentSection === sec.id ||
+            (sec.id === 'companies' && (currentSection === 'drives' || currentSection === 'recruiters')) ||
+            (sec.id === 'students' && currentSection === 'candidates') ||
+            (sec.id === 'applications' && currentSection === 'recruitment') ||
+            (sec.id === 'notices' && currentSection === 'announcements');
 
-      {/* Metric Cards - Only on Overview */}
-      {!currentSection && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard
-            title="Placement Conversion"
-            value={`${stats.placementPercentage}%`}
-            subtitle={`${stats.placedStudents} of ${stats.totalEligibleStudents} Students Placed`}
-            change="Strong Momentum"
-            changeType="increase"
-            colorVariant="emerald"
-            icon={<Award className="w-5 h-5 text-emerald-600" />}
-          />
-          <StatCard
-            title="Highest CTC Offered"
-            value={stats.highestDomesticCtc.split(' ')[0]}
-            subtitle={stats.highestDomesticCtc}
-            change="Domestic Record"
-            changeType="increase"
-            colorVariant="teal"
-            icon={<TrendingUp className="w-5 h-5 text-teal-600" />}
-          />
-          <StatCard
-            title="Average CTC Package"
-            value={stats.averageCtc}
-            subtitle="Across All Engineering Streams"
-            change="+18% vs Last Year"
-            changeType="increase"
-            colorVariant="navy"
-            icon={<Briefcase className="w-5 h-5 text-navy-800" />}
-          />
-          <StatCard
-            title="Active Recruiters"
-            value={stats.activeRecruitingPartners}
-            subtitle="Tier-1 Enterprise Partners"
-            change="68 Companies"
-            changeType="neutral"
-            colorVariant="amber"
-            icon={<Building2 className="w-5 h-5 text-amber-600" />}
-          />
-        </div>
-      )}
+          return (
+            <Link
+              key={sec.id}
+              to={sec.path}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
+                isActive
+                  ? 'bg-[#0D9488] text-white shadow-sm border border-[#0D9488]'
+                  : 'text-[#102A43] hover:bg-[#CCFBF1]'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              <span>{sec.label}</span>
+            </Link>
+          );
+        })}
+      </div>
 
-      {/* Upcoming Placement Drives / Recruiters Section */}
-      {(!currentSection || currentSection === 'recruiters') && (
-        <Card
-          title="Scheduled Campus Recruitment Drives"
-          subtitle="Tier-1 software, consulting, and quantitative trading campus drives"
-          badge={<Badge variant="teal" size="sm">{DEMO_PLACEMENT.upcomingDrives.length} Drives Scheduled</Badge>}
-        >
-          <Table
-            columns={driveColumns}
-            data={DEMO_PLACEMENT.upcomingDrives}
-            keyField="company"
-          />
-        </Card>
-      )}
-
-      {/* Candidate Shortlists Section */}
-      {(!currentSection || currentSection === 'students') && (
-        <Card
-          title="Candidate Shortlists & Placement Roster"
-          subtitle="Live evaluation progress, shortlisted profiles, and institutional offer letters"
-          badge={<Badge variant="teal" size="sm">Eligible Candidates</Badge>}
-        >
-          <Table
-            columns={candidateColumns}
-            data={candidateData}
-            keyField="rollNo"
-          />
-        </Card>
-      )}
+      {/* Render Active Module */}
+      <div className="transition-all duration-200">
+        {renderSectionContent()}
+      </div>
     </div>
   );
 };

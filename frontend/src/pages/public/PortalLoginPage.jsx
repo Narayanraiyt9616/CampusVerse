@@ -34,7 +34,7 @@ export const PORTAL_METADATA = {
     canonicalRole: 'faculty',
     title: 'Faculty Portal',
     subtitle: 'Course instruction, attendance rosters, submissions, and marks management',
-    badgeVariant: 'info',
+    badgeVariant: 'teal',
     dashboardPath: '/faculty',
     demoUser: {
       email: 'faculty@campusverse.edu',
@@ -70,7 +70,7 @@ export const PORTAL_METADATA = {
     canonicalRole: 'placement',
     title: 'Placement Cell',
     subtitle: 'Campus recruitment drives, recruiter relations, and student job eligibility',
-    badgeVariant: 'success',
+    badgeVariant: 'teal',
     dashboardPath: '/placement',
     demoUser: {
       email: 'placement@campusverse.edu',
@@ -80,38 +80,50 @@ export const PORTAL_METADATA = {
   },
   staff: {
     canonicalRole: 'staff',
-    title: 'Hostel & Transport Staff',
+    title: 'Hostel Portal',
     subtitle: 'Campus hostel block allocation, estate maintenance, and fleet logistics',
-    badgeVariant: 'warning',
-    dashboardPath: '/staff',
+    badgeVariant: 'teal',
+    dashboardPath: '/hostel',
     demoUser: {
       email: 'staff@campusverse.edu',
       password: 'Staff@2026',
-      label: 'Demo Operations Staff',
+      label: 'Demo Hostel & Operations Staff',
     },
   },
-  'super-admin': {
-    canonicalRole: 'superadmin',
-    title: 'Super Admin Console',
-    subtitle: 'Root security governance, audit logs, system diagnostics, and user telemetry',
-    badgeVariant: 'danger',
-    dashboardPath: '/super-admin',
+  hostel: {
+    canonicalRole: 'staff',
+    title: 'Hostel Portal',
+    subtitle: 'Campus hostel block allocation, estate maintenance, and fleet logistics',
+    badgeVariant: 'teal',
+    dashboardPath: '/hostel',
     demoUser: {
-      email: 'superadmin@campusverse.edu',
-      password: 'SuperAdmin@2026',
-      label: 'Super Admin Account',
+      email: 'staff@campusverse.edu',
+      password: 'Staff@2026',
+      label: 'Demo Hostel & Operations Staff',
     },
   },
-  superadmin: {
-    canonicalRole: 'superadmin',
-    title: 'Super Admin Console',
-    subtitle: 'Root security governance, audit logs, system diagnostics, and user telemetry',
-    badgeVariant: 'danger',
-    dashboardPath: '/super-admin',
+  'hostel-portal': {
+    canonicalRole: 'staff',
+    title: 'Hostel Portal',
+    subtitle: 'Campus hostel block allocation, estate maintenance, and fleet logistics',
+    badgeVariant: 'teal',
+    dashboardPath: '/hostel',
     demoUser: {
-      email: 'superadmin@campusverse.edu',
-      password: 'SuperAdmin@2026',
-      label: 'Super Admin Account',
+      email: 'staff@campusverse.edu',
+      password: 'Staff@2026',
+      label: 'Demo Hostel & Operations Staff',
+    },
+  },
+  hostel_portal: {
+    canonicalRole: 'staff',
+    title: 'Hostel Portal',
+    subtitle: 'Campus hostel block allocation, estate maintenance, and fleet logistics',
+    badgeVariant: 'teal',
+    dashboardPath: '/hostel',
+    demoUser: {
+      email: 'staff@campusverse.edu',
+      password: 'Staff@2026',
+      label: 'Demo Hostel & Operations Staff',
     },
   },
 };
@@ -161,8 +173,7 @@ export const PortalLoginPage = () => {
 
     setSubmitting(true);
     try {
-      const user = await login(email, password, portal.canonicalRole);
-      // Determine redirection destination
+      await login(email, password, portal.canonicalRole);
       const destination = location.state?.from?.pathname || portal.dashboardPath;
       navigate(destination, { replace: true });
     } catch (err) {
@@ -175,47 +186,47 @@ export const PortalLoginPage = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-140px)] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-3">
-        <Link to="/" className="inline-flex items-center gap-2.5 p-1 rounded-lg">
-          <div className="w-12 h-12 rounded-xl bg-navy-900 flex items-center justify-center text-teal-400 shadow-sm mx-auto">
-            <GraduationCap className="w-7 h-7" />
+    <div className="min-h-[calc(100vh-140px)] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[#F0FDFA] text-[#102A43]">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-3.5">
+        <Link to="/" className="inline-flex items-center gap-2.5 p-1 rounded-xl">
+          <div className="w-14 h-14 rounded-2xl bg-[#102A43] flex items-center justify-center text-white shadow-md mx-auto">
+            <GraduationCap className="w-8 h-8 text-[#CCFBF1]" />
           </div>
         </Link>
         <div className="flex items-center justify-center gap-2">
           <Badge variant={portal.badgeVariant} size="sm">
             {portal.title}
           </Badge>
-          <span className="text-[11px] font-mono text-slate-500">
+          <span className="text-xs font-mono font-bold text-[#102A43]/70">
             role: {portal.canonicalRole}
           </span>
         </div>
-        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#102A43] tracking-tight">
           Sign In to {portal.title}
         </h1>
-        <p className="text-xs text-slate-500 max-w-sm mx-auto">
+        <p className="text-xs sm:text-sm text-[#102A43]/75 max-w-sm mx-auto font-medium">
           {portal.subtitle}
         </p>
       </div>
 
       <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-6 sm:px-8 shadow-elevation rounded-2xl border border-slate-200 space-y-5">
+        <div className="bg-white py-8 px-6 sm:px-8 shadow-card rounded-2xl border border-[#CCFBF1] space-y-5">
           {/* Quick Demo Credentials Autofill Banner */}
           {portal.demoUser && (
-            <div className="p-3.5 rounded-xl bg-teal-50/70 border border-teal-200/80 text-teal-900 flex items-center justify-between text-xs">
+            <div className="p-4 rounded-xl bg-[#CCFBF1] border border-[#0D9488] text-[#102A43] flex items-center justify-between text-xs">
               <div className="space-y-0.5">
-                <div className="font-semibold text-teal-950 flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5 text-teal-700" />
+                <div className="font-bold text-[#102A43] flex items-center gap-1.5 text-xs">
+                  <ShieldCheck className="w-4 h-4 text-[#0D9488]" />
                   <span>{portal.demoUser.label}</span>
                 </div>
-                <div className="text-[11px] text-teal-800 font-mono">
+                <div className="text-xs text-[#102A43] font-mono font-semibold">
                   {portal.demoUser.email}
                 </div>
               </div>
               <button
                 type="button"
                 onClick={handleFillDemo}
-                className="px-2.5 py-1 text-[11px] font-semibold bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors shadow-sm"
+                className="px-3 py-1.5 text-xs font-bold bg-[#0D9488] text-white rounded-lg hover:opacity-90 transition-opacity shadow-sm"
               >
                 Autofill
               </button>
@@ -225,7 +236,7 @@ export const PortalLoginPage = () => {
           {/* Error Banner */}
           {errorMessage && (
             <AlertBanner
-              variant="danger"
+              variant="error"
               title="Authentication Error"
               message={errorMessage}
               dismissible
@@ -248,8 +259,7 @@ export const PortalLoginPage = () => {
                   }
                 }}
                 leftIcon={<Mail className="w-4 h-4" />}
-                hasError={Boolean(validationErrors.email)}
-                errorMessage={validationErrors.email}
+                error={validationErrors.email}
                 required
               />
             </div>
@@ -269,14 +279,13 @@ export const PortalLoginPage = () => {
                     }
                   }}
                   leftIcon={<Lock className="w-4 h-4" />}
-                  hasError={Boolean(validationErrors.password)}
-                  errorMessage={validationErrors.password}
+                  error={validationErrors.password}
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-8 text-slate-400 hover:text-slate-600 p-1 focus:outline-none"
+                  className="absolute right-3.5 top-9 text-[#102A43]/60 hover:text-[#102A43] p-1 focus:outline-none"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -286,10 +295,10 @@ export const PortalLoginPage = () => {
 
             <Button
               type="submit"
-              variant="teal"
+              variant="primary"
               size="md"
               className="w-full justify-center mt-2"
-              loading={submitting}
+              isLoading={submitting}
               disabled={submitting}
               rightIcon={!submitting && <ArrowRight className="w-4 h-4" />}
             >
@@ -298,10 +307,10 @@ export const PortalLoginPage = () => {
           </form>
 
           {/* Navigation helpers */}
-          <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+          <div className="pt-3.5 border-t border-[#CCFBF1] flex items-center justify-between text-xs">
             <Link
               to="/login"
-              className="inline-flex items-center gap-1.5 text-slate-600 hover:text-slate-900 font-medium transition-colors"
+              className="inline-flex items-center gap-1.5 text-[#102A43]/70 hover:text-[#0D9488] font-bold transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back to Portal Selection</span>
@@ -309,7 +318,7 @@ export const PortalLoginPage = () => {
 
             <Link
               to="/"
-              className="text-slate-400 hover:text-slate-600 transition-colors"
+              className="text-[#102A43]/70 hover:text-[#0D9488] font-bold transition-colors"
             >
               Home
             </Link>

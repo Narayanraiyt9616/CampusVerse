@@ -3,6 +3,7 @@ import Breadcrumbs from './Breadcrumbs';
 
 /**
  * Standard Page Header Component for Dashboards
+ * Strictly styled using only the 5 system colors
  */
 export const PageHeader = ({
   title,
@@ -10,7 +11,7 @@ export const PageHeader = ({
   badge = null,
   actions = null,
   breadcrumbs = [],
-  className = 'mb-6',
+  className = 'mb-8',
   id,
 }) => {
   return (
@@ -21,21 +22,21 @@ export const PageHeader = ({
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#102A43] tracking-tight">
               {title}
             </h1>
             {badge}
           </div>
           {subtitle && (
-            <p className="text-xs sm:text-sm text-slate-500 mt-1 leading-relaxed">
+            <p className="text-sm text-[#102A43]/75 mt-1.5 leading-relaxed font-medium">
               {subtitle}
             </p>
           )}
         </div>
 
         {actions && (
-          <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
+          <div className="flex items-center gap-3 shrink-0 flex-wrap">
             {actions}
           </div>
         )}

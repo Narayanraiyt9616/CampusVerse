@@ -22,7 +22,6 @@ import AdminDashboard from '../pages/dashboards/AdminDashboard';
 import ParentDashboard from '../pages/dashboards/ParentDashboard';
 import PlacementDashboard from '../pages/dashboards/PlacementDashboard';
 import StaffDashboard from '../pages/dashboards/StaffDashboard';
-import SuperAdminDashboard from '../pages/dashboards/SuperAdminDashboard';
 import { StudentManagementList } from '../pages/dashboards/StudentManagementList';
 
 export const AppRoutes = () => {
@@ -128,11 +127,11 @@ export const AppRoutes = () => {
           }
         />
 
-        {/* Hostel & Transport Staff (opens only with staff credentials) */}
+        {/* Hostel Portal (opens only with authorized hostel/staff credentials) */}
         <Route
           path="/staff"
           element={
-            <ProtectedRoute allowedRoles={['staff']} portalLogin="/login/staff">
+            <ProtectedRoute allowedRoles={['staff', 'hostel']} portalLogin="/login/hostel">
               <StaffDashboard />
             </ProtectedRoute>
           }
@@ -140,26 +139,24 @@ export const AppRoutes = () => {
         <Route
           path="/staff/:section"
           element={
-            <ProtectedRoute allowedRoles={['staff']} portalLogin="/login/staff">
+            <ProtectedRoute allowedRoles={['staff', 'hostel']} portalLogin="/login/hostel">
               <StaffDashboard />
             </ProtectedRoute>
           }
         />
-
-        {/* Super Admin Console (opens only with superadmin credentials) */}
         <Route
-          path="/super-admin"
+          path="/hostel"
           element={
-            <ProtectedRoute allowedRoles={['superadmin']} portalLogin="/login/super-admin">
-              <SuperAdminDashboard />
+            <ProtectedRoute allowedRoles={['staff', 'hostel']} portalLogin="/login/hostel">
+              <StaffDashboard />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/super-admin/:section"
+          path="/hostel/:section"
           element={
-            <ProtectedRoute allowedRoles={['superadmin']} portalLogin="/login/super-admin">
-              <SuperAdminDashboard />
+            <ProtectedRoute allowedRoles={['staff', 'hostel']} portalLogin="/login/hostel">
+              <StaffDashboard />
             </ProtectedRoute>
           }
         />

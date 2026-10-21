@@ -2,6 +2,7 @@ import React from 'react';
 
 /**
  * Reusable Badge Component for CampusVerse AI Design System
+ * Strictly adheres to the 5 colors: #102A43, #0D9488, #F0FDFA, #FFFFFF, #CCFBF1
  */
 export const Badge = ({
   children,
@@ -12,34 +13,34 @@ export const Badge = ({
   className = '',
   id,
 }) => {
-  const baseClasses = 'inline-flex items-center font-medium rounded-full tracking-wide select-none';
+  const baseClasses = 'inline-flex items-center font-bold rounded-full tracking-wide select-none';
 
   const sizeClasses = {
-    sm: 'text-[11px] px-2 py-0.5 gap-1',
-    md: 'text-xs px-2.5 py-1 gap-1.5',
-    lg: 'text-sm px-3 py-1.5 gap-2',
+    sm: 'text-[11px] px-2.5 py-0.5 gap-1',
+    md: 'text-xs px-3 py-1 gap-1.5',
+    lg: 'text-sm px-3.5 py-1.5 gap-2',
   };
 
   const variantClasses = {
-    success: 'bg-emerald-50 text-emerald-800 border border-emerald-200',
-    warning: 'bg-amber-50 text-amber-800 border border-amber-200',
-    danger: 'bg-rose-50 text-rose-800 border border-rose-200',
-    info: 'bg-sky-50 text-sky-800 border border-sky-200',
-    teal: 'bg-teal-50 text-teal-800 border border-teal-200',
-    navy: 'bg-slate-100 text-slate-800 border border-slate-200',
-    neutral: 'bg-slate-50 text-slate-700 border border-slate-200',
-    demo: 'bg-amber-100/80 text-amber-900 border border-amber-300 font-semibold',
+    success: 'bg-[#0D9488] text-white border border-[#0D9488]',
+    teal: 'bg-[#0D9488] text-white border border-[#0D9488]',
+    warning: 'bg-[#CCFBF1] text-[#102A43] border border-[#0D9488]/30 font-bold',
+    danger: 'bg-[#102A43] text-white border border-[#102A43]',
+    info: 'bg-[#CCFBF1] text-[#102A43] border border-[#CCFBF1]',
+    navy: 'bg-[#102A43] text-white border border-[#102A43]',
+    neutral: 'bg-[#CCFBF1] text-[#102A43] border border-[#CCFBF1]',
+    demo: 'bg-[#CCFBF1] text-[#102A43] border border-[#0D9488] font-bold uppercase',
   };
 
   const dotClasses = {
-    success: 'bg-emerald-500',
-    warning: 'bg-amber-500',
-    danger: 'bg-rose-500',
-    info: 'bg-sky-500',
-    teal: 'bg-teal-500',
-    navy: 'bg-slate-600',
-    neutral: 'bg-slate-400',
-    demo: 'bg-amber-600',
+    success: 'bg-white',
+    teal: 'bg-white',
+    warning: 'bg-[#0D9488]',
+    danger: 'bg-[#CCFBF1]',
+    info: 'bg-[#0D9488]',
+    navy: 'bg-[#CCFBF1]',
+    neutral: 'bg-[#0D9488]',
+    demo: 'bg-[#0D9488]',
   };
 
   return (
@@ -49,7 +50,7 @@ export const Badge = ({
     >
       {hasDot && (
         <span
-          className={`h-1.5 w-1.5 rounded-full ${dotClasses[variant] || 'bg-slate-400'} shrink-0`}
+          className={`h-1.5 w-1.5 rounded-full ${dotClasses[variant] || 'bg-[#0D9488]'} shrink-0`}
           aria-hidden="true"
         />
       )}

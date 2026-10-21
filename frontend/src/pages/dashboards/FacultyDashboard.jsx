@@ -26,12 +26,11 @@ const leaveStatusColor = { Pending: 'warning', Approved: 'success', Rejected: 'd
 // ─── Toast Component ─────────────────────────────────────────────────────────
 const Toast = ({ message, type, onClose }) => {
   useEffect(() => { const t = setTimeout(onClose, 4000); return () => clearTimeout(t); }, [onClose]);
-  const colors = { success: 'bg-emerald-50 border-emerald-400 text-emerald-800', error: 'bg-red-50 border-red-400 text-red-800', info: 'bg-blue-50 border-blue-400 text-blue-800' };
   return (
-    <div className={`fixed bottom-6 right-6 z-[100] flex items-start gap-3 px-4 py-3 rounded-xl border shadow-xl max-w-sm text-sm animate-fade-in ${colors[type] || colors.info}`}>
-      {type === 'success' ? <CheckCircle className="w-4 h-4 mt-0.5 shrink-0" /> : <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />}
+    <div className="fixed bottom-6 right-6 z-[100] flex items-start gap-3 px-4 py-3 rounded-2xl border border-[#0D9488] bg-[#CCFBF1] text-[#102A43] shadow-xl max-w-sm text-sm animate-fade-in font-medium">
+      {type === 'success' ? <CheckCircle className="w-4 h-4 mt-0.5 shrink-0 text-[#0D9488]" /> : <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-[#102A43]" />}
       <p className="flex-1 leading-snug">{message}</p>
-      <button onClick={onClose} className="opacity-60 hover:opacity-100"><X className="w-3.5 h-3.5" /></button>
+      <button onClick={onClose} className="opacity-70 hover:opacity-100 p-0.5"><X className="w-4 h-4" /></button>
     </div>
   );
 };
@@ -459,7 +458,7 @@ export const FacultyDashboard = () => {
     >
       <div className="space-y-6">
         {/* Avatar + Name */}
-        <div className="flex items-center gap-5 p-4 bg-gradient-to-r from-navy-900 to-teal-900 rounded-xl">
+        <div className="flex items-center gap-5 p-5 bg-[#102A43] border border-[#0D9488]/40 rounded-xl">
           <div className="w-20 h-20 rounded-2xl bg-teal-600/30 border-2 border-teal-400/40 flex items-center justify-center text-teal-200 text-3xl font-bold shrink-0">
             {(profile?.name || 'F')[0].toUpperCase()}
           </div>
@@ -543,7 +542,7 @@ export const FacultyDashboard = () => {
       <Modal isOpen={studentModalOpen} onClose={() => setStudentModalOpen(false)} title="Student Profile" description={selectedStudent?.studentId}>
         {selectedStudent && (
           <div className="space-y-4 text-xs">
-            <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-teal-900 to-navy-900 rounded-xl">
+            <div className="flex items-center gap-4 p-5 bg-[#102A43] border border-[#0D9488]/40 rounded-xl">
               <div className="w-14 h-14 rounded-xl bg-teal-600/40 flex items-center justify-center text-white text-xl font-bold">{selectedStudent.name[0]}</div>
               <div className="text-white">
                 <p className="font-bold text-base">{selectedStudent.name}</p>

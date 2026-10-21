@@ -134,14 +134,14 @@ export const AdminAttendance = () => {
     {
       key: 'totalSessions',
       header: 'Sessions Tracked',
-      render: (v) => <span className="font-mono text-xs font-semibold text-slate-700">{v} Lectures</span>,
+      render: (v) => <span className="font-mono text-xs font-bold text-[#102A43]">{v} Lectures</span>,
     },
     {
       key: 'present',
       header: 'Attended / Absent',
       render: (_, r) => (
-        <span className="text-xs font-mono text-slate-600">
-          <strong className="text-emerald-700">{r.present} Present</strong> / <strong className="text-rose-700">{r.absent} Absent</strong>
+        <span className="text-xs font-mono text-[#102A43]/80">
+          <strong className="text-[#0D9488]">{r.present} Present</strong> / <strong className="text-[#102A43]">{r.absent} Absent</strong>
         </span>
       ),
     },
@@ -150,13 +150,13 @@ export const AdminAttendance = () => {
       header: 'Compliance Rate',
       render: (v) => (
         <div className="flex items-center gap-2">
-          <div className="w-16 bg-slate-100 rounded-full h-2 overflow-hidden">
+          <div className="w-16 bg-[#CCFBF1]/40 rounded-full h-2 overflow-hidden">
             <div
-              className={`h-2 rounded-full ${v < 65 ? 'bg-rose-500' : 'bg-amber-500'}`}
+              className="h-2 rounded-full bg-[#0D9488]"
               style={{ width: `${Math.min(100, Math.max(5, v))}%` }}
             />
           </div>
-          <span className={`font-mono font-bold text-xs ${v < 65 ? 'text-rose-600' : 'text-amber-600'}`}>
+          <span className="font-mono font-bold text-xs text-[#102A43]">
             {v}%
           </span>
         </div>
@@ -212,15 +212,15 @@ export const AdminAttendance = () => {
       )}
 
       {/* Tabs Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-1.5 bg-slate-200/60 rounded-xl">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-1.5 bg-[#CCFBF1]/30 border border-[#CCFBF1] rounded-xl">
         <div className="flex items-center gap-1 w-full sm:w-auto">
           <button
             type="button"
             onClick={() => setActiveTab('shortages')}
-            className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-bold transition-all ${
               activeTab === 'shortages'
-                ? 'bg-white text-navy-900 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-[#0D9488] text-[#FFFFFF] shadow-xs'
+                : 'text-[#102A43]/70 hover:text-[#102A43] hover:bg-[#CCFBF1]/50'
             }`}
           >
             Shortage Alerts (&lt; 75%) ({shortages.length})
@@ -228,10 +228,10 @@ export const AdminAttendance = () => {
           <button
             type="button"
             onClick={() => setActiveTab('sessions')}
-            className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-bold transition-all ${
               activeTab === 'sessions'
-                ? 'bg-white text-navy-900 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-[#0D9488] text-[#FFFFFF] shadow-xs'
+                : 'text-[#102A43]/70 hover:text-[#102A43] hover:bg-[#CCFBF1]/50'
             }`}
           >
             Class Sessions Log ({sessions.length})
@@ -281,46 +281,46 @@ export const AdminAttendance = () => {
           badge={<Badge variant="teal" size="sm">{sessions.length} Recorded Sessions</Badge>}
         >
           <div className="space-y-4">
-            <div className="divide-y divide-slate-200">
+            <div className="divide-y divide-[#CCFBF1]">
               {sessions.length === 0 ? (
-                <p className="text-xs text-slate-500 py-8 text-center">No attendance sessions recorded yet.</p>
+                <p className="text-xs text-[#102A43]/70 py-8 text-center font-medium">No attendance sessions recorded yet.</p>
               ) : (
                 sessions.map((sess) => (
                   <div key={sess._id} className="py-4 space-y-3">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-xs text-slate-800">{sess.subject}</span>
+                          <span className="font-bold text-xs text-[#102A43]">{sess.subject}</span>
                           <Badge variant="teal" size="sm">{sess.className}</Badge>
-                          <Badge variant="navy" size="sm">Sem {sess.semester}</Badge>
+                          <Badge variant="teal" size="sm">Sem {sess.semester}</Badge>
                         </div>
-                        <p className="text-[11px] text-slate-500 mt-0.5">
-                          Date: <strong className="font-mono text-slate-700">{sess.date}</strong> • Instructor: {sess.faculty?.name || 'Faculty Member'}
+                        <p className="text-[11px] text-[#102A43]/70 mt-0.5 font-medium">
+                          Date: <strong className="font-mono text-[#102A43]">{sess.date}</strong> • Instructor: {sess.faculty?.name || 'Faculty Member'}
                         </p>
                       </div>
 
                       <div className="flex items-center gap-2 text-xs font-mono">
-                        <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200">
+                        <span className="px-2 py-0.5 rounded bg-[#CCFBF1] text-[#0D9488] font-bold border border-[#0D9488]/30">
                           {sess.totalPresent || 0} Present
                         </span>
-                        <span className="px-2 py-0.5 rounded bg-rose-50 text-rose-700 font-semibold border border-rose-200">
+                        <span className="px-2 py-0.5 rounded bg-[#F0FDFA] text-[#102A43] font-bold border border-[#CCFBF1]">
                           {sess.totalAbsent || 0} Absent
                         </span>
                       </div>
                     </div>
 
                     {/* Student Record Row Chips */}
-                    <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg">
-                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Student Rolls Marked In This Lecture:</p>
+                    <div className="p-3 bg-[#F0FDFA] border border-[#CCFBF1] rounded-lg">
+                      <p className="text-[10px] font-bold text-[#102A43]/70 uppercase tracking-wider mb-2">Student Rolls Marked In This Lecture:</p>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                         {(sess.records || []).map((rec) => (
                           <div
                             key={rec._id}
-                            className="p-2 bg-white rounded-md border border-slate-200 flex items-center justify-between text-xs"
+                            className="p-2 bg-white rounded-md border border-[#CCFBF1] flex items-center justify-between text-xs"
                           >
                             <div>
-                              <p className="font-semibold text-slate-800 text-[11px]">{rec.student?.name || 'Student'}</p>
-                              <p className="font-mono text-[10px] text-slate-500">{rec.student?.studentId || ''}</p>
+                              <p className="font-bold text-[#102A43] text-[11px]">{rec.student?.name || 'Student'}</p>
+                              <p className="font-mono text-[10px] text-[#102A43]/70">{rec.student?.studentId || ''}</p>
                             </div>
                             <div className="flex items-center gap-1.5">
                               <Badge
@@ -332,7 +332,7 @@ export const AdminAttendance = () => {
                               <button
                                 type="button"
                                 onClick={() => handleOpenCorrection(sess, rec)}
-                                className="p-1 text-slate-400 hover:text-teal-700 transition-colors"
+                                className="p-1 text-[#0D9488] hover:text-[#102A43] transition-colors"
                                 title="Perform authorized admin correction"
                               >
                                 <Edit2 className="w-3.5 h-3.5" />
@@ -362,7 +362,7 @@ export const AdminAttendance = () => {
               Cancel
             </Button>
             <Button
-              variant="teal"
+              variant="primary"
               size="sm"
               loading={correctingLoading}
               disabled={correctingLoading}
@@ -375,7 +375,7 @@ export const AdminAttendance = () => {
       >
         {correctionModal && (
           <form onSubmit={handleSaveCorrection} className="space-y-4">
-            <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs space-y-1">
+            <div className="p-3 rounded-lg bg-[#CCFBF1]/30 border border-[#CCFBF1] text-xs text-[#102A43] space-y-1">
               <p><strong>Student:</strong> {correctionModal.record.student?.name} ({correctionModal.record.student?.studentId})</p>
               <p><strong>Lecture Subject:</strong> {correctionModal.session.subject}</p>
               <p><strong>Date:</strong> {correctionModal.session.date}</p>
@@ -383,13 +383,13 @@ export const AdminAttendance = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                New Corrected Status <span className="text-rose-500">*</span>
+              <label className="block text-xs font-bold text-[#102A43] mb-1.5">
+                New Corrected Status <span className="text-[#0D9488]">*</span>
               </label>
               <select
                 value={correctionStatus}
                 onChange={(e) => setCorrectionStatus(e.target.value)}
-                className="w-full h-10 px-3 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium"
+                className="w-full h-10 px-3 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
               >
                 <option value="Present">Present</option>
                 <option value="Absent">Absent</option>
@@ -406,7 +406,7 @@ export const AdminAttendance = () => {
                 onChange={(e) => setCorrectionRemarks(e.target.value)}
                 required
               />
-              <p className="text-[11px] text-slate-500 mt-1">
+              <p className="text-[11px] text-[#102A43]/70 mt-1">
                 Your administrative ID and this remark will be permanently logged in the MongoDB audit trail.
               </p>
             </div>

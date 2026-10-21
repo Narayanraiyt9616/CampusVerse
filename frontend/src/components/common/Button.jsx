@@ -2,6 +2,7 @@ import React from 'react';
 
 /**
  * Reusable Button Component for CampusVerse AI Design System
+ * Strictly adheres to the 5 colors: #102A43, #0D9488, #F0FDFA, #FFFFFF, #CCFBF1
  */
 export const Button = ({
   children,
@@ -17,21 +18,21 @@ export const Button = ({
   onClick,
   ...props
 }) => {
-  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 select-none';
+  const baseClasses = 'inline-flex items-center justify-center font-bold rounded-xl transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#0D9488] focus:ring-offset-2 select-none';
 
   const sizeClasses = {
-    sm: 'text-xs px-3 py-1.5 gap-1.5',
-    md: 'text-sm px-4 py-2 gap-2',
-    lg: 'text-base px-5 py-2.5 gap-2.5',
+    sm: 'text-xs px-3 py-1.5 gap-1.5 rounded-lg',
+    md: 'text-sm px-4 py-2.5 gap-2 rounded-xl',
+    lg: 'text-base px-5 py-3 gap-2.5 rounded-xl',
   };
 
   const variantClasses = {
-    primary: 'bg-navy-900 text-white hover:bg-navy-800 shadow-sm border border-navy-800',
-    secondary: 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 hover:text-slate-900 shadow-sm',
-    teal: 'bg-teal-600 text-white hover:bg-teal-700 shadow-sm border border-teal-700',
-    danger: 'bg-rose-600 text-white hover:bg-rose-700 shadow-sm border border-rose-700',
-    ghost: 'text-slate-600 hover:text-navy-900 hover:bg-slate-100 border border-transparent',
-    outline: 'border border-teal-600 text-teal-700 hover:bg-teal-50 bg-transparent',
+    primary: 'bg-[#0D9488] text-white hover:opacity-95 shadow-sm border border-[#0D9488]',
+    secondary: 'bg-white text-[#102A43] border border-[#CCFBF1] hover:bg-[#CCFBF1] hover:text-[#102A43] shadow-sm',
+    teal: 'bg-[#0D9488] text-white hover:opacity-95 shadow-sm border border-[#0D9488]',
+    danger: 'bg-[#102A43] text-white hover:opacity-90 shadow-sm border border-[#102A43]',
+    ghost: 'text-[#102A43] hover:text-[#102A43] hover:bg-[#CCFBF1] border border-transparent',
+    outline: 'border border-[#0D9488] text-[#0D9488] hover:bg-[#CCFBF1] hover:text-[#102A43] bg-transparent',
   };
 
   const disabledClasses = (disabled || isLoading) ? 'opacity-60 cursor-not-allowed pointer-events-none' : 'cursor-pointer active:scale-[0.99]';

@@ -19,10 +19,8 @@ export const UnauthorizedPage = () => {
       case 'placement':
         return '/placement';
       case 'staff':
-        return '/staff';
-      case 'superadmin':
-      case 'super-admin':
-        return '/super-admin';
+      case 'hostel':
+        return '/hostel';
       case 'student':
       default:
         return '/student';
@@ -35,30 +33,30 @@ export const UnauthorizedPage = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-140px)] flex flex-col justify-center items-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50">
-      <div className="max-w-md w-full bg-white p-8 rounded-2xl border border-rose-200 shadow-elevation text-center space-y-6">
-        <div className="w-16 h-16 rounded-2xl bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center mx-auto">
+    <div className="min-h-[calc(100vh-140px)] flex flex-col justify-center items-center py-12 px-4 sm:px-6 lg:px-8 bg-[#F0FDFA] text-[#102A43]">
+      <div className="max-w-md w-full bg-white p-8 rounded-2xl border border-[#CCFBF1] shadow-card text-center space-y-6">
+        <div className="w-16 h-16 rounded-2xl bg-[#CCFBF1] border border-[#0D9488] text-[#0D9488] flex items-center justify-center mx-auto">
           <ShieldAlert className="w-9 h-9" />
         </div>
 
         <div className="space-y-2">
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-2xl font-bold text-[#102A43] tracking-tight">
             Access Restricted
           </h1>
-          <p className="text-sm text-slate-600 leading-relaxed">
+          <p className="text-sm text-[#102A43]/75 leading-relaxed font-medium">
             You do not have the required role permissions to access this portal or resource.
           </p>
         </div>
 
         {user && (
-          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-left text-xs space-y-1.5">
+          <div className="p-4 rounded-xl bg-[#F0FDFA] border border-[#CCFBF1] text-left text-xs space-y-2 font-medium">
             <div className="flex justify-between">
-              <span className="text-slate-500">Logged in as:</span>
-              <span className="font-semibold text-slate-900">{user.email}</span>
+              <span className="text-[#102A43]/70 font-bold">Logged in as:</span>
+              <span className="font-bold text-[#102A43]">{user.email}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-500">Your Assigned Role:</span>
-              <span className="font-bold text-rose-600 uppercase tracking-wide">{user.role}</span>
+              <span className="text-[#102A43]/70 font-bold">Your Assigned Role:</span>
+              <span className="font-bold text-[#0D9488] uppercase tracking-wide">{user.role}</span>
             </div>
           </div>
         )}
@@ -67,7 +65,7 @@ export const UnauthorizedPage = () => {
           {user && (
             <Link to={getDashboardPath(user.role)} className="w-full sm:w-auto">
               <Button
-                variant="teal"
+                variant="primary"
                 size="md"
                 className="w-full justify-center"
                 leftIcon={<LayoutDashboard className="w-4 h-4" />}
@@ -81,17 +79,17 @@ export const UnauthorizedPage = () => {
             variant="secondary"
             size="md"
             onClick={handleLogout}
-            className="w-full sm:w-auto justify-center text-rose-700 hover:bg-rose-50 border-rose-200"
+            className="w-full sm:w-auto justify-center"
             leftIcon={<LogOut className="w-4 h-4" />}
           >
             Switch Account
           </Button>
         </div>
 
-        <div className="pt-2 border-t border-slate-100">
+        <div className="pt-2 border-t border-[#CCFBF1]">
           <Link
             to="/login"
-            className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-700 font-medium"
+            className="inline-flex items-center gap-1.5 text-xs text-[#102A43]/70 hover:text-[#0D9488] font-bold"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Return to Portal Directory</span>

@@ -32,7 +32,7 @@ export const LoginPage = () => {
       loginPath: '/login/faculty',
       title: 'Faculty Portal',
       description: 'Review assigned courses, record class attendance, evaluate student submissions, and submit marks.',
-      badgeVariant: 'info',
+      badgeVariant: 'teal',
       demoInfo: 'faculty@campusverse.edu',
     },
     {
@@ -59,103 +59,94 @@ export const LoginPage = () => {
       loginPath: '/login/placement',
       title: 'Placement Cell',
       description: 'Coordinate campus recruitment drives, verify student eligibility criteria, and track recruitment metrics.',
-      badgeVariant: 'success',
+      badgeVariant: 'teal',
       demoInfo: 'placement@campusverse.edu',
     },
     {
-      role: 'Staff',
+      role: 'Hostel Staff',
       canonicalRole: 'staff',
-      loginPath: '/login/staff',
-      title: 'Hostel & Transport Staff',
+      loginPath: '/login/hostel',
+      title: 'Hostel Portal',
       description: 'Manage residential room allotments, maintenance dispatch tickets, and campus transport fleet rosters.',
-      badgeVariant: 'warning',
+      badgeVariant: 'teal',
       demoInfo: 'staff@campusverse.edu',
-    },
-    {
-      role: 'Super Admin',
-      canonicalRole: 'superadmin',
-      loginPath: '/login/super-admin',
-      title: 'Super Admin Console',
-      description: 'System health diagnostics, audit logging, security role governance, and 15-module readiness telemetry.',
-      badgeVariant: 'danger',
-      demoInfo: 'superadmin@campusverse.edu',
     },
   ];
 
   return (
-    <div className="min-h-[calc(100vh-140px)] py-12 px-4 sm:px-6 lg:px-8 bg-slate-50">
+    <div className="min-h-[calc(100vh-140px)] py-14 px-4 sm:px-6 lg:px-8 bg-[#F9FAFB] text-[#111827]">
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Header */}
-        <div className="text-center space-y-3 max-w-2xl mx-auto">
-          <Link to="/" className="inline-flex items-center gap-2.5 p-1 rounded-lg">
-            <div className="w-12 h-12 rounded-xl bg-navy-900 flex items-center justify-center text-teal-400 shadow-sm mx-auto">
-              <GraduationCap className="w-7 h-7" />
+        <div className="text-center space-y-3.5 max-w-2xl mx-auto">
+          <Link to="/" className="inline-flex items-center gap-2.5 p-1 rounded-xl">
+            <div className="w-14 h-14 rounded-2xl bg-[#111827] flex items-center justify-center text-[#FFFFFF] shadow-sm mx-auto border border-[#E5E7EB]">
+              <GraduationCap className="w-8 h-8 text-[#FFFFFF]" />
             </div>
           </Link>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 border border-teal-200 text-xs font-semibold text-teal-800">
-            <ShieldCheck className="w-3.5 h-3.5 text-teal-600" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E5E7EB] border border-[#E5E7EB] text-xs font-semibold text-[#111827]">
+            <ShieldCheck className="w-4 h-4 text-[#374151]" />
             <span>Role-Based Authentication Gateway</span>
           </div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight sm:text-4xl">
+          <h1 className="text-3xl font-extrabold text-[#111827] tracking-tight sm:text-4xl">
             Select Your University Portal
           </h1>
-          <p className="text-sm text-slate-600 leading-relaxed">
-            CampusVerse AI enforces strict cryptographic role authentication. Choose your designated portal below to open its dedicated sign-in terminal.
+          <p className="text-sm sm:text-base text-[#4B5563] leading-relaxed font-normal">
+            CampusVerse AI enforces cryptographic role authentication. Choose your designated portal below to open its dedicated sign-in terminal.
           </p>
         </div>
 
         {/* Logged in state notice */}
         {isAuthenticated && user && (
-          <div className="max-w-xl mx-auto p-4 rounded-xl bg-teal-50 border border-teal-200 text-teal-900 flex items-center justify-between text-xs">
+          <div className="max-w-xl mx-auto p-4 rounded-2xl bg-[#FFFFFF] border border-[#E5E7EB] text-[#111827] flex items-center justify-between text-xs sm:text-sm font-medium shadow-xs">
             <div className="flex items-center gap-2.5">
-              <UserCheck className="w-4 h-4 text-teal-700" />
+              <UserCheck className="w-4 h-4 text-[#16A34A]" />
               <span>
-                Currently authenticated as <strong className="font-semibold">{user.email}</strong> ({user.role})
+                Currently authenticated as <strong className="font-semibold text-[#111827]">{user.email}</strong> ({user.role})
               </span>
             </div>
-            <Link to={`/${user.role === 'superadmin' ? 'super-admin' : user.role}`}>
-              <Button variant="teal" size="sm">
+            <Link to={`/${user.role === 'staff' ? 'hostel' : user.role}`}>
+              <Button size="sm" className="!bg-[#374151] hover:!bg-[#1F2937] !text-[#FFFFFF] !border-transparent shadow-xs transition-colors">
                 Open Active Portal
               </Button>
             </Link>
           </div>
         )}
 
-        {/* 7 Portal Selection Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {/* 6 Portal Selection Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {portals.map((p) => (
             <Card
               key={p.role}
               hoverable
-              className="flex flex-col justify-between border-slate-200 transition-all hover:shadow-elevation"
-              bodyClassName="p-5 flex flex-col justify-between h-full"
+              className="flex flex-col justify-between !bg-[#FFFFFF] !border-[#E5E7EB] hover:!border-[#374151] hover:!shadow-md transition-all duration-200 shadow-xs"
+              bodyClassName="p-6 flex flex-col justify-between h-full bg-[#FFFFFF]"
             >
-              <div className="space-y-3">
+              <div className="space-y-3.5">
                 <div className="flex items-center justify-between">
-                  <Badge variant={p.badgeVariant} size="sm">
+                  <Badge variant={p.badgeVariant} size="sm" className="!bg-[#E5E7EB] !text-[#111827] !border-[#E5E7EB] font-semibold">
                     {p.role}
                   </Badge>
-                  <span className="text-[11px] text-slate-400 font-mono">
+                  <span className="text-xs text-[#4B5563] font-mono font-medium">
                     {p.canonicalRole}
                   </span>
                 </div>
-                <h3 className="font-bold text-slate-900 text-base">{p.title}</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
+                <h3 className="font-bold text-[#111827] text-lg">{p.title}</h3>
+                <p className="text-xs sm:text-sm text-[#4B5563] leading-relaxed font-normal">
                   {p.description}
                 </p>
               </div>
 
-              <div className="mt-5 pt-4 border-t border-slate-100 space-y-2">
-                <div className="text-[11px] text-slate-400 flex items-center justify-between">
+              <div className="mt-6 pt-4 border-t border-[#E5E7EB] space-y-3">
+                <div className="text-xs text-[#4B5563] font-medium flex items-center justify-between">
                   <span>Authorized ID:</span>
-                  <span className="font-mono text-slate-600">{p.demoInfo}</span>
+                  <span className="font-mono text-[#111827] font-semibold">{p.demoInfo}</span>
                 </div>
                 <Link to={p.loginPath} className="block w-full">
                   <Button
-                    variant="teal"
+                    variant="primary"
                     size="sm"
-                    className="w-full justify-between"
-                    rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
+                    className="w-full justify-between !bg-[#374151] hover:!bg-[#1F2937] !text-[#FFFFFF] !border-transparent shadow-xs transition-colors"
+                    rightIcon={<ArrowRight className="w-4 h-4 text-[#FFFFFF]" />}
                   >
                     Open {p.role} Sign In
                   </Button>
@@ -169,7 +160,7 @@ export const LoginPage = () => {
         <div className="text-center pt-4">
           <Link
             to="/"
-            className="text-xs text-slate-500 hover:text-teal-700 font-medium transition-colors"
+            className="text-xs sm:text-sm text-[#4B5563] hover:text-[#111827] font-semibold transition-colors"
           >
             &larr; Return to CampusVerse Public Landing
           </Link>

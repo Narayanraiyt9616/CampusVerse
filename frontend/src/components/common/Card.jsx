@@ -2,6 +2,7 @@ import React from 'react';
 
 /**
  * Standard Structured Card Component for CampusVerse AI
+ * Strictly styled with the 5 design system colors
  */
 export const Card = ({
   title,
@@ -12,8 +13,8 @@ export const Card = ({
   footer = null,
   hoverable = false,
   className = '',
-  bodyClassName = 'p-5',
-  headerClassName = 'px-5 py-4 border-b border-slate-100',
+  bodyClassName = 'p-6',
+  headerClassName = 'px-6 py-4 border-b border-[#CCFBF1]',
   id,
 }) => {
   const hasHeader = Boolean(title || subtitle || badge || action);
@@ -21,18 +22,18 @@ export const Card = ({
   return (
     <div
       id={id}
-      className={`bg-white rounded-xl border border-slate-200/90 shadow-card ${
-        hoverable ? 'hover:shadow-card-hover hover:border-slate-300 transition-all duration-200' : ''
+      className={`bg-white rounded-2xl border border-[#CCFBF1] shadow-card ${
+        hoverable ? 'hover:shadow-card-hover hover:border-[#0D9488] transition-all duration-200' : ''
       } ${className}`}
     >
       {hasHeader && (
         <div className={`flex flex-wrap items-center justify-between gap-3 ${headerClassName}`}>
           <div>
-            <div className="flex items-center gap-2">
-              {title && <h3 className="font-semibold text-slate-900 text-base">{title}</h3>}
+            <div className="flex items-center gap-2.5">
+              {title && <h3 className="font-bold text-[#102A43] text-lg tracking-tight">{title}</h3>}
               {badge}
             </div>
-            {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
+            {subtitle && <p className="text-xs text-[#102A43]/70 font-medium mt-0.5">{subtitle}</p>}
           </div>
           {action && <div className="flex items-center gap-2 shrink-0">{action}</div>}
         </div>
@@ -43,7 +44,7 @@ export const Card = ({
       </div>
 
       {footer && (
-        <div className="px-5 py-3 border-t border-slate-100 bg-slate-50/50 rounded-b-xl text-xs text-slate-600 flex items-center justify-between">
+        <div className="px-6 py-3.5 border-t border-[#CCFBF1] bg-[#F0FDFA] rounded-b-2xl text-xs text-[#102A43] font-semibold flex items-center justify-between">
           {footer}
         </div>
       )}

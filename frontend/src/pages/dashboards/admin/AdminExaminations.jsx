@@ -255,25 +255,25 @@ export const AdminExaminations = () => {
       header: 'Schedule & Timing',
       render: (v, r) => (
         <div>
-          <p className="font-mono text-xs font-bold text-navy-900">{v}</p>
-          <p className="text-[11px] text-slate-500 font-mono">{r.startTime} ({r.duration} mins)</p>
+          <p className="font-mono text-xs font-bold text-[#102A43]">{v}</p>
+          <p className="text-[11px] text-[#102A43]/70 font-mono">{r.startTime} ({r.duration} mins)</p>
         </div>
       ),
     },
     {
       key: 'venue',
       header: 'Venue',
-      render: (v) => <span className="text-xs text-slate-700 font-medium">{v}</span>,
+      render: (v) => <span className="text-xs text-[#102A43] font-semibold">{v}</span>,
     },
     {
       key: 'maxMarks',
       header: 'Max Marks',
-      render: (v) => <span className="font-mono text-xs font-bold text-teal-700">{v} Marks</span>,
+      render: (v) => <span className="font-mono text-xs font-bold text-[#0D9488]">{v} Marks</span>,
     },
     {
       key: 'examType',
       header: 'Type',
-      render: (v) => <Badge variant="navy" size="sm">{v}</Badge>,
+      render: (v) => <Badge variant="teal" size="sm">{v}</Badge>,
     },
     {
       key: 'actions',
@@ -310,8 +310,8 @@ export const AdminExaminations = () => {
       header: 'Student Name & Roll',
       render: (s) => (
         <div>
-          <p className="font-semibold text-slate-800 text-xs">{s?.name || 'Student'}</p>
-          <p className="font-mono text-[11px] text-slate-500">{s?.studentId}</p>
+          <p className="font-bold text-[#102A43] text-xs">{s?.name || 'Student'}</p>
+          <p className="font-mono text-[11px] text-[#102A43]/70">{s?.studentId}</p>
         </div>
       ),
     },
@@ -320,15 +320,15 @@ export const AdminExaminations = () => {
       header: 'Course Subject',
       render: (c) => (
         <div>
-          <span className="font-mono font-bold text-xs text-navy-900">{c?.courseCode || 'Course'}</span>
-          <p className="text-[11px] text-slate-500 line-clamp-1">{c?.title}</p>
+          <span className="font-mono font-bold text-xs text-[#102A43]">{c?.courseCode || 'Course'}</span>
+          <p className="text-[11px] text-[#102A43]/70 line-clamp-1">{c?.title}</p>
         </div>
       ),
     },
     {
       key: 'assessmentName',
       header: 'Assessment',
-      render: (v) => <span className="text-xs font-medium text-slate-700">{v}</span>,
+      render: (v) => <span className="text-xs font-semibold text-[#102A43]">{v}</span>,
     },
     {
       key: 'marksObtained',
@@ -337,8 +337,8 @@ export const AdminExaminations = () => {
         const pct = r.maxMarks > 0 ? Math.round((v / r.maxMarks) * 100) : 0;
         return (
           <div>
-            <span className="font-mono font-bold text-xs text-slate-800">{v} / {r.maxMarks}</span>
-            <span className={`ml-2 text-[11px] font-bold ${pct >= 75 ? 'text-emerald-600' : pct >= 40 ? 'text-teal-600' : 'text-rose-600'}`}>
+            <span className="font-mono font-bold text-xs text-[#102A43]">{v} / {r.maxMarks}</span>
+            <span className="ml-2 text-[11px] font-bold text-[#0D9488]">
               ({pct}%)
             </span>
           </div>
@@ -361,7 +361,7 @@ export const AdminExaminations = () => {
       render: (_, r) => (
         <div className="flex items-center justify-end gap-1.5">
           <Button
-            variant={r.published ? 'secondary' : 'teal'}
+            variant={r.published ? 'secondary' : 'primary'}
             size="sm"
             className="text-xs"
             leftIcon={r.published ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
@@ -389,30 +389,30 @@ export const AdminExaminations = () => {
       header: 'Assignment Title',
       render: (v, r) => (
         <div>
-          <p className="font-semibold text-slate-800 text-xs">{v}</p>
-          <p className="text-[11px] text-slate-500 line-clamp-1">{r.description || 'No description'}</p>
+          <p className="font-bold text-[#102A43] text-xs">{v}</p>
+          <p className="text-[11px] text-[#102A43]/70 line-clamp-1">{r.description || 'No description'}</p>
         </div>
       ),
     },
     {
       key: 'course',
       header: 'Course Code',
-      render: (c) => <span className="font-mono font-bold text-xs text-navy-900">{c?.courseCode || 'N/A'}</span>,
+      render: (c) => <span className="font-mono font-bold text-xs text-[#102A43]">{c?.courseCode || 'N/A'}</span>,
     },
     {
       key: 'faculty',
       header: 'Faculty In-Charge',
-      render: (f) => <span className="text-xs text-slate-700">{f?.name || 'Faculty Member'}</span>,
+      render: (f) => <span className="text-xs font-semibold text-[#102A43]">{f?.name || 'Faculty Member'}</span>,
     },
     {
       key: 'dueDate',
       header: 'Deadline Date',
-      render: (v) => <span className="font-mono text-xs text-slate-600">{v ? new Date(v).toLocaleDateString() : 'No date'}</span>,
+      render: (v) => <span className="font-mono text-xs text-[#102A43]/80 font-medium">{v ? new Date(v).toLocaleDateString() : 'No date'}</span>,
     },
     {
       key: 'maxMarks',
       header: 'Weightage',
-      render: (v) => <span className="font-mono text-xs text-slate-800">{v || 10} Marks</span>,
+      render: (v) => <span className="font-mono text-xs font-bold text-[#102A43]">{v || 10} Marks</span>,
     },
   ];
 
@@ -439,15 +439,15 @@ export const AdminExaminations = () => {
       )}
 
       {/* Tabs */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-1.5 bg-slate-200/60 rounded-xl">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-1.5 bg-[#CCFBF1]/30 border border-[#CCFBF1] rounded-xl">
         <div className="flex items-center gap-1 w-full sm:w-auto">
           <button
             type="button"
             onClick={() => setActiveTab('exams')}
-            className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-bold transition-all ${
               activeTab === 'exams'
-                ? 'bg-white text-navy-900 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-[#0D9488] text-[#FFFFFF] shadow-xs'
+                : 'text-[#102A43]/70 hover:text-[#102A43] hover:bg-[#CCFBF1]/50'
             }`}
           >
             Examinations Schedule ({exams.length})
@@ -455,10 +455,10 @@ export const AdminExaminations = () => {
           <button
             type="button"
             onClick={() => setActiveTab('results')}
-            className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-bold transition-all ${
               activeTab === 'results'
-                ? 'bg-white text-navy-900 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-[#0D9488] text-[#FFFFFF] shadow-xs'
+                : 'text-[#102A43]/70 hover:text-[#102A43] hover:bg-[#CCFBF1]/50'
             }`}
           >
             Academic Results & Publishing ({results.length})
@@ -466,10 +466,10 @@ export const AdminExaminations = () => {
           <button
             type="button"
             onClick={() => setActiveTab('assignments')}
-            className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-bold transition-all ${
               activeTab === 'assignments'
-                ? 'bg-white text-navy-900 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-[#0D9488] text-[#FFFFFF] shadow-xs'
+                : 'text-[#102A43]/70 hover:text-[#102A43] hover:bg-[#CCFBF1]/50'
             }`}
           >
             Faculty Assignments ({assignments.length})
@@ -488,7 +488,7 @@ export const AdminExaminations = () => {
 
           {activeTab === 'exams' && (
             <Button
-              variant="teal"
+              variant="primary"
               size="sm"
               leftIcon={<Plus className="w-3.5 h-3.5" />}
               onClick={handleOpenAddExam}
@@ -499,7 +499,7 @@ export const AdminExaminations = () => {
 
           {activeTab === 'results' && (
             <Button
-              variant="teal"
+              variant="primary"
               size="sm"
               leftIcon={<Plus className="w-3.5 h-3.5" />}
               onClick={handleOpenAddResult}
@@ -573,7 +573,7 @@ export const AdminExaminations = () => {
               Cancel
             </Button>
             <Button
-              variant="teal"
+              variant="primary"
               size="sm"
               loading={examLoading}
               disabled={examLoading}
@@ -620,11 +620,11 @@ export const AdminExaminations = () => {
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Semester</label>
+              <label className="block text-xs font-bold text-[#102A43] mb-1.5">Semester</label>
               <select
                 value={examForm.semester}
                 onChange={(e) => setExamForm((p) => ({ ...p, semester: Number(e.target.value) }))}
-                className="w-full h-10 px-3 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium"
+                className="w-full h-10 px-3 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
               >
                 {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
                   <option key={s} value={s}>Semester {s}</option>
@@ -632,11 +632,11 @@ export const AdminExaminations = () => {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Exam Type</label>
+              <label className="block text-xs font-bold text-[#102A43] mb-1.5">Exam Type</label>
               <select
                 value={examForm.examType}
                 onChange={(e) => setExamForm((p) => ({ ...p, examType: e.target.value }))}
-                className="w-full h-10 px-3 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium"
+                className="w-full h-10 px-3 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
               >
                 <option value="Mid-Term">Mid-Term</option>
                 <option value="End-Term">End-Term</option>
@@ -713,7 +713,7 @@ export const AdminExaminations = () => {
               Cancel
             </Button>
             <Button
-              variant="teal"
+              variant="primary"
               size="sm"
               loading={resultLoading}
               disabled={resultLoading}
@@ -727,13 +727,13 @@ export const AdminExaminations = () => {
         <form onSubmit={handleSaveResult} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Target Student <span className="text-rose-500">*</span>
+              <label className="block text-xs font-bold text-[#102A43] mb-1.5">
+                Target Student <span className="text-[#0D9488]">*</span>
               </label>
               <select
                 value={resultForm.student}
                 onChange={(e) => setResultForm((p) => ({ ...p, student: e.target.value }))}
-                className="w-full h-10 px-3 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium"
+                className="w-full h-10 px-3 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
                 required
               >
                 {students.map((s) => (
@@ -743,13 +743,13 @@ export const AdminExaminations = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Course <span className="text-rose-500">*</span>
+              <label className="block text-xs font-bold text-[#102A43] mb-1.5">
+                Course <span className="text-[#0D9488]">*</span>
               </label>
               <select
                 value={resultForm.course}
                 onChange={(e) => setResultForm((p) => ({ ...p, course: e.target.value }))}
-                className="w-full h-10 px-3 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium"
+                className="w-full h-10 px-3 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
                 required
               >
                 {courses.map((c) => (
@@ -792,12 +792,12 @@ export const AdminExaminations = () => {
           </div>
 
           <div>
-            <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700">
+            <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-[#102A43]">
               <input
                 type="checkbox"
                 checked={resultForm.published}
                 onChange={(e) => setResultForm((p) => ({ ...p, published: e.target.checked }))}
-                className="rounded text-teal-600 focus:ring-teal-500"
+                className="rounded text-[#0D9488] focus:ring-[#0D9488]"
               />
               <span>Immediately Publish to Student Portal</span>
             </label>
@@ -822,7 +822,7 @@ export const AdminExaminations = () => {
           </div>
         }
       >
-        <p className="text-xs text-slate-600">This action will be committed to the database and logged.</p>
+        <p className="text-xs text-[#102A43]/80">This action will be committed to the database and logged.</p>
       </Modal>
     </div>
   );

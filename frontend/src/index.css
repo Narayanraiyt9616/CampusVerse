@@ -3,128 +3,124 @@
 @tailwind utilities;
 
 :root {
-  --color-primary-navy: #0F2744;
-  --color-primary-dark: #0B132B;
-  --color-primary-light: #1E3A5F;
-  --color-accent-teal: #0D9488;
-  --color-accent-teal-light: #14B8A6;
-  --color-accent-teal-soft: #F0FDFA;
-  --color-bg-main: #F8FAFC;
-  --color-bg-card: #FFFFFF;
-  --color-border-subtle: #E2E8F0;
-  --color-border-focus: #0D9488;
-  --color-text-main: #0F172A;
-  --color-text-muted: #64748B;
-  --color-text-subtle: #94A3B8;
+  --color-sidebar: #102A43;
+  --color-primary: #0D9488;
+  --color-bg: #F0FDFA;
+  --color-card: #FFFFFF;
+  --color-highlight: #CCFBF1;
+  --color-text-dark: #102A43;
+  --color-text-light: #FFFFFF;
 }
 
 @layer base {
   * {
-    border-color: #E2E8F0;
+    border-color: #CCFBF1;
   }
   
   html {
     scroll-behavior: smooth;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    background-color: #F0FDFA;
   }
 
   body {
-    background-color: #F8FAFC;
-    color: #0F172A;
+    background-color: #F0FDFA;
+    color: #102A43;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 0.9375rem; /* 15px - slightly larger, highly readable */
+    line-height: 1.6;
     min-height: 100vh;
     overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: '"Plus Jakarta Sans"', 'Inter', sans-serif;
+    color: #102A43;
+    font-weight: 700;
     letter-spacing: -0.02em;
+  }
+
+  /* Universal contrast text color rule */
+  p, span, td, th, div, label {
+    text-rendering: optimizeLegibility;
   }
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar - 5 colors only */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #F1F5F9;
+  background: #F0FDFA;
 }
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: #CCFBF1;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: #0D9488;
 }
 
 /* Component Utility Classes */
 @layer components {
-  /* Buttons */
+  /* Buttons - strictly 5 colors */
   .btn-primary {
-    @apply inline-flex items-center justify-center font-medium rounded-lg text-sm px-4 py-2.5 bg-navy-900 text-white hover:bg-navy-800 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm;
+    @apply inline-flex items-center justify-center font-bold rounded-xl text-sm px-4 py-2.5 bg-[#0D9488] text-white hover:opacity-95 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#0D9488] focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm border border-[#0D9488];
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center font-medium rounded-lg text-sm px-4 py-2.5 bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 hover:text-slate-900 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm;
+    @apply inline-flex items-center justify-center font-semibold rounded-xl text-sm px-4 py-2.5 bg-white text-[#102A43] border border-[#CCFBF1] hover:bg-[#CCFBF1] hover:text-[#102A43] transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#0D9488] focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm;
   }
 
   .btn-teal {
-    @apply inline-flex items-center justify-center font-medium rounded-lg text-sm px-4 py-2.5 bg-teal-600 text-white hover:bg-teal-700 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm;
+    @apply inline-flex items-center justify-center font-bold rounded-xl text-sm px-4 py-2.5 bg-[#0D9488] text-white hover:opacity-95 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#0D9488] focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm border border-[#0D9488];
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center font-medium rounded-lg text-sm px-3 py-2 text-slate-600 hover:text-navy-900 hover:bg-slate-100 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-teal-500;
+    @apply inline-flex items-center justify-center font-semibold rounded-xl text-sm px-3.5 py-2 text-[#102A43] hover:text-[#102A43] hover:bg-[#CCFBF1] transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#0D9488];
   }
 
-  /* Cards */
+  .btn-outline {
+    @apply inline-flex items-center justify-center font-semibold rounded-xl text-sm px-4 py-2 bg-transparent text-[#0D9488] border border-[#0D9488] hover:bg-[#CCFBF1] hover:text-[#102A43] transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#0D9488];
+  }
+
+  /* Cards - strictly 5 colors */
   .card-standard {
-    @apply bg-white border border-slate-200/90 rounded-xl shadow-card transition-all duration-200;
+    @apply bg-white border border-[#CCFBF1] rounded-2xl shadow-card transition-all duration-200;
   }
 
   .card-hoverable {
-    @apply bg-white border border-slate-200/90 rounded-xl shadow-card hover:shadow-card-hover hover:border-slate-300 transition-all duration-200;
+    @apply bg-white border border-[#CCFBF1] rounded-2xl shadow-card hover:shadow-card-hover hover:border-[#0D9488] transition-all duration-200;
   }
 
-  /* Form Elements */
+  /* Form Elements - strictly 5 colors */
   .input-standard {
-    @apply w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-150;
+    @apply w-full rounded-xl border border-[#CCFBF1] px-4 py-2.5 text-sm font-medium text-[#102A43] placeholder:text-[#102A43]/50 bg-white focus:outline-none focus:ring-2 focus:ring-[#0D9488] focus:border-[#0D9488] transition-all duration-150;
   }
 
   .label-standard {
-    @apply block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5;
+    @apply block text-xs font-bold text-[#102A43] uppercase tracking-wider mb-2;
   }
 
-  /* Badges */
+  /* Badges - strictly 5 colors */
   .badge-base {
-    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium;
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold;
   }
 
   .badge-demo {
-    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 uppercase tracking-wide;
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-[#CCFBF1] text-[#102A43] border border-[#CCFBF1] uppercase tracking-wide;
   }
 
-  .badge-success {
-    @apply bg-emerald-50 text-emerald-700 border border-emerald-200;
+  .badge-success, .badge-teal {
+    @apply bg-[#0D9488] text-white border border-[#0D9488];
   }
 
-  .badge-warning {
-    @apply bg-amber-50 text-amber-700 border border-amber-200;
+  .badge-warning, .badge-highlight, .badge-info {
+    @apply bg-[#CCFBF1] text-[#102A43] border border-[#CCFBF1];
   }
 
-  .badge-danger {
-    @apply bg-rose-50 text-rose-700 border border-rose-200;
-  }
-
-  .badge-info {
-    @apply bg-sky-50 text-sky-700 border border-sky-200;
-  }
-
-  .badge-teal {
-    @apply bg-teal-50 text-teal-700 border border-teal-200;
-  }
-
-  .badge-navy {
-    @apply bg-navy-50 text-navy-800 border border-navy-200;
+  .badge-danger, .badge-navy, .badge-dark {
+    @apply bg-[#102A43] text-white border border-[#102A43];
   }
 }

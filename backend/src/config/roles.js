@@ -9,6 +9,8 @@ const ROLES = {
   // Backward-compatibility aliases
   PLACEMENT_OFFICER: 'placement',
   SUPER_ADMIN: 'superadmin',
+  HOSTEL: 'staff',
+  HOSTEL_PORTAL: 'staff',
 };
 
 const ALLOWED_ROLES = [
