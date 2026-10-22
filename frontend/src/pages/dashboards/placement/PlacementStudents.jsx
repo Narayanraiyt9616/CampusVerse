@@ -162,27 +162,27 @@ export const PlacementStudents = () => {
 
       {/* KPI Ribbons */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[#FFFFFF] p-4 rounded-xl border border-[#CCFBF1] shadow-xs">
-          <span className="text-xs font-bold text-[#102A43]/70 uppercase tracking-wider block">Graduating Candidates</span>
-          <span className="text-2xl font-bold font-mono text-[#102A43] mt-1 block">{profiles.length}</span>
-          <span className="text-xs text-[#102A43]/60 font-medium">Class of 2026 Batch</span>
+        <div className="bg-[#FFFFFF] p-4 rounded-xl border border-[#F1E7CF] shadow-xs">
+          <span className="text-xs font-bold text-[#4B5563] uppercase tracking-wider block">Graduating Candidates</span>
+          <span className="text-2xl font-bold font-mono text-[#111827] mt-1 block">{profiles.length}</span>
+          <span className="text-xs text-[#4B5563] font-medium">Class of 2026 Batch</span>
         </div>
-        <div className="bg-[#FFFFFF] p-4 rounded-xl border border-[#CCFBF1] shadow-xs">
-          <span className="text-xs font-bold text-[#102A43]/70 uppercase tracking-wider block">Placement Eligible</span>
-          <span className="text-2xl font-bold font-mono text-[#0D9488] mt-1 block">{eligibleCount}</span>
-          <span className="text-xs text-[#0D9488] font-bold">CGPA &ge; 7.0 &amp; Zero Backlogs</span>
+        <div className="bg-[#FFFFFF] p-4 rounded-xl border border-[#F1E7CF] shadow-xs">
+          <span className="text-xs font-bold text-[#4B5563] uppercase tracking-wider block">Placement Eligible</span>
+          <span className="text-2xl font-bold font-mono text-[#D99A00] mt-1 block">{eligibleCount}</span>
+          <span className="text-xs text-[#D99A00] font-bold">CGPA &ge; 7.0 &amp; Zero Backlogs</span>
         </div>
-        <div className="bg-[#FFFFFF] p-4 rounded-xl border border-[#CCFBF1] shadow-xs">
-          <span className="text-xs font-bold text-[#102A43]/70 uppercase tracking-wider block">Offers Confirmed</span>
-          <span className="text-2xl font-bold font-mono text-[#102A43] mt-1 block">{placedCount} Placed</span>
-          <span className="text-xs text-[#0D9488] font-bold">{Math.round((placedCount / (profiles.length || 1)) * 100)}% Placement Rate</span>
+        <div className="bg-[#FFFFFF] p-4 rounded-xl border border-[#F1E7CF] shadow-xs">
+          <span className="text-xs font-bold text-[#4B5563] uppercase tracking-wider block">Offers Confirmed</span>
+          <span className="text-2xl font-bold font-mono text-[#111827] mt-1 block">{placedCount} Placed</span>
+          <span className="text-xs text-[#D99A00] font-bold">{Math.round((placedCount / (profiles.length || 1)) * 100)}% Placement Rate</span>
         </div>
-        <div className="bg-[#FFFFFF] p-4 rounded-xl border border-[#CCFBF1] shadow-xs">
-          <span className="text-xs font-bold text-[#102A43]/70 uppercase tracking-wider block">Active Pipeline</span>
-          <span className="text-2xl font-bold font-mono text-[#102A43] mt-1 block">
+        <div className="bg-[#FFFFFF] p-4 rounded-xl border border-[#F1E7CF] shadow-xs">
+          <span className="text-xs font-bold text-[#4B5563] uppercase tracking-wider block">Active Pipeline</span>
+          <span className="text-2xl font-bold font-mono text-[#111827] mt-1 block">
             {profiles.filter((p) => p.placementStatus === 'Interviewing' || p.placementStatus === 'Shortlisted').length}
           </span>
-          <span className="text-xs text-[#102A43]/60 font-medium">Interviewing in current drives</span>
+          <span className="text-xs text-[#4B5563] font-medium">Interviewing in current drives</span>
         </div>
       </div>
 
@@ -199,7 +199,7 @@ export const PlacementStudents = () => {
                 placeholder="Search name, roll #, skill..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-teal-500 w-44 sm:w-56"
+                className="pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-[#D99A00] w-44 sm:w-56"
               />
             </div>
 
@@ -238,7 +238,7 @@ export const PlacementStudents = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-[#F0FDFA] text-[#102A43] font-bold border-b border-[#CCFBF1]">
+              <thead className="bg-[#FFFDF5] text-[#111827] font-bold border-b border-[#F1E7CF]">
                 <tr>
                   <th className="p-3.5">Candidate Details</th>
                   <th className="p-3.5 text-center">CGPA & Backlogs</th>
@@ -256,7 +256,7 @@ export const PlacementStudents = () => {
                       <span className="font-bold text-slate-900 block text-sm">
                         {p.student?.name}
                       </span>
-                      <span className="text-[11px] font-mono text-teal-700 block">
+                      <span className="text-[11px] font-mono text-[#D99A00] block">
                         {p.student?.studentId} • {p.student?.department?.name || 'CSE'}
                       </span>
                       <span className="text-[10px] text-slate-400 block font-mono">
@@ -325,9 +325,9 @@ export const PlacementStudents = () => {
                             href={p.resumeUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-1 px-2 py-1 rounded bg-teal-50 border border-teal-200 text-teal-800 text-[11px] font-semibold hover:bg-teal-100 transition-colors"
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded bg-[#FFF8E6] border border-[#F1E7CF] text-[#111827] text-[11px] font-semibold hover:bg-[#FFF8E6] transition-colors"
                           >
-                            <FileText className="w-3.5 h-3.5 text-teal-600" />
+                            <FileText className="w-3.5 h-3.5 text-[#D99A00]" />
                             Résumé PDF
                           </a>
                         )}
@@ -376,8 +376,8 @@ export const PlacementStudents = () => {
 
       {/* MODAL: EDIT CANDIDATE PROFILE */}
       {editProfile && (
-        <div className="fixed inset-0 z-50 bg-[#102A43]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#CCFBF1] relative animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 bg-[#111827]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#F1E7CF] relative animate-in fade-in zoom-in-95 duration-200">
             <button
               onClick={() => setEditProfile(null)}
               className="absolute top-4 right-4 p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
@@ -386,7 +386,7 @@ export const PlacementStudents = () => {
             </button>
 
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <GraduationCap className="w-5 h-5 text-teal-600" />
+              <GraduationCap className="w-5 h-5 text-[#D99A00]" />
               Edit Candidate: {editProfile.student?.name}
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">

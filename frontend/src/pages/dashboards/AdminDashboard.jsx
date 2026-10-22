@@ -202,7 +202,7 @@ export const AdminDashboard = () => {
       />
 
       {/* Quick Navigation Scroll Strip */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none border-b border-[#CCFBF1]">
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none border-b border-[#F1E7CF]">
         {SECTIONS_NAV.map((tab) => {
           const Icon = tab.icon;
           const isCurrent = currentSection === tab.id;
@@ -212,8 +212,8 @@ export const AdminDashboard = () => {
               to={tab.id ? `/admin/${tab.id}` : '/admin'}
               className={`inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                 isCurrent
-                  ? 'bg-[#0D9488] text-white shadow-sm border border-[#0D9488]'
-                  : 'bg-white text-[#102A43] hover:bg-[#CCFBF1] border border-[#CCFBF1]'
+                  ? 'bg-[#D99A00] text-white shadow-sm border border-[#D99A00]'
+                  : 'bg-white text-[#111827] hover:bg-[#FFF8E6] border border-[#F1E7CF]'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -289,13 +289,13 @@ export const AdminDashboard = () => {
           )}
 
           <div>
-            <label className="block text-xs font-bold text-[#102A43] uppercase tracking-wider mb-2">
-              Target Section / Portal Role <span className="text-[#0D9488]">*</span>
+            <label className="block text-xs font-bold text-[#111827] uppercase tracking-wider mb-2">
+              Target Section / Portal Role <span className="text-[#D99A00]">*</span>
             </label>
             <select
               value={credForm.section}
               onChange={(e) => setCredForm((prev) => ({ ...prev, section: e.target.value }))}
-              className="w-full h-11 px-4 text-sm font-semibold rounded-xl border border-[#CCFBF1] bg-white text-[#102A43] focus:outline-none focus:ring-2 focus:ring-[#0D9488]"
+              className="w-full h-11 px-4 text-sm font-semibold rounded-xl border border-[#F1E7CF] bg-white text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#D99A00]"
             >
               {SECTIONS_CRED.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -329,7 +329,7 @@ export const AdminDashboard = () => {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-9 text-[#102A43]/60 hover:text-[#102A43] p-1 focus:outline-none"
+                className="absolute right-3.5 top-9 text-[#4B5563] hover:text-[#111827] p-1 focus:outline-none"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>

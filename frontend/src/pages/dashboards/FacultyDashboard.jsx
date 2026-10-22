@@ -27,8 +27,8 @@ const leaveStatusColor = { Pending: 'warning', Approved: 'success', Rejected: 'd
 const Toast = ({ message, type, onClose }) => {
   useEffect(() => { const t = setTimeout(onClose, 4000); return () => clearTimeout(t); }, [onClose]);
   return (
-    <div className="fixed bottom-6 right-6 z-[100] flex items-start gap-3 px-4 py-3 rounded-2xl border border-[#0D9488] bg-[#CCFBF1] text-[#102A43] shadow-xl max-w-sm text-sm animate-fade-in font-medium">
-      {type === 'success' ? <CheckCircle className="w-4 h-4 mt-0.5 shrink-0 text-[#0D9488]" /> : <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-[#102A43]" />}
+    <div className="fixed bottom-6 right-6 z-[100] flex items-start gap-3 px-4 py-3 rounded-2xl border border-[#D99A00] bg-[#FFF8E6] text-[#111827] shadow-xl max-w-sm text-sm animate-fade-in font-medium">
+      {type === 'success' ? <CheckCircle className="w-4 h-4 mt-0.5 shrink-0 text-[#D99A00]" /> : <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-[#111827]" />}
       <p className="flex-1 leading-snug">{message}</p>
       <button onClick={onClose} className="opacity-70 hover:opacity-100 p-0.5"><X className="w-4 h-4" /></button>
     </div>
@@ -405,7 +405,7 @@ export const FacultyDashboard = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard title="Assigned Students" value={students.length || 124} subtitle="Across all classes" colorVariant="navy" icon={<Users className="w-5 h-5 text-navy-800" />} change="Active" changeType="increase" />
         <StatCard title="Pending Assignments" value={assignments.filter(a => new Date(a.dueDate) > new Date()).length || 3} subtitle="Awaiting grading" colorVariant="amber" icon={<ClipboardList className="w-5 h-5 text-amber-600" />} change="Due soon" changeType="neutral" />
-        <StatCard title="Exams Scheduled" value={exams.length || 2} subtitle="This semester" colorVariant="teal" icon={<Award className="w-5 h-5 text-teal-600" />} change="Upcoming" changeType="neutral" />
+        <StatCard title="Exams Scheduled" value={exams.length || 2} subtitle="This semester" colorVariant="gold" icon={<Award className="w-5 h-5 text-[#D99A00]" />} change="Upcoming" changeType="neutral" />
         <StatCard title="Notices Posted" value={notices.length} subtitle="Active announcements" colorVariant="emerald" icon={<Bell className="w-5 h-5 text-emerald-600" />} change="Published" changeType="increase" />
       </div>
       {/* Quick timetable today */}
@@ -416,9 +416,9 @@ export const FacultyDashboard = () => {
           ) : (
             <div className="space-y-2">
               {timetable.filter(t => t.dayOfWeek === new Date().toLocaleDateString('en-US', { weekday: 'long' })).map(t => (
-                <div key={t._id} className="flex items-center justify-between p-3 bg-teal-50 border border-teal-100 rounded-lg text-xs">
+                <div key={t._id} className="flex items-center justify-between p-3 bg-[#FFF8E6] border border-[#F1E7CF] rounded-lg text-xs">
                   <div><p className="font-semibold text-slate-900">{t.course?.name || t.subject}</p><p className="text-slate-500">Sec {t.section} • {t.classroom}</p></div>
-                  <span className="font-mono text-teal-700 font-bold">{t.startTime} – {t.endTime}</span>
+                  <span className="font-mono text-[#D99A00] font-bold">{t.startTime} – {t.endTime}</span>
                 </div>
               ))}
             </div>
@@ -458,13 +458,13 @@ export const FacultyDashboard = () => {
     >
       <div className="space-y-6">
         {/* Avatar + Name */}
-        <div className="flex items-center gap-5 p-5 bg-[#102A43] border border-[#0D9488]/40 rounded-xl">
-          <div className="w-20 h-20 rounded-2xl bg-teal-600/30 border-2 border-teal-400/40 flex items-center justify-center text-teal-200 text-3xl font-bold shrink-0">
+        <div className="flex items-center gap-5 p-5 bg-[#111827] border border-[#D99A00]/40 rounded-xl">
+          <div className="w-20 h-20 rounded-2xl bg-[#D99A00]/30 border-2 border-[#FFC107]/40 flex items-center justify-center text-[#FFC107] text-3xl font-bold shrink-0">
             {(profile?.name || 'F')[0].toUpperCase()}
           </div>
           <div className="text-white">
             <p className="font-bold text-xl">{profile?.name || 'Loading…'}</p>
-            <p className="text-teal-300 text-sm">{profile?.metadata?.designation || profileForm.designation || 'Faculty'}</p>
+            <p className="text-[#FFC107] text-sm">{profile?.metadata?.designation || profileForm.designation || 'Faculty'}</p>
             <p className="text-slate-300 text-xs mt-1">{profile?.email}</p>
             <Badge variant="info" size="sm" className="mt-1.5">Employee ID: {profile?.metadata?.employeeId || profileForm.employeeId || '—'}</Badge>
           </div>
@@ -485,7 +485,7 @@ export const FacultyDashboard = () => {
                 {icon} {label}
               </label>
               {editingProfile
-                ? <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 transition-all" value={profileForm[field] || ''} onChange={e => setProfileForm(p => ({ ...p, [field]: e.target.value }))} />
+                ? <input className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30 focus:border-[#D99A00] transition-all" value={profileForm[field] || ''} onChange={e => setProfileForm(p => ({ ...p, [field]: e.target.value }))} />
                 : <p className="px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg text-sm text-slate-800">{profileForm[field] || '—'}</p>
               }
             </div>
@@ -498,7 +498,7 @@ export const FacultyDashboard = () => {
             <p className="font-semibold text-slate-500 uppercase tracking-wide mb-1">Email</p>
             <p className="text-slate-900 font-medium flex items-center gap-1.5"><Mail className="w-3 h-3" />{profile?.email || '—'}</p>
           </div>
-          <div className="p-3 bg-teal-50 border border-teal-100 rounded-lg text-xs">
+          <div className="p-3 bg-[#FFF8E6] border border-[#F1E7CF] rounded-lg text-xs">
             <p className="font-semibold text-slate-500 uppercase tracking-wide mb-1">Department</p>
             <p className="text-slate-900 font-medium flex items-center gap-1.5"><Building2 className="w-3 h-3" />{profile?.department?.name || 'Computer Science & Engineering'}</p>
           </div>
@@ -542,11 +542,11 @@ export const FacultyDashboard = () => {
       <Modal isOpen={studentModalOpen} onClose={() => setStudentModalOpen(false)} title="Student Profile" description={selectedStudent?.studentId}>
         {selectedStudent && (
           <div className="space-y-4 text-xs">
-            <div className="flex items-center gap-4 p-5 bg-[#102A43] border border-[#0D9488]/40 rounded-xl">
-              <div className="w-14 h-14 rounded-xl bg-teal-600/40 flex items-center justify-center text-white text-xl font-bold">{selectedStudent.name[0]}</div>
+            <div className="flex items-center gap-4 p-5 bg-[#111827] border border-[#D99A00]/40 rounded-xl">
+              <div className="w-14 h-14 rounded-xl bg-[#D99A00]/40 flex items-center justify-center text-white text-xl font-bold">{selectedStudent.name[0]}</div>
               <div className="text-white">
                 <p className="font-bold text-base">{selectedStudent.name}</p>
-                <p className="text-teal-300">{selectedStudent.studentId}</p>
+                <p className="text-[#FFC107]">{selectedStudent.studentId}</p>
                 <p className="text-slate-300 text-xs">{selectedStudent.email}</p>
               </div>
             </div>
@@ -570,7 +570,7 @@ export const FacultyDashboard = () => {
       {/* Tab bar */}
       <div className="flex gap-2">
         {[['mark', 'Mark Attendance'], ['reports', 'View Reports']].map(([v, l]) => (
-          <button key={v} onClick={() => setAttendanceView(v)} className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all ${attendanceView === v ? 'bg-teal-600 text-white shadow' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'}`}>{l}</button>
+          <button key={v} onClick={() => setAttendanceView(v)} className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all ${attendanceView === v ? 'bg-[#D99A00] text-white shadow' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'}`}>{l}</button>
         ))}
       </div>
 
@@ -586,7 +586,7 @@ export const FacultyDashboard = () => {
             ].map(({ label, field, placeholder, type }) => (
               <div key={field}>
                 <label className="block text-xs font-semibold text-slate-500 mb-1">{label}</label>
-                <input type={type || 'text'} placeholder={placeholder} value={attendanceForm[field]} onChange={e => setAttendanceForm(p => ({ ...p, [field]: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 transition-all" />
+                <input type={type || 'text'} placeholder={placeholder} value={attendanceForm[field]} onChange={e => setAttendanceForm(p => ({ ...p, [field]: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30 focus:border-[#D99A00] transition-all" />
               </div>
             ))}
           </div>
@@ -646,7 +646,7 @@ export const FacultyDashboard = () => {
             ) : (
               <div className="space-y-3">
                 {attendanceRecords.map(rec => (
-                  <div key={rec._id} className="p-3 border border-slate-200 rounded-xl hover:border-teal-200 transition-colors">
+                  <div key={rec._id} className="p-3 border border-slate-200 rounded-xl hover:border-[#F1E7CF] transition-colors">
                     <div className="flex items-center justify-between mb-2">
                       <div>
                         <span className="font-semibold text-sm text-slate-900">{rec.className} — {rec.subject}</span>
@@ -683,7 +683,7 @@ export const FacultyDashboard = () => {
     <div className="space-y-4">
       <div className="flex gap-2">
         {[['assignments', 'Assignments'], ['exams', 'Examinations']].map(([v, l]) => (
-          <button key={v} onClick={() => setAssignmentTab(v)} className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all ${assignmentTab === v ? 'bg-teal-600 text-white shadow' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'}`}>{l}</button>
+          <button key={v} onClick={() => setAssignmentTab(v)} className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all ${assignmentTab === v ? 'bg-[#D99A00] text-white shadow' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'}`}>{l}</button>
         ))}
       </div>
 
@@ -722,7 +722,7 @@ export const FacultyDashboard = () => {
                 { key: 'subject', header: 'Subject', render: v => <span className="text-xs text-slate-700">{v}</span> },
                 { key: 'examType', header: 'Type', render: v => <Badge variant="info" size="sm">{v}</Badge> },
                 { key: 'examDate', header: 'Date', render: v => <span className="font-mono text-xs">{fmt(v)}</span> },
-                { key: 'startTime', header: 'Time', render: v => <span className="font-mono text-xs text-teal-700">{v}</span> },
+                { key: 'startTime', header: 'Time', render: v => <span className="font-mono text-xs text-[#D99A00]">{v}</span> },
                 { key: 'maxMarks', header: 'Max Marks', render: v => <span className="font-mono text-xs font-bold">{v}</span> },
                 { key: 'venue', header: 'Venue', render: v => <span className="text-xs text-slate-500">{v || '—'}</span> },
               ]}
@@ -739,12 +739,12 @@ export const FacultyDashboard = () => {
           {[{ label: 'Assignment Title', field: 'title', placeholder: 'e.g. Backpropagation Implementation' }, { label: 'Description', field: 'description', placeholder: 'Assignment details...' }, { label: 'Due Date', field: 'dueDate', type: 'date' }, { label: 'Max Marks', field: 'maxMarks', type: 'number', placeholder: '50' }].map(({ label, field, placeholder, type }) => (
             <div key={field}>
               <label className="block text-xs font-semibold text-slate-600 mb-1">{label}</label>
-              <input type={type || 'text'} placeholder={placeholder} value={assignmentForm[field]} onChange={e => setAssignmentForm(p => ({ ...p, [field]: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500" />
+              <input type={type || 'text'} placeholder={placeholder} value={assignmentForm[field]} onChange={e => setAssignmentForm(p => ({ ...p, [field]: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30 focus:border-[#D99A00]" />
             </div>
           ))}
           <div>
             <label className="block text-xs font-semibold text-slate-600 mb-1">Submission Type</label>
-            <select value={assignmentForm.submissionType} onChange={e => setAssignmentForm(p => ({ ...p, submissionType: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+            <select value={assignmentForm.submissionType} onChange={e => setAssignmentForm(p => ({ ...p, submissionType: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30">
               <option value="text">Text</option><option value="file">File</option>
             </select>
           </div>
@@ -758,12 +758,12 @@ export const FacultyDashboard = () => {
           {[{ label: 'Exam Title', field: 'title', colSpan: 2 }, { label: 'Subject', field: 'subject' }, { label: 'Class', field: 'className' }, { label: 'Exam Date', field: 'examDate', type: 'date' }, { label: 'Start Time', field: 'startTime', type: 'time' }, { label: 'Duration (min)', field: 'duration', type: 'number' }, { label: 'Max Marks', field: 'maxMarks', type: 'number' }, { label: 'Venue', field: 'venue' }].map(({ label, field, type, colSpan }) => (
             <div key={field} className={colSpan === 2 ? 'col-span-2' : ''}>
               <label className="block text-xs font-semibold text-slate-600 mb-1">{label}</label>
-              <input type={type || 'text'} value={examForm[field]} onChange={e => setExamForm(p => ({ ...p, [field]: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500" />
+              <input type={type || 'text'} value={examForm[field]} onChange={e => setExamForm(p => ({ ...p, [field]: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30 focus:border-[#D99A00]" />
             </div>
           ))}
           <div>
             <label className="block text-xs font-semibold text-slate-600 mb-1">Exam Type</label>
-            <select value={examForm.examType} onChange={e => setExamForm(p => ({ ...p, examType: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+            <select value={examForm.examType} onChange={e => setExamForm(p => ({ ...p, examType: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30">
               {['Mid-Term', 'End-Term', 'Unit Test', 'Practical', 'Viva', 'Other'].map(t => <option key={t}>{t}</option>)}
             </select>
           </div>
@@ -785,7 +785,7 @@ export const FacultyDashboard = () => {
                     {sub.feedback && <p className="text-slate-600 mt-0.5 italic">"{sub.feedback}"</p>}
                   </div>
                   <div className="flex items-center gap-2">
-                    {sub.marksObtained !== undefined && <span className="font-bold text-teal-700">{sub.marksObtained}/{selectedAssignment?.maxMarks}</span>}
+                    {sub.marksObtained !== undefined && <span className="font-bold text-[#D99A00]">{sub.marksObtained}/{selectedAssignment?.maxMarks}</span>}
                     <Badge variant={sub.status === 'graded' ? 'success' : 'warning'} size="sm">{sub.status}</Badge>
                     <Button variant="secondary" size="sm" className="text-xs" onClick={() => { setFeedbackForm({ submissionId: sub._id, feedback: sub.feedback || '', marksObtained: sub.marksObtained || '' }); setFeedbackModalOpen(true); }}>
                       {sub.status === 'graded' ? 'Edit Feedback' : 'Give Feedback'}
@@ -804,11 +804,11 @@ export const FacultyDashboard = () => {
         <div className="space-y-3">
           <div>
             <label className="block text-xs font-semibold text-slate-600 mb-1">Marks Obtained</label>
-            <input type="number" value={feedbackForm.marksObtained} onChange={e => setFeedbackForm(p => ({ ...p, marksObtained: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500" placeholder="Enter marks" />
+            <input type="number" value={feedbackForm.marksObtained} onChange={e => setFeedbackForm(p => ({ ...p, marksObtained: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30 focus:border-[#D99A00]" placeholder="Enter marks" />
           </div>
           <div>
             <label className="block text-xs font-semibold text-slate-600 mb-1">Written Feedback</label>
-            <textarea rows={4} value={feedbackForm.feedback} onChange={e => setFeedbackForm(p => ({ ...p, feedback: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 resize-none" placeholder="Write detailed feedback for the student..." />
+            <textarea rows={4} value={feedbackForm.feedback} onChange={e => setFeedbackForm(p => ({ ...p, feedback: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30 focus:border-[#D99A00] resize-none" placeholder="Write detailed feedback for the student..." />
           </div>
         </div>
       </Modal>
@@ -829,7 +829,7 @@ export const FacultyDashboard = () => {
               { key: 'course', header: 'Course', render: v => <span className="font-mono text-xs text-navy-900">{v?.code || '—'}</span> },
               { key: 'assessmentName', header: 'Assessment', render: v => <span className="text-xs text-slate-700">{v}</span> },
               { key: 'assessmentType', header: 'Type', render: v => <Badge variant="info" size="sm">{v}</Badge> },
-              { key: 'marksObtained', header: 'Marks', render: (v, r) => <span className="font-mono font-bold text-xs text-teal-700">{v}/{r.maxMarks}</span> },
+              { key: 'marksObtained', header: 'Marks', render: (v, r) => <span className="font-mono font-bold text-xs text-[#D99A00]">{v}/{r.maxMarks}</span> },
               { key: 'published', header: 'Status', render: v => <Badge variant={v ? 'success' : 'warning'} size="sm" hasDot>{v ? 'Published' : 'Draft'}</Badge> },
               { key: 'actions', header: '', render: (_, r) => (
                 <Button variant="secondary" size="sm" className="text-xs" leftIcon={<Edit2 className="w-3 h-3" />} onClick={() => { setEditingResultId(r._id); setResultForm({ studentId: r.student?._id || r.student, courseId: r.course?._id || r.course, assessmentName: r.assessmentName, assessmentType: r.assessmentType, maxMarks: r.maxMarks, marksObtained: r.marksObtained, semester: r.semester, session: r.session, feedback: r.feedback || '' }); setResultModalOpen(true); }}>Edit</Button>
@@ -845,7 +845,7 @@ export const FacultyDashboard = () => {
         <div className="grid grid-cols-2 gap-3">
           <div className="col-span-2">
             <label className="block text-xs font-semibold text-slate-600 mb-1">Student</label>
-            <select value={resultForm.studentId} onChange={e => setResultForm(p => ({ ...p, studentId: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+            <select value={resultForm.studentId} onChange={e => setResultForm(p => ({ ...p, studentId: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30">
               <option value="">Select Student</option>
               {students.map(s => <option key={s._id} value={s._id}>{s.name} ({s.studentId})</option>)}
             </select>
@@ -853,18 +853,18 @@ export const FacultyDashboard = () => {
           {[{ label: 'Assessment Name', field: 'assessmentName', colSpan: 2 }, { label: 'Semester', field: 'semester', type: 'number' }, { label: 'Session', field: 'session', placeholder: '2026-27' }, { label: 'Max Marks', field: 'maxMarks', type: 'number' }, { label: 'Marks Obtained', field: 'marksObtained', type: 'number' }].map(({ label, field, type, placeholder, colSpan }) => (
             <div key={field} className={colSpan === 2 ? 'col-span-2' : ''}>
               <label className="block text-xs font-semibold text-slate-600 mb-1">{label}</label>
-              <input type={type || 'text'} placeholder={placeholder} value={resultForm[field]} onChange={e => setResultForm(p => ({ ...p, [field]: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500" />
+              <input type={type || 'text'} placeholder={placeholder} value={resultForm[field]} onChange={e => setResultForm(p => ({ ...p, [field]: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30 focus:border-[#D99A00]" />
             </div>
           ))}
           <div>
             <label className="block text-xs font-semibold text-slate-600 mb-1">Assessment Type</label>
-            <select value={resultForm.assessmentType} onChange={e => setResultForm(p => ({ ...p, assessmentType: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+            <select value={resultForm.assessmentType} onChange={e => setResultForm(p => ({ ...p, assessmentType: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30">
               {['Exam', 'Quiz', 'Assignment', 'Project', 'Other'].map(t => <option key={t}>{t}</option>)}
             </select>
           </div>
           <div className="col-span-2">
             <label className="block text-xs font-semibold text-slate-600 mb-1">Feedback (Optional)</label>
-            <textarea rows={2} value={resultForm.feedback} onChange={e => setResultForm(p => ({ ...p, feedback: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-teal-500/30 resize-none" placeholder="Optional feedback for the student..." />
+            <textarea rows={2} value={resultForm.feedback} onChange={e => setResultForm(p => ({ ...p, feedback: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30 resize-none" placeholder="Optional feedback for the student..." />
           </div>
         </div>
       </Modal>
@@ -884,13 +884,13 @@ export const FacultyDashboard = () => {
               return (
                 <div key={day}>
                   <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-teal-500 inline-block" />{day}
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#FFF8E6]0 inline-block" />{day}
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                     {classes.map(c => (
-                      <div key={c._id} className="p-3 border border-teal-100 bg-teal-50/50 rounded-xl flex items-center gap-3 hover:border-teal-300 transition-colors">
-                        <div className="text-center bg-white border border-teal-200 rounded-lg px-2 py-1.5 shrink-0">
-                          <p className="font-mono text-[11px] font-bold text-teal-700">{c.startTime}</p>
+                      <div key={c._id} className="p-3 border border-[#F1E7CF] bg-[#FFFDF5] rounded-xl flex items-center gap-3 hover:border-[#F1E7CF] transition-colors">
+                        <div className="text-center bg-white border border-[#F1E7CF] rounded-lg px-2 py-1.5 shrink-0">
+                          <p className="font-mono text-[11px] font-bold text-[#D99A00]">{c.startTime}</p>
                           <p className="font-mono text-[10px] text-slate-400">{c.endTime}</p>
                         </div>
                         <div>
@@ -950,17 +950,17 @@ export const FacultyDashboard = () => {
         <div className="space-y-3">
           <div>
             <label className="block text-xs font-semibold text-slate-600 mb-1">Leave Type</label>
-            <select value={leaveForm.leaveType} onChange={e => setLeaveForm(p => ({ ...p, leaveType: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+            <select value={leaveForm.leaveType} onChange={e => setLeaveForm(p => ({ ...p, leaveType: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30">
               {['Casual Leave', 'Medical Leave', 'Earned Leave', 'Emergency Leave', 'Other'].map(t => <option key={t}>{t}</option>)}
             </select>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <div><label className="block text-xs font-semibold text-slate-600 mb-1">From Date</label><input type="date" value={leaveForm.fromDate} onChange={e => setLeaveForm(p => ({ ...p, fromDate: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500" /></div>
-            <div><label className="block text-xs font-semibold text-slate-600 mb-1">To Date</label><input type="date" value={leaveForm.toDate} onChange={e => setLeaveForm(p => ({ ...p, toDate: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500" /></div>
+            <div><label className="block text-xs font-semibold text-slate-600 mb-1">From Date</label><input type="date" value={leaveForm.fromDate} onChange={e => setLeaveForm(p => ({ ...p, fromDate: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30 focus:border-[#D99A00]" /></div>
+            <div><label className="block text-xs font-semibold text-slate-600 mb-1">To Date</label><input type="date" value={leaveForm.toDate} onChange={e => setLeaveForm(p => ({ ...p, toDate: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30 focus:border-[#D99A00]" /></div>
           </div>
           <div>
             <label className="block text-xs font-semibold text-slate-600 mb-1">Reason</label>
-            <textarea rows={4} value={leaveForm.reason} onChange={e => setLeaveForm(p => ({ ...p, reason: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-teal-500/30 resize-none focus:border-teal-500" placeholder="Provide a detailed reason for leave..." />
+            <textarea rows={4} value={leaveForm.reason} onChange={e => setLeaveForm(p => ({ ...p, reason: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30 resize-none focus:border-[#D99A00]" placeholder="Provide a detailed reason for leave..." />
           </div>
         </div>
       </Modal>
@@ -1006,13 +1006,13 @@ export const FacultyDashboard = () => {
       <Modal isOpen={noticeModalOpen} onClose={() => setNoticeModalOpen(false)} title="Post Academic Notice"
         footer={<div className="flex gap-2"><Button variant="secondary" size="sm" onClick={() => setNoticeModalOpen(false)}>Cancel</Button><Button variant="teal" size="sm" onClick={handleCreateNotice} disabled={loading.notice}>{loading.notice ? 'Publishing…' : 'Publish Notice'}</Button></div>}>
         <div className="space-y-3">
-          <div><label className="block text-xs font-semibold text-slate-600 mb-1">Notice Title</label><input value={noticeForm.title} onChange={e => setNoticeForm(p => ({ ...p, title: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500" placeholder="e.g. Mid-Term Exam Postponed" /></div>
-          <div><label className="block text-xs font-semibold text-slate-600 mb-1">Content</label><textarea rows={4} value={noticeForm.content} onChange={e => setNoticeForm(p => ({ ...p, content: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-teal-500/30 resize-none focus:border-teal-500" placeholder="Enter the notice content..." /></div>
+          <div><label className="block text-xs font-semibold text-slate-600 mb-1">Notice Title</label><input value={noticeForm.title} onChange={e => setNoticeForm(p => ({ ...p, title: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30 focus:border-[#D99A00]" placeholder="e.g. Mid-Term Exam Postponed" /></div>
+          <div><label className="block text-xs font-semibold text-slate-600 mb-1">Content</label><textarea rows={4} value={noticeForm.content} onChange={e => setNoticeForm(p => ({ ...p, content: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30 resize-none focus:border-[#D99A00]" placeholder="Enter the notice content..." /></div>
           <div className="grid grid-cols-2 gap-3">
-            <div><label className="block text-xs font-semibold text-slate-600 mb-1">Category</label><select value={noticeForm.category} onChange={e => setNoticeForm(p => ({ ...p, category: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-teal-500/30">{['General', 'Academic', 'Exam', 'Event', 'Urgent'].map(c => <option key={c}>{c}</option>)}</select></div>
-            <div><label className="block text-xs font-semibold text-slate-600 mb-1">Target Audience</label><select value={noticeForm.targetAudience} onChange={e => setNoticeForm(p => ({ ...p, targetAudience: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-teal-500/30">{['All', 'Students', 'Faculty', 'Staff'].map(a => <option key={a}>{a}</option>)}</select></div>
+            <div><label className="block text-xs font-semibold text-slate-600 mb-1">Category</label><select value={noticeForm.category} onChange={e => setNoticeForm(p => ({ ...p, category: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30">{['General', 'Academic', 'Exam', 'Event', 'Urgent'].map(c => <option key={c}>{c}</option>)}</select></div>
+            <div><label className="block text-xs font-semibold text-slate-600 mb-1">Target Audience</label><select value={noticeForm.targetAudience} onChange={e => setNoticeForm(p => ({ ...p, targetAudience: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30">{['All', 'Students', 'Faculty', 'Staff'].map(a => <option key={a}>{a}</option>)}</select></div>
           </div>
-          <label className="flex items-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer"><input type="checkbox" checked={noticeForm.pinned} onChange={e => setNoticeForm(p => ({ ...p, pinned: e.target.checked }))} className="rounded text-teal-600 focus:ring-teal-500" /> Pin this notice to the top</label>
+          <label className="flex items-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer"><input type="checkbox" checked={noticeForm.pinned} onChange={e => setNoticeForm(p => ({ ...p, pinned: e.target.checked }))} className="rounded text-[#D99A00] focus:ring-[#D99A00]" /> Pin this notice to the top</label>
         </div>
       </Modal>
     </div>
@@ -1040,7 +1040,7 @@ export const FacultyDashboard = () => {
     <div className="space-y-6">
       {/* Back button on sub-sections */}
       {currentSection !== 'overview' && (
-        <Link to="/faculty" className="inline-flex items-center gap-1.5 text-xs font-medium text-teal-700 hover:text-teal-800 hover:underline transition-colors">
+        <Link to="/faculty" className="inline-flex items-center gap-1.5 text-xs font-medium text-[#D99A00] hover:text-[#111827] hover:underline transition-colors">
           <ArrowLeft className="w-3.5 h-3.5" /> Back to Faculty Overview
         </Link>
       )}

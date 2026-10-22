@@ -3,7 +3,7 @@ import React from 'react';
 /**
  * Responsive Data Table Component for CampusVerse AI
  * Strictly styled using only the 5 system colors:
- * Sidebar/Text: #102A43, Action: #0D9488, Background: #F0FDFA, Card: #FFFFFF, Highlight: #CCFBF1
+ * Gold & Yellow Theme: Primary #D99A00, Accent #FFC107, Soft Gold #FFF8E6, Borders #F1E7CF
  */
 export const Table = ({
   columns = [],
@@ -16,16 +16,16 @@ export const Table = ({
   id,
 }) => {
   return (
-    <div id={id} className={`w-full overflow-hidden border border-[#CCFBF1] rounded-2xl bg-white shadow-subtle ${className}`}>
+    <div id={id} className={`w-full overflow-hidden border border-[#F1E7CF] rounded-2xl bg-white shadow-subtle ${className}`}>
       <div className="w-full overflow-x-auto">
-        <table className="w-full text-left text-sm text-[#102A43] border-collapse">
-          <thead className="bg-[#F0FDFA] text-xs uppercase font-bold text-[#102A43] tracking-wider border-b border-[#CCFBF1]">
+        <table className="w-full text-left text-sm text-[#111827] border-collapse">
+          <thead className="bg-[#FFFDF5] text-xs uppercase font-bold text-[#111827] tracking-wider border-b border-[#F1E7CF]">
             <tr>
               {columns.map((col, index) => (
                 <th
                   key={col.key || index}
                   scope="col"
-                  className={`px-5 py-4 whitespace-nowrap text-[#102A43] ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'} ${col.headerClassName || ''}`}
+                  className={`px-5 py-4 whitespace-nowrap text-[#111827] ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'} ${col.headerClassName || ''}`}
                   style={col.width ? { width: col.width } : undefined}
                 >
                   {col.header}
@@ -33,12 +33,12 @@ export const Table = ({
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#CCFBF1]/60">
+          <tbody className="divide-y divide-[#F1E7CF]">
             {isLoading ? (
               <tr>
-                <td colSpan={columns.length} className="px-5 py-12 text-center text-[#102A43]">
+                <td colSpan={columns.length} className="px-5 py-12 text-center text-[#111827]">
                   <div className="inline-flex items-center gap-2.5 font-bold">
-                    <svg className="animate-spin h-5 w-5 text-[#0D9488]" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin h-5 w-5 text-[#D99A00]" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                     </svg>
@@ -48,7 +48,7 @@ export const Table = ({
               </tr>
             ) : data.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="px-5 py-10 text-center text-[#102A43]/70 text-sm font-semibold">
+                <td colSpan={columns.length} className="px-5 py-10 text-center text-[#64748B] text-sm font-semibold">
                   {emptyMessage}
                 </td>
               </tr>
@@ -56,7 +56,7 @@ export const Table = ({
               data.map((row, rowIndex) => (
                 <tr
                   key={row[keyField] || rowIndex}
-                  className={`transition-colors ${hoverable ? 'hover:bg-[#CCFBF1]/30' : ''} ${rowIndex % 2 === 1 ? 'bg-[#F0FDFA]/40' : 'bg-white'}`}
+                  className={`transition-colors ${hoverable ? 'hover:bg-[#FFF8E6]/40' : ''} ${rowIndex % 2 === 1 ? 'bg-[#FFFDF5]/60' : 'bg-white'}`}
                 >
                   {columns.map((col, colIndex) => {
                     const value = col.accessor
@@ -68,7 +68,7 @@ export const Table = ({
                     return (
                       <td
                         key={col.key || colIndex}
-                        className={`px-5 py-4 whitespace-nowrap text-[#102A43] font-medium ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'} ${col.cellClassName || ''}`}
+                        className={`px-5 py-4 whitespace-nowrap text-[#4B5563] font-medium ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'} ${col.cellClassName || ''}`}
                       >
                         {col.render ? col.render(value, row, rowIndex) : value}
                       </td>

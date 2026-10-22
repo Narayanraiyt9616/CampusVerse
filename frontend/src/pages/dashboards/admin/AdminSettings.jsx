@@ -96,23 +96,23 @@ export const AdminSettings = () => {
     {
       key: 'action',
       header: 'Security Event Action',
-      render: (v) => <span className="font-mono font-bold text-xs text-[#102A43]">{v}</span>,
+      render: (v) => <span className="font-mono font-bold text-xs text-[#111827]">{v}</span>,
     },
     {
       key: 'details',
       header: 'Event Notation',
-      render: (v) => <span className="text-xs text-[#102A43] font-semibold">{v}</span>,
+      render: (v) => <span className="text-xs text-[#111827] font-semibold">{v}</span>,
     },
     {
       key: 'ipAddress',
       header: 'Origin IP',
-      render: (v) => <span className="font-mono text-[11px] text-[#102A43]/70">{v || '127.0.0.1'}</span>,
+      render: (v) => <span className="font-mono text-[11px] text-[#4B5563]">{v || '127.0.0.1'}</span>,
     },
     {
       key: 'createdAt',
       header: 'Timestamp',
       render: (v) => (
-        <span className="font-mono text-xs text-[#102A43]/70">
+        <span className="font-mono text-xs text-[#4B5563]">
           {v ? new Date(v).toLocaleString() : ''}
         </span>
       ),
@@ -123,44 +123,44 @@ export const AdminSettings = () => {
     <div className="space-y-6">
       {/* System Status Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-4 bg-white border border-[#CCFBF1] rounded-xl shadow-xs">
+        <div className="p-4 bg-white border border-[#F1E7CF] rounded-xl shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#CCFBF1] flex items-center justify-center text-[#0D9488]">
+            <div className="w-10 h-10 rounded-lg bg-[#FFF8E6] flex items-center justify-center text-[#D99A00]">
               <Database className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs text-[#102A43]/70 font-semibold">Database Node</p>
-              <p className="text-sm font-bold text-[#102A43]">MongoDB Atlas Cluster</p>
-              <span className="inline-flex items-center gap-1 text-[10px] text-[#0D9488] font-bold mt-0.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#0D9488] animate-pulse" />
+              <p className="text-xs text-[#4B5563] font-semibold">Database Node</p>
+              <p className="text-sm font-bold text-[#111827]">MongoDB Atlas Cluster</p>
+              <span className="inline-flex items-center gap-1 text-[10px] text-[#D99A00] font-bold mt-0.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#D99A00] animate-pulse" />
                 Active ReplicaSet Connected
               </span>
             </div>
           </div>
         </div>
 
-        <div className="p-4 bg-white border border-[#CCFBF1] rounded-xl shadow-xs">
+        <div className="p-4 bg-white border border-[#F1E7CF] rounded-xl shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#CCFBF1] flex items-center justify-center text-[#0D9488]">
+            <div className="w-10 h-10 rounded-lg bg-[#FFF8E6] flex items-center justify-center text-[#D99A00]">
               <Shield className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs text-[#102A43]/70 font-semibold">Security Mode</p>
-              <p className="text-sm font-bold text-[#102A43]">RBAC Role Enforcement</p>
-              <span className="text-[10px] text-[#0D9488] font-bold">JWT Bearer Verification Active</span>
+              <p className="text-xs text-[#4B5563] font-semibold">Security Mode</p>
+              <p className="text-sm font-bold text-[#111827]">RBAC Role Enforcement</p>
+              <span className="text-[10px] text-[#D99A00] font-bold">JWT Bearer Verification Active</span>
             </div>
           </div>
         </div>
 
-        <div className="p-4 bg-white border border-[#CCFBF1] rounded-xl shadow-xs">
+        <div className="p-4 bg-white border border-[#F1E7CF] rounded-xl shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#CCFBF1] flex items-center justify-center text-[#0D9488]">
+            <div className="w-10 h-10 rounded-lg bg-[#FFF8E6] flex items-center justify-center text-[#D99A00]">
               <Server className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs text-[#102A43]/70 font-semibold">Academic Year</p>
-              <p className="text-sm font-bold text-[#102A43]">{settings?.currentAcademicYear || '2025-2026'}</p>
-              <span className="text-[10px] text-[#0D9488] font-bold">{settings?.activeSemesterSeason || 'Odd Semester'}</span>
+              <p className="text-xs text-[#4B5563] font-semibold">Academic Year</p>
+              <p className="text-sm font-bold text-[#111827]">{settings?.currentAcademicYear || '2025-2026'}</p>
+              <span className="text-[10px] text-[#D99A00] font-bold">{settings?.activeSemesterSeason || 'Odd Semester'}</span>
             </div>
           </div>
         </div>
@@ -229,17 +229,17 @@ export const AdminSettings = () => {
             subtitle="CampusVerse AI Core Parameters"
           >
             <div className="space-y-2.5 text-xs">
-              <div className="flex justify-between py-1.5 border-b border-[#CCFBF1]">
-                <span className="text-[#102A43]/70 font-semibold">Institution:</span>
-                <span className="font-bold text-[#102A43] text-right">{settings?.institutionName || 'CampusVerse AI'}</span>
+              <div className="flex justify-between py-1.5 border-b border-[#F1E7CF]">
+                <span className="text-[#4B5563] font-semibold">Institution:</span>
+                <span className="font-bold text-[#111827] text-right">{settings?.institutionName || 'CampusVerse AI'}</span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-[#CCFBF1]">
-                <span className="text-[#102A43]/70 font-semibold">Attendance Bar:</span>
-                <span className="font-bold text-[#0D9488]">{settings?.attendanceShortageThreshold || 75}% Minimum</span>
+              <div className="flex justify-between py-1.5 border-b border-[#F1E7CF]">
+                <span className="text-[#4B5563] font-semibold">Attendance Bar:</span>
+                <span className="font-bold text-[#D99A00]">{settings?.attendanceShortageThreshold || 75}% Minimum</span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-[#CCFBF1]">
-                <span className="text-[#102A43]/70 font-semibold">Active Admin:</span>
-                <span className="font-mono font-bold text-[#102A43]">{user?.email || 'admin@campusverse.edu'}</span>
+              <div className="flex justify-between py-1.5 border-b border-[#F1E7CF]">
+                <span className="text-[#4B5563] font-semibold">Active Admin:</span>
+                <span className="font-mono font-bold text-[#111827]">{user?.email || 'admin@campusverse.edu'}</span>
               </div>
             </div>
           </Card>
@@ -272,7 +272,7 @@ export const AdminSettings = () => {
               />
 
               {totalPages > 1 && (
-                <div className="flex items-center justify-between text-xs text-[#102A43]/70 pt-2 border-t border-[#CCFBF1]">
+                <div className="flex items-center justify-between text-xs text-[#4B5563] pt-2 border-t border-[#F1E7CF]">
                   <span>Page {page} of {totalPages}</span>
                   <div className="flex items-center gap-2">
                     <Button

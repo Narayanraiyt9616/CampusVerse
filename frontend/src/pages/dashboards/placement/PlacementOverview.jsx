@@ -109,8 +109,8 @@ export const PlacementOverview = () => {
           subtitle={`${stats.registeredStudents} Registered • CGPA >= 7.0`}
           change="Clean Academic Standing"
           changeType="increase"
-          colorVariant="teal"
-          icon={<Users className="w-5 h-5 text-teal-600" />}
+          colorVariant="gold"
+          icon={<Users className="w-5 h-5 text-[#D99A00]" />}
         />
 
         <StatCard
@@ -144,7 +144,7 @@ export const PlacementOverview = () => {
             headerAction={
               <Link
                 to="/placement/companies"
-                className="text-xs font-semibold text-teal-700 hover:text-teal-900 flex items-center gap-1"
+                className="text-xs font-semibold text-[#D99A00] hover:text-[#111827] flex items-center gap-1"
               >
                 Manage Drives <ArrowRight className="w-3.5 h-3.5" />
               </Link>
@@ -155,7 +155,7 @@ export const PlacementOverview = () => {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-[#F0FDFA] text-[#102A43] font-bold border-b border-[#CCFBF1]">
+                  <thead className="bg-[#FFFDF5] text-[#111827] font-bold border-b border-[#F1E7CF]">
                     <tr>
                       <th className="p-3.5">Hiring Partner & Role</th>
                       <th className="p-3.5">Compensation (CTC)</th>
@@ -165,44 +165,44 @@ export const PlacementOverview = () => {
                       <th className="p-3.5 text-right">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#CCFBF1]">
+                  <tbody className="divide-y divide-[#F1E7CF]">
                     {upcomingDrives.map((d) => (
-                      <tr key={d._id} className="hover:bg-[#CCFBF1]/30 transition-colors">
+                      <tr key={d._id} className="hover:bg-[#FFF8E6]/30 transition-colors">
                         <td className="p-3.5">
-                          <span className="font-bold text-[#102A43] text-sm block">
+                          <span className="font-bold text-[#111827] text-sm block">
                             {d.companyName}
                           </span>
-                          <span className="text-xs font-semibold text-[#0D9488] block">
+                          <span className="text-xs font-semibold text-[#D99A00] block">
                             {d.jobTitle}
                           </span>
-                          <span className="text-xs text-[#102A43]/60 font-mono">
+                          <span className="text-xs text-[#4B5563] font-mono">
                             {d.jobType}
                           </span>
                         </td>
-                        <td className="p-3.5 font-mono font-bold text-[#102A43]">
+                        <td className="p-3.5 font-mono font-bold text-[#111827]">
                           {d.salaryPackage?.displayPackage || 'Best in Industry'}
                         </td>
                         <td className="p-3.5">
-                          <span className="font-mono text-[#102A43] block">
+                          <span className="font-mono text-[#111827] block">
                             Min CGPA: <strong>{d.eligibilityCriteria?.minCgpa || 7.0}</strong>
                           </span>
-                          <span className="text-xs text-[#102A43]/60 block font-medium">
+                          <span className="text-xs text-[#4B5563] block font-medium">
                             Max {d.eligibilityCriteria?.maxBacklogs || 0} Backlog
                           </span>
                         </td>
                         <td className="p-3.5 font-mono">
-                          <span className="font-semibold text-[#102A43] block">
+                          <span className="font-semibold text-[#111827] block">
                             {new Date(d.driveDate).toLocaleDateString('en-IN', {
                               day: 'numeric',
                               month: 'short',
                               year: 'numeric',
                             })}
                           </span>
-                          <span className="text-xs text-[#102A43]/60 block truncate max-w-[150px]">
+                          <span className="text-xs text-[#4B5563] block truncate max-w-[150px]">
                             {d.venue || 'Auditorium 2'}
                           </span>
                         </td>
-                        <td className="p-3.5 text-center font-mono font-bold text-[#0D9488]">
+                        <td className="p-3.5 text-center font-mono font-bold text-[#D99A00]">
                           {d.totalApplicationsCount || 0}
                         </td>
                         <td className="p-3.5 text-right">
@@ -229,22 +229,22 @@ export const PlacementOverview = () => {
           >
             <div className="space-y-4">
               {departmentStats.length === 0 ? (
-                <p className="text-xs text-[#102A43]/60 py-4 text-center font-medium">No department statistics available.</p>
+                <p className="text-xs text-[#4B5563] py-4 text-center font-medium">No department statistics available.</p>
               ) : (
                 departmentStats.map((dept, idx) => (
                   <div key={idx} className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs font-bold text-[#102A43]">
+                    <div className="flex items-center justify-between text-xs font-bold text-[#111827]">
                       <div className="flex items-center gap-2">
-                        <GraduationCap className="w-4 h-4 text-[#0D9488]" />
+                        <GraduationCap className="w-4 h-4 text-[#D99A00]" />
                         <span>{dept.department}</span>
                       </div>
-                      <span className="font-mono text-[#0D9488]">
+                      <span className="font-mono text-[#D99A00]">
                         {dept.placed} / {dept.total} Placed ({dept.placementRate}%)
                       </span>
                     </div>
-                    <div className="w-full h-2 rounded-full bg-[#CCFBF1] overflow-hidden">
+                    <div className="w-full h-2 rounded-full bg-[#FFF8E6] overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-[#0D9488] transition-all duration-500"
+                        className="h-full rounded-full bg-[#D99A00] transition-all duration-500"
                         style={{ width: `${Math.min(dept.placementRate, 100)}%` }}
                       />
                     </div>
@@ -264,7 +264,7 @@ export const PlacementOverview = () => {
             headerAction={
               <Link
                 to="/placement/applications"
-                className="text-xs font-bold text-[#0D9488] hover:underline"
+                className="text-xs font-bold text-[#D99A00] hover:underline"
               >
                 All Applications
               </Link>
@@ -272,15 +272,15 @@ export const PlacementOverview = () => {
           >
             <div className="space-y-3">
               {recentApplications.length === 0 ? (
-                <p className="text-xs text-[#102A43]/60 py-6 text-center font-medium">No active applications found.</p>
+                <p className="text-xs text-[#4B5563] py-6 text-center font-medium">No active applications found.</p>
               ) : (
                 recentApplications.map((app) => (
                   <div
                     key={app._id}
-                    className="p-3.5 rounded-xl border border-[#CCFBF1] bg-[#F0FDFA] hover:bg-[#CCFBF1]/40 transition-all space-y-1.5"
+                    className="p-3.5 rounded-xl border border-[#F1E7CF] bg-[#FFFDF5] hover:bg-[#FFF8E6]/40 transition-all space-y-1.5"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-bold text-[#102A43] text-sm">
+                      <span className="font-bold text-[#111827] text-sm">
                         {app.student?.name}
                       </span>
                       <Badge
@@ -291,11 +291,11 @@ export const PlacementOverview = () => {
                       </Badge>
                     </div>
 
-                    <div className="text-xs text-[#102A43]/80">
-                      <span className="font-bold text-[#0D9488]">{app.drive?.companyName}</span> • {app.drive?.jobTitle}
+                    <div className="text-xs text-[#4B5563]">
+                      <span className="font-bold text-[#D99A00]">{app.drive?.companyName}</span> • {app.drive?.jobTitle}
                     </div>
 
-                    <div className="pt-1 flex items-center justify-between text-xs text-[#102A43]/60 font-mono">
+                    <div className="pt-1 flex items-center justify-between text-xs text-[#4B5563] font-mono">
                       <span>Roll: {app.student?.studentId}</span>
                       <span>{app.currentRound || 'Screening'}</span>
                     </div>
@@ -311,15 +311,15 @@ export const PlacementOverview = () => {
               {topRecruiters.map((comp) => (
                 <div
                   key={comp._id}
-                  className="p-3 rounded-xl border border-[#CCFBF1] bg-[#FFFFFF] hover:bg-[#CCFBF1]/20 flex items-center justify-between shadow-xs text-xs"
+                  className="p-3 rounded-xl border border-[#F1E7CF] bg-[#FFFFFF] hover:bg-[#FFF8E6]/20 flex items-center justify-between shadow-xs text-xs"
                 >
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-[#CCFBF1] border border-[#0D9488]/30 flex items-center justify-center font-bold text-[#0D9488]">
+                    <div className="w-8 h-8 rounded-lg bg-[#FFF8E6] border border-[#D99A00]/30 flex items-center justify-center font-bold text-[#D99A00]">
                       {comp.name.charAt(0)}
                     </div>
                     <div>
-                      <span className="font-bold text-[#102A43] block">{comp.name}</span>
-                      <span className="text-xs text-[#102A43]/60 block truncate max-w-[140px] font-medium">{comp.industry}</span>
+                      <span className="font-bold text-[#111827] block">{comp.name}</span>
+                      <span className="text-xs text-[#4B5563] block truncate max-w-[140px] font-medium">{comp.industry}</span>
                     </div>
                   </div>
                   <Badge variant="teal" size="sm">{comp.tier}</Badge>

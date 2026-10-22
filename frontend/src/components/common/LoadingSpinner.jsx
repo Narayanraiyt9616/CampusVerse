@@ -2,7 +2,6 @@ import React from 'react';
 
 /**
  * Loading Spinner Component for CampusVerse AI
- * Strictly adhering to 5 colors: #102A43, #0D9488, #F0FDFA, #FFFFFF, #CCFBF1
  */
 export const LoadingSpinner = ({
   size = 'md', // 'sm' | 'md' | 'lg'
@@ -17,19 +16,21 @@ export const LoadingSpinner = ({
   };
 
   const colorClasses = {
-    teal: 'border-[#CCFBF1] border-t-[#0D9488]',
-    navy: 'border-[#CCFBF1] border-t-[#102A43]',
+    teal: 'border-[#F1E7CF] border-t-[#D99A00]',
+    gold: 'border-[#F1E7CF] border-t-[#D99A00]',
+    yellow: 'border-[#F1E7CF] border-t-[#FFC107]',
+    navy: 'border-[#F1E7CF] border-t-[#111827]',
     white: 'border-white/30 border-t-white',
   };
 
   return (
     <div className={`inline-flex flex-col items-center justify-center gap-2 ${className}`}>
       <div
-        className={`rounded-full animate-spin ${sizeClasses[size] || sizeClasses.md} ${colorClasses[variant] || colorClasses.teal}`}
+        className={`rounded-full animate-spin ${sizeClasses[size] || sizeClasses.md} ${colorClasses[variant] || colorClasses.gold}`}
         role="status"
         aria-label="Loading"
       />
-      {text && <span className="text-xs text-[#102A43] font-bold">{text}</span>}
+      {text && <span className="text-xs text-[#111827] font-bold">{text}</span>}
     </div>
   );
 };

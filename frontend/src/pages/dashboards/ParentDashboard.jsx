@@ -170,27 +170,27 @@ export const ParentDashboard = () => {
   return (
     <div className="space-y-6">
       {/* Top Ward Switcher Strip & Dedicated Page Breadcrumb */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-2 border-b border-[#CCFBF1]">
-        <div className="flex items-center gap-2 text-xs font-bold text-[#102A43]/70">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-2 border-b border-[#F1E7CF]">
+        <div className="flex items-center gap-2 text-xs font-bold text-[#4B5563]">
           <Link
             to="/parent"
-            className="hover:text-[#0D9488] flex items-center gap-1 transition-colors"
+            className="hover:text-[#D99A00] flex items-center gap-1 transition-colors"
           >
             Parent Portal
           </Link>
-          <ChevronRight className="w-3.5 h-3.5 text-[#0D9488]" />
-          <span className="text-[#102A43] font-bold">{meta.breadcrumb}</span>
+          <ChevronRight className="w-3.5 h-3.5 text-[#D99A00]" />
+          <span className="text-[#111827] font-bold">{meta.breadcrumb}</span>
         </div>
 
         {/* Global Ward Switcher Dropdown */}
         {wards.length > 0 && (
-          <div className="flex items-center gap-2 bg-white px-3.5 py-1.5 rounded-xl border border-[#CCFBF1] shadow-sm">
-            <Users className="w-4 h-4 text-[#0D9488]" />
-            <span className="text-xs font-bold text-[#102A43]">Ward:</span>
+          <div className="flex items-center gap-2 bg-white px-3.5 py-1.5 rounded-xl border border-[#F1E7CF] shadow-sm">
+            <Users className="w-4 h-4 text-[#D99A00]" />
+            <span className="text-xs font-bold text-[#111827]">Ward:</span>
             <select
               value={selectedStudentId}
               onChange={(e) => setSelectedStudentId(e.target.value)}
-              className="text-xs font-bold text-[#102A43] bg-transparent border-0 focus:ring-0 focus:outline-none cursor-pointer"
+              className="text-xs font-bold text-[#111827] bg-transparent border-0 focus:ring-0 focus:outline-none cursor-pointer"
             >
               {wards.map((w) => (
                 <option key={w._id} value={w._id}>
@@ -218,7 +218,7 @@ export const ParentDashboard = () => {
       />
 
       {/* Modern Navigation Pills Strip for all 6 Modules */}
-      <div className="bg-white p-2 rounded-2xl border border-[#CCFBF1] shadow-sm flex items-center gap-2 overflow-x-auto scrollbar-none">
+      <div className="bg-white p-2 rounded-2xl border border-[#F1E7CF] shadow-sm flex items-center gap-2 overflow-x-auto scrollbar-none">
         {SECTIONS.map((sec) => {
           const Icon = sec.icon;
           const isActive =
@@ -235,8 +235,8 @@ export const ParentDashboard = () => {
               to={sec.path}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
                 isActive
-                  ? 'bg-[#0D9488] text-white shadow-sm border border-[#0D9488]'
-                  : 'text-[#102A43] hover:bg-[#CCFBF1]'
+                  ? 'bg-[#D99A00] text-white shadow-sm border border-[#D99A00]'
+                  : 'text-[#111827] hover:bg-[#FFF8E6]'
               }`}
             >
               <Icon className="w-4 h-4" />

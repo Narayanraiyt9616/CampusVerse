@@ -3,8 +3,8 @@ const router = express.Router();
 const staffController = require('../controllers/staffController');
 const authorizeRoles = require('../middleware/roleMiddleware');
 
-// All staff endpoints require staff, admin, or superadmin credentials
-const requireStaff = authorizeRoles('staff', 'admin', 'superadmin');
+// All staff endpoints require staff, hostel, admin, or superadmin credentials
+const requireStaff = authorizeRoles('staff', 'hostel', 'admin', 'superadmin');
 
 // 1. Dashboard
 router.get('/dashboard', requireStaff, staffController.getStaffDashboard);

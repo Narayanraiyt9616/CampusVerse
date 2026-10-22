@@ -95,7 +95,7 @@ export const AdminReports = () => {
           if (v === 'Pending') {
             return <Badge variant="warning" size="sm">{v}</Badge>;
           }
-          return <span className="text-xs text-[#102A43] font-medium">{String(v)}</span>;
+          return <span className="text-xs text-[#111827] font-medium">{String(v)}</span>;
         },
       }))
     : [];
@@ -124,21 +124,21 @@ export const AdminReports = () => {
               onClick={() => setSelectedType(t.id)}
               className={`p-4 rounded-xl border text-left transition-all flex flex-col justify-between ${
                 isSelected
-                  ? 'border-[#0D9488] bg-[#CCFBF1]/40 ring-1 ring-[#0D9488] shadow-xs'
-                  : 'border-[#CCFBF1] bg-white hover:border-[#0D9488]/40'
+                  ? 'border-[#D99A00] bg-[#FFF8E6]/40 ring-1 ring-[#D99A00] shadow-xs'
+                  : 'border-[#F1E7CF] bg-white hover:border-[#D99A00]/40'
               }`}
             >
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                    isSelected ? 'bg-[#0D9488] text-white' : 'bg-[#CCFBF1]/30 text-[#102A43]'
+                    isSelected ? 'bg-[#D99A00] text-white' : 'bg-[#FFF8E6]/30 text-[#111827]'
                   }`}>
                     <Icon className="w-4 h-4" />
                   </div>
                   {isSelected && <Badge variant="teal" size="sm">Active</Badge>}
                 </div>
-                <h4 className="text-xs font-bold text-[#102A43]">{t.label}</h4>
-                <p className="text-[11px] text-[#102A43]/70 mt-1 leading-relaxed font-medium">{t.desc}</p>
+                <h4 className="text-xs font-bold text-[#111827]">{t.label}</h4>
+                <p className="text-[11px] text-[#4B5563] mt-1 leading-relaxed font-medium">{t.desc}</p>
               </div>
             </button>
           );

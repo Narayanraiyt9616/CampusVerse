@@ -186,47 +186,47 @@ export const PortalLoginPage = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-140px)] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[#F0FDFA] text-[#102A43]">
+    <div className="min-h-[calc(100vh-140px)] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[#FFFEFA] text-[#111827]">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-3.5">
         <Link to="/" className="inline-flex items-center gap-2.5 p-1 rounded-xl">
-          <div className="w-14 h-14 rounded-2xl bg-[#102A43] flex items-center justify-center text-white shadow-md mx-auto">
-            <GraduationCap className="w-8 h-8 text-[#CCFBF1]" />
+          <div className="w-14 h-14 rounded-2xl bg-[#111827] flex items-center justify-center text-[#FFC107] shadow-md mx-auto border border-[#F1E7CF]">
+            <GraduationCap className="w-8 h-8 text-[#FFC107]" />
           </div>
         </Link>
         <div className="flex items-center justify-center gap-2">
           <Badge variant={portal.badgeVariant} size="sm">
             {portal.title}
           </Badge>
-          <span className="text-xs font-mono font-bold text-[#102A43]/70">
+          <span className="text-xs font-mono font-bold text-[#64748B]">
             role: {portal.canonicalRole}
           </span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#102A43] tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#111827] tracking-tight">
           Sign In to {portal.title}
         </h1>
-        <p className="text-xs sm:text-sm text-[#102A43]/75 max-w-sm mx-auto font-medium">
+        <p className="text-xs sm:text-sm text-[#4B5563] max-w-sm mx-auto font-medium">
           {portal.subtitle}
         </p>
       </div>
 
       <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-6 sm:px-8 shadow-card rounded-2xl border border-[#CCFBF1] space-y-5">
+        <div className="bg-white py-8 px-6 sm:px-8 shadow-card rounded-2xl border border-[#F1E7CF] space-y-5">
           {/* Quick Demo Credentials Autofill Banner */}
           {portal.demoUser && (
-            <div className="p-4 rounded-xl bg-[#CCFBF1] border border-[#0D9488] text-[#102A43] flex items-center justify-between text-xs">
+            <div className="p-4 rounded-xl bg-[#FFF8E6] border border-[#F1E7CF] text-[#111827] flex items-center justify-between text-xs">
               <div className="space-y-0.5">
-                <div className="font-bold text-[#102A43] flex items-center gap-1.5 text-xs">
-                  <ShieldCheck className="w-4 h-4 text-[#0D9488]" />
+                <div className="font-bold text-[#111827] flex items-center gap-1.5 text-xs">
+                  <ShieldCheck className="w-4 h-4 text-[#D99A00]" />
                   <span>{portal.demoUser.label}</span>
                 </div>
-                <div className="text-xs text-[#102A43] font-mono font-semibold">
+                <div className="text-xs text-[#64748B] font-mono font-semibold">
                   {portal.demoUser.email}
                 </div>
               </div>
               <button
                 type="button"
                 onClick={handleFillDemo}
-                className="px-3 py-1.5 text-xs font-bold bg-[#0D9488] text-white rounded-lg hover:opacity-90 transition-opacity shadow-sm"
+                className="px-3 py-1.5 text-xs font-bold bg-[#D99A00] text-white rounded-lg hover:bg-[#E5A900] transition-colors shadow-sm"
               >
                 Autofill
               </button>
@@ -285,7 +285,7 @@ export const PortalLoginPage = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-9 text-[#102A43]/60 hover:text-[#102A43] p-1 focus:outline-none"
+                  className="absolute right-3.5 top-9 text-[#64748B] hover:text-[#111827] p-1 focus:outline-none"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -307,10 +307,10 @@ export const PortalLoginPage = () => {
           </form>
 
           {/* Navigation helpers */}
-          <div className="pt-3.5 border-t border-[#CCFBF1] flex items-center justify-between text-xs">
+          <div className="pt-3.5 border-t border-[#F1E7CF] flex items-center justify-between text-xs">
             <Link
               to="/login"
-              className="inline-flex items-center gap-1.5 text-[#102A43]/70 hover:text-[#0D9488] font-bold transition-colors"
+              className="inline-flex items-center gap-1.5 text-[#64748B] hover:text-[#D99A00] font-bold transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back to Portal Selection</span>
@@ -318,7 +318,7 @@ export const PortalLoginPage = () => {
 
             <Link
               to="/"
-              className="text-[#102A43]/70 hover:text-[#0D9488] font-bold transition-colors"
+              className="text-[#64748B] hover:text-[#D99A00] font-bold transition-colors"
             >
               Home
             </Link>

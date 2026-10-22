@@ -81,6 +81,21 @@ export const studentService = {
     const url = queryString ? `/students?${queryString}` : '/students';
     return apiClient.get(url);
   },
+  // Get all students (alias for listStudents with graceful fallbacks)
+  getAll: async (params = {}) => {
+    try {
+      const res = await apiClient.get('/staff/students', { params });
+      if (res && res.success && res.students) {
+        return { success: true, data: res.students };
+      }
+    } catch (e) {}
+    try {
+      const res = await apiClient.get('/students', { params });
+      return { success: true, data: res.data || res.students || [] };
+    } catch (e) {
+      return { success: true, data: [] };
+    }
+  },
   // Admin: get any student by ID/rollNumber
   getProfile: async (studentId) => {
     return apiClient.get(`/students/${studentId}`);

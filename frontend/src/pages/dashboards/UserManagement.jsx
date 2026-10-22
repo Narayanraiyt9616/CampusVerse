@@ -92,41 +92,41 @@ function CredentialModal({ isOpen, onClose, data }) {
     >
       {data && (
         <div className="space-y-4">
-          <div className="p-4 bg-[#CCFBF1] border border-[#0D9488] rounded-2xl space-y-3">
+          <div className="p-4 bg-[#FFF8E6] border border-[#D99A00] rounded-2xl space-y-3">
             <div className="flex justify-between items-center text-sm">
-              <span className="text-[#102A43]/70 font-bold">Name</span>
-              <span className="font-bold text-[#102A43]">{data.user?.name}</span>
+              <span className="text-[#4B5563] font-bold">Name</span>
+              <span className="font-bold text-[#111827]">{data.user?.name}</span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-[#102A43]/70 font-bold">Email</span>
-              <span className="font-mono font-semibold text-[#102A43]">{data.user?.email}</span>
+              <span className="text-[#4B5563] font-bold">Email</span>
+              <span className="font-mono font-semibold text-[#111827]">{data.user?.email}</span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-[#102A43]/70 font-bold">Username</span>
-              <span className="font-mono font-extrabold text-[#0D9488]">@{data.user?.username}</span>
+              <span className="text-[#4B5563] font-bold">Username</span>
+              <span className="font-mono font-extrabold text-[#D99A00]">@{data.user?.username}</span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-[#102A43]/70 font-bold">Role</span>
+              <span className="text-[#4B5563] font-bold">Role</span>
               <Badge variant="teal" size="sm">
                 {data.user?.role}
               </Badge>
             </div>
-            <div className="flex justify-between items-center text-sm border-t border-[#0D9488]/30 pt-3">
-              <span className="text-[#102A43]/70 font-bold">Temporary Password</span>
-              <span className="font-mono font-extrabold text-lg text-[#102A43] tracking-wider bg-white px-3.5 py-1 rounded-xl border border-[#0D9488]">
+            <div className="flex justify-between items-center text-sm border-t border-[#D99A00]/30 pt-3">
+              <span className="text-[#4B5563] font-bold">Temporary Password</span>
+              <span className="font-mono font-extrabold text-lg text-[#111827] tracking-wider bg-white px-3.5 py-1 rounded-xl border border-[#D99A00]">
                 {data.temporaryPassword}
               </span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-[#102A43]/70 font-bold">Portal URL</span>
-              <span className="font-mono text-xs font-semibold text-[#102A43]">
+              <span className="text-[#4B5563] font-bold">Portal URL</span>
+              <span className="font-mono text-xs font-semibold text-[#111827]">
                 {window.location.origin}{PORTAL_MAP[data.user?.role] || '/'}
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-2.5 p-3.5 bg-[#F0FDFA] border border-[#CCFBF1] rounded-xl">
-            <AlertTriangle className="w-4 h-4 text-[#0D9488] shrink-0" />
-            <p className="text-xs text-[#102A43] font-semibold">
+          <div className="flex items-center gap-2.5 p-3.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl">
+            <AlertTriangle className="w-4 h-4 text-[#D99A00] shrink-0" />
+            <p className="text-xs text-[#111827] font-semibold">
               This password will not be shown again. Copy and share it securely with the user.
             </p>
           </div>
@@ -324,8 +324,8 @@ function UserFormModal({ isOpen, onClose, onSuccess, editUser, departments }) {
 
         {/* Student-specific metadata */}
         {activeRole === 'student' && (
-          <div className="p-3 bg-teal-50 border border-teal-100 rounded-lg space-y-3">
-            <p className="text-xs font-semibold text-teal-700 uppercase tracking-wider">Student Details</p>
+          <div className="p-3 bg-[#FFF8E6] border border-[#F1E7CF] rounded-lg space-y-3">
+            <p className="text-xs font-semibold text-[#D99A00] uppercase tracking-wider">Student Details</p>
             <div className="grid grid-cols-3 gap-3">
               <Input id="uf-sid" label="Student ID" value={form.metadata.studentId} onChange={(e) => setMeta('studentId', e.target.value)} placeholder="CS21B1042" />
               <Input id="uf-sem" label="Semester" type="number" value={form.metadata.semester} onChange={(e) => setMeta('semester', e.target.value)} placeholder="1–12" />

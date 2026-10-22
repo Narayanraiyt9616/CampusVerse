@@ -74,17 +74,17 @@ export const LoginPage = () => {
   ];
 
   return (
-    <div className="min-h-[calc(100vh-140px)] py-14 px-4 sm:px-6 lg:px-8 bg-[#F9FAFB] text-[#111827]">
+    <div className="min-h-[calc(100vh-140px)] py-14 px-4 sm:px-6 lg:px-8 bg-[#FFFEFA] text-[#111827]">
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Header */}
         <div className="text-center space-y-3.5 max-w-2xl mx-auto">
           <Link to="/" className="inline-flex items-center gap-2.5 p-1 rounded-xl">
-            <div className="w-14 h-14 rounded-2xl bg-[#111827] flex items-center justify-center text-[#FFFFFF] shadow-sm mx-auto border border-[#E5E7EB]">
-              <GraduationCap className="w-8 h-8 text-[#FFFFFF]" />
+            <div className="w-14 h-14 rounded-2xl bg-[#111827] flex items-center justify-center text-[#FFC107] shadow-sm mx-auto border border-[#F1E7CF]">
+              <GraduationCap className="w-8 h-8 text-[#FFC107]" />
             </div>
           </Link>
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E5E7EB] border border-[#E5E7EB] text-xs font-semibold text-[#111827]">
-            <ShieldCheck className="w-4 h-4 text-[#374151]" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FFF8E6] border border-[#F1E7CF] text-xs font-semibold text-[#D99A00]">
+            <ShieldCheck className="w-4 h-4 text-[#D99A00]" />
             <span>Role-Based Authentication Gateway</span>
           </div>
           <h1 className="text-3xl font-extrabold text-[#111827] tracking-tight sm:text-4xl">
@@ -97,7 +97,7 @@ export const LoginPage = () => {
 
         {/* Logged in state notice */}
         {isAuthenticated && user && (
-          <div className="max-w-xl mx-auto p-4 rounded-2xl bg-[#FFFFFF] border border-[#E5E7EB] text-[#111827] flex items-center justify-between text-xs sm:text-sm font-medium shadow-xs">
+          <div className="max-w-xl mx-auto p-4 rounded-2xl bg-[#FFFFFF] border border-[#F1E7CF] text-[#111827] flex items-center justify-between text-xs sm:text-sm font-medium shadow-xs">
             <div className="flex items-center gap-2.5">
               <UserCheck className="w-4 h-4 text-[#16A34A]" />
               <span>
@@ -105,7 +105,7 @@ export const LoginPage = () => {
               </span>
             </div>
             <Link to={`/${user.role === 'staff' ? 'hostel' : user.role}`}>
-              <Button size="sm" className="!bg-[#374151] hover:!bg-[#1F2937] !text-[#FFFFFF] !border-transparent shadow-xs transition-colors">
+              <Button size="sm" className="!bg-[#D99A00] hover:!bg-[#E5A900] !text-white !border-transparent shadow-xs transition-colors">
                 Open Active Portal
               </Button>
             </Link>
@@ -118,15 +118,15 @@ export const LoginPage = () => {
             <Card
               key={p.role}
               hoverable
-              className="flex flex-col justify-between !bg-[#FFFFFF] !border-[#E5E7EB] hover:!border-[#374151] hover:!shadow-md transition-all duration-200 shadow-xs"
+              className="flex flex-col justify-between !bg-[#FFFFFF] !border-[#F1E7CF] hover:!border-[#D99A00] hover:!shadow-md transition-all duration-200 shadow-xs"
               bodyClassName="p-6 flex flex-col justify-between h-full bg-[#FFFFFF]"
             >
               <div className="space-y-3.5">
                 <div className="flex items-center justify-between">
-                  <Badge variant={p.badgeVariant} size="sm" className="!bg-[#E5E7EB] !text-[#111827] !border-[#E5E7EB] font-semibold">
+                  <Badge variant={p.badgeVariant} size="sm" className="!bg-[#FFF8E6] !text-[#D99A00] !border-[#F1E7CF] font-semibold">
                     {p.role}
                   </Badge>
-                  <span className="text-xs text-[#4B5563] font-mono font-medium">
+                  <span className="text-xs text-[#64748B] font-mono font-medium">
                     {p.canonicalRole}
                   </span>
                 </div>
@@ -136,7 +136,7 @@ export const LoginPage = () => {
                 </p>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-[#E5E7EB] space-y-3">
+              <div className="mt-6 pt-4 border-t border-[#F1E7CF] space-y-3">
                 <div className="text-xs text-[#4B5563] font-medium flex items-center justify-between">
                   <span>Authorized ID:</span>
                   <span className="font-mono text-[#111827] font-semibold">{p.demoInfo}</span>
@@ -145,8 +145,8 @@ export const LoginPage = () => {
                   <Button
                     variant="primary"
                     size="sm"
-                    className="w-full justify-between !bg-[#374151] hover:!bg-[#1F2937] !text-[#FFFFFF] !border-transparent shadow-xs transition-colors"
-                    rightIcon={<ArrowRight className="w-4 h-4 text-[#FFFFFF]" />}
+                    className="w-full justify-between !bg-[#D99A00] hover:!bg-[#E5A900] !text-white !border-transparent shadow-xs transition-colors font-bold"
+                    rightIcon={<ArrowRight className="w-4 h-4 text-white" />}
                   >
                     Open {p.role} Sign In
                   </Button>
@@ -160,7 +160,7 @@ export const LoginPage = () => {
         <div className="text-center pt-4">
           <Link
             to="/"
-            className="text-xs sm:text-sm text-[#4B5563] hover:text-[#111827] font-semibold transition-colors"
+            className="text-xs sm:text-sm text-[#4B5563] hover:text-[#D99A00] font-semibold transition-colors"
           >
             &larr; Return to CampusVerse Public Landing
           </Link>

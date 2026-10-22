@@ -238,25 +238,25 @@ export const PlacementApplications = () => {
 
       {/* KPI Ribbons */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[#FFFFFF] p-4 rounded-xl border border-[#CCFBF1] shadow-xs">
-          <span className="text-xs font-bold text-[#102A43]/70 uppercase tracking-wider block">Total Applications</span>
-          <span className="text-2xl font-bold font-mono text-[#102A43] mt-1 block">{applications.length}</span>
-          <span className="text-xs text-[#102A43]/60 font-medium">Across All Active Drives</span>
+        <div className="bg-[#FFFFFF] p-4 rounded-xl border border-[#F1E7CF] shadow-xs">
+          <span className="text-xs font-bold text-[#4B5563] uppercase tracking-wider block">Total Applications</span>
+          <span className="text-2xl font-bold font-mono text-[#111827] mt-1 block">{applications.length}</span>
+          <span className="text-xs text-[#4B5563] font-medium">Across All Active Drives</span>
         </div>
-        <div className="bg-[#FFFFFF] p-4 rounded-xl border border-[#CCFBF1] shadow-xs">
-          <span className="text-xs font-bold text-[#102A43]/70 uppercase tracking-wider block">Shortlisted Candidates</span>
-          <span className="text-2xl font-bold font-mono text-[#0D9488] mt-1 block">{shortlistedCount}</span>
-          <span className="text-xs text-[#0D9488] font-semibold">Cleared initial screening</span>
+        <div className="bg-[#FFFFFF] p-4 rounded-xl border border-[#F1E7CF] shadow-xs">
+          <span className="text-xs font-bold text-[#4B5563] uppercase tracking-wider block">Shortlisted Candidates</span>
+          <span className="text-2xl font-bold font-mono text-[#D99A00] mt-1 block">{shortlistedCount}</span>
+          <span className="text-xs text-[#D99A00] font-semibold">Cleared initial screening</span>
         </div>
-        <div className="bg-[#FFFFFF] p-4 rounded-xl border border-[#CCFBF1] shadow-xs">
-          <span className="text-xs font-bold text-[#102A43]/70 uppercase tracking-wider block">Interviewing Live</span>
-          <span className="text-2xl font-bold font-mono text-[#102A43] mt-1 block">{interviewingCount}</span>
-          <span className="text-xs text-[#0D9488] font-semibold">Active panel assessments</span>
+        <div className="bg-[#FFFFFF] p-4 rounded-xl border border-[#F1E7CF] shadow-xs">
+          <span className="text-xs font-bold text-[#4B5563] uppercase tracking-wider block">Interviewing Live</span>
+          <span className="text-2xl font-bold font-mono text-[#111827] mt-1 block">{interviewingCount}</span>
+          <span className="text-xs text-[#D99A00] font-semibold">Active panel assessments</span>
         </div>
-        <div className="bg-[#FFFFFF] p-4 rounded-xl border border-[#CCFBF1] shadow-xs">
-          <span className="text-xs font-bold text-[#102A43]/70 uppercase tracking-wider block">Offers Dispatched</span>
-          <span className="text-2xl font-bold font-mono text-[#0D9488] mt-1 block">{offeredCount}</span>
-          <span className="text-xs text-[#0D9488] font-bold">Final placement contracts</span>
+        <div className="bg-[#FFFFFF] p-4 rounded-xl border border-[#F1E7CF] shadow-xs">
+          <span className="text-xs font-bold text-[#4B5563] uppercase tracking-wider block">Offers Dispatched</span>
+          <span className="text-2xl font-bold font-mono text-[#D99A00] mt-1 block">{offeredCount}</span>
+          <span className="text-xs text-[#D99A00] font-bold">Final placement contracts</span>
         </div>
       </div>
 
@@ -273,7 +273,7 @@ export const PlacementApplications = () => {
                 placeholder="Search candidate or company..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-teal-500 w-44"
+                className="pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-[#D99A00] w-44"
               />
             </div>
 
@@ -312,7 +312,7 @@ export const PlacementApplications = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-[#F0FDFA] text-[#102A43] font-bold border-b border-[#CCFBF1]">
+              <thead className="bg-[#FFFDF5] text-[#111827] font-bold border-b border-[#F1E7CF]">
                 <tr>
                   <th className="p-3.5">Candidate Details</th>
                   <th className="p-3.5">Company & Role</th>
@@ -329,7 +329,7 @@ export const PlacementApplications = () => {
                       <span className="font-bold text-slate-900 block text-sm">
                         {a.student?.name}
                       </span>
-                      <span className="text-[11px] font-mono text-teal-700 block">
+                      <span className="text-[11px] font-mono text-[#D99A00] block">
                         {a.student?.studentId} • {a.student?.department?.code || 'CSE'}
                       </span>
                     </td>
@@ -338,7 +338,7 @@ export const PlacementApplications = () => {
                       <span className="font-bold text-slate-900 block">
                         {a.drive?.companyName}
                       </span>
-                      <span className="text-xs text-teal-700 font-medium block">
+                      <span className="text-xs text-[#D99A00] font-medium block">
                         {a.drive?.jobTitle}
                       </span>
                       <span className="text-[10px] text-slate-400 font-mono">
@@ -434,8 +434,8 @@ export const PlacementApplications = () => {
 
       {/* MODAL: SCHEDULE INTERVIEW */}
       {activeApp && modalMode === 'interview' && (
-        <div className="fixed inset-0 z-50 bg-[#102A43]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#CCFBF1] relative animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 bg-[#111827]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#F1E7CF] relative animate-in fade-in zoom-in-95 duration-200">
             <button
               onClick={() => setActiveApp(null)}
               className="absolute top-4 right-4 p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
@@ -525,8 +525,8 @@ export const PlacementApplications = () => {
 
       {/* MODAL: CONFIRM PLACEMENT OFFER */}
       {activeApp && modalMode === 'offer' && (
-        <div className="fixed inset-0 z-50 bg-[#102A43]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#CCFBF1] relative animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 bg-[#111827]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#F1E7CF] relative animate-in fade-in zoom-in-95 duration-200">
             <button
               onClick={() => setActiveApp(null)}
               className="absolute top-4 right-4 p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"

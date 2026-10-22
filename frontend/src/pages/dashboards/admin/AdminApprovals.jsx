@@ -90,8 +90,8 @@ export const AdminApprovals = () => {
       header: 'Faculty Applicant',
       render: (f) => (
         <div>
-          <p className="font-bold text-[#102A43] text-xs">{f?.name || 'Faculty Member'}</p>
-          <p className="font-mono text-[11px] text-[#102A43]/70">{f?.email}</p>
+          <p className="font-bold text-[#111827] text-xs">{f?.name || 'Faculty Member'}</p>
+          <p className="font-mono text-[11px] text-[#4B5563]">{f?.email}</p>
         </div>
       ),
     },
@@ -105,14 +105,14 @@ export const AdminApprovals = () => {
       header: 'Duration',
       render: (_, r) => (
         <div>
-          <span className="font-mono text-xs font-bold text-[#102A43]">{r.fromDate} → {r.toDate}</span>
+          <span className="font-mono text-xs font-bold text-[#111827]">{r.fromDate} → {r.toDate}</span>
         </div>
       ),
     },
     {
       key: 'reason',
       header: 'Reason for Leave',
-      render: (v) => <p className="text-xs text-[#102A43]/80 line-clamp-1 max-w-xs">{v}</p>,
+      render: (v) => <p className="text-xs text-[#4B5563] line-clamp-1 max-w-xs">{v}</p>,
     },
     {
       key: 'status',
@@ -208,7 +208,7 @@ export const AdminApprovals = () => {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="h-9 px-2.5 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
+                className="h-9 px-2.5 text-xs rounded-lg border border-[#F1E7CF] bg-[#FFFFFF] text-[#111827] focus:outline-none focus:border-[#D99A00] focus:ring-1 focus:ring-[#D99A00] font-medium"
               >
                 <option value="all">All Statuses ({leaves.length})</option>
                 <option value="Pending">Pending Review</option>
@@ -268,22 +268,22 @@ export const AdminApprovals = () => {
       >
         {selectedLeave && (
           <form onSubmit={handleCommitDecision} className="space-y-4">
-            <div className="p-3 bg-[#CCFBF1]/30 border border-[#CCFBF1] rounded-lg text-xs space-y-1.5 text-[#102A43]">
+            <div className="p-3 bg-[#FFF8E6]/30 border border-[#F1E7CF] rounded-lg text-xs space-y-1.5 text-[#111827]">
               <div className="flex justify-between">
-                <span className="text-[#102A43]/70 font-semibold">Applicant:</span>
-                <span className="font-bold text-[#102A43]">{selectedLeave.faculty?.name}</span>
+                <span className="text-[#4B5563] font-semibold">Applicant:</span>
+                <span className="font-bold text-[#111827]">{selectedLeave.faculty?.name}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#102A43]/70 font-semibold">Leave Category:</span>
-                <span className="font-bold text-[#102A43]">{selectedLeave.leaveType}</span>
+                <span className="text-[#4B5563] font-semibold">Leave Category:</span>
+                <span className="font-bold text-[#111827]">{selectedLeave.leaveType}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#102A43]/70 font-semibold">Duration:</span>
-                <span className="font-mono font-bold text-[#102A43]">{selectedLeave.fromDate} → {selectedLeave.toDate}</span>
+                <span className="text-[#4B5563] font-semibold">Duration:</span>
+                <span className="font-mono font-bold text-[#111827]">{selectedLeave.fromDate} → {selectedLeave.toDate}</span>
               </div>
-              <div className="pt-2 border-t border-[#CCFBF1]">
-                <span className="text-[#102A43]/70 block mb-1 font-semibold">Stated Reason:</span>
-                <p className="text-[#102A43] font-medium italic bg-white p-2 rounded border border-[#CCFBF1]">
+              <div className="pt-2 border-t border-[#F1E7CF]">
+                <span className="text-[#4B5563] block mb-1 font-semibold">Stated Reason:</span>
+                <p className="text-[#111827] font-medium italic bg-white p-2 rounded border border-[#F1E7CF]">
                   "{selectedLeave.reason}"
                 </p>
               </div>
@@ -292,15 +292,15 @@ export const AdminApprovals = () => {
             {selectedLeave.status === 'Pending' ? (
               <>
                 <div>
-                  <label className="block text-xs font-bold text-[#102A43] mb-1.5">Executive Decision</label>
+                  <label className="block text-xs font-bold text-[#111827] mb-1.5">Executive Decision</label>
                   <div className="grid grid-cols-2 gap-3">
                     <button
                       type="button"
                       onClick={() => setDecision('Approved')}
                       className={`p-3 rounded-lg border text-xs font-bold flex items-center justify-center gap-2 transition-all ${
                         decision === 'Approved'
-                          ? 'border-[#0D9488] bg-[#0D9488] text-white shadow-xs'
-                          : 'border-[#CCFBF1] bg-white text-[#102A43]'
+                          ? 'border-[#D99A00] bg-[#D99A00] text-white shadow-xs'
+                          : 'border-[#F1E7CF] bg-white text-[#111827]'
                       }`}
                     >
                       <CheckCircle2 className="w-4 h-4 text-white" />
@@ -312,8 +312,8 @@ export const AdminApprovals = () => {
                       onClick={() => setDecision('Rejected')}
                       className={`p-3 rounded-lg border text-xs font-bold flex items-center justify-center gap-2 transition-all ${
                         decision === 'Rejected'
-                          ? 'border-[#102A43] bg-[#102A43] text-white shadow-xs'
-                          : 'border-[#CCFBF1] bg-white text-[#102A43]'
+                          ? 'border-[#111827] bg-[#111827] text-white shadow-xs'
+                          : 'border-[#F1E7CF] bg-white text-[#111827]'
                       }`}
                     >
                       <XCircle className="w-4 h-4 text-white" />
@@ -330,13 +330,13 @@ export const AdminApprovals = () => {
                     onChange={(e) => setAdminRemarks(e.target.value)}
                     required
                   />
-                  <p className="text-[11px] text-[#102A43]/70 mt-1">
+                  <p className="text-[11px] text-[#4B5563] mt-1">
                     This decision will be communicated back to the faculty portal immediately.
                   </p>
                 </div>
               </>
             ) : (
-              <div className="p-3 bg-white border border-[#CCFBF1] rounded-lg text-xs space-y-1 text-[#102A43]">
+              <div className="p-3 bg-white border border-[#F1E7CF] rounded-lg text-xs space-y-1 text-[#111827]">
                 <p><strong>Decision Recorded:</strong> <Badge variant={selectedLeave.status === 'Approved' ? 'success' : 'danger'} size="sm">{selectedLeave.status}</Badge></p>
                 <p><strong>Admin Remarks:</strong> {selectedLeave.adminRemarks || 'No remarks provided.'}</p>
                 <p><strong>Reviewed At:</strong> {selectedLeave.approvedAt ? new Date(selectedLeave.approvedAt).toLocaleString() : 'N/A'}</p>

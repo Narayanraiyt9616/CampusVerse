@@ -207,15 +207,15 @@ export const AdminAcademics = () => {
     {
       key: 'code',
       header: 'Department Code',
-      render: (v) => <span className="font-mono font-bold text-xs text-[#102A43]">{v}</span>,
+      render: (v) => <span className="font-mono font-bold text-xs text-[#111827]">{v}</span>,
     },
     {
       key: 'name',
       header: 'Department Name & Focus',
       render: (v, r) => (
         <div>
-          <p className="font-bold text-[#102A43] text-xs">{v}</p>
-          <p className="text-[11px] text-[#102A43]/70 line-clamp-1">{r.description || 'No description provided.'}</p>
+          <p className="font-bold text-[#111827] text-xs">{v}</p>
+          <p className="text-[11px] text-[#4B5563] line-clamp-1">{r.description || 'No description provided.'}</p>
         </div>
       ),
     },
@@ -224,7 +224,7 @@ export const AdminAcademics = () => {
       header: 'Curriculum Depth',
       render: (_, r) => {
         const count = courses.filter((c) => (c.department?._id || c.department) === r._id).length;
-        return <span className="text-xs font-bold text-[#102A43]">{count} Courses</span>;
+        return <span className="text-xs font-bold text-[#111827]">{count} Courses</span>;
       },
     },
     {
@@ -265,22 +265,22 @@ export const AdminAcademics = () => {
     {
       key: 'courseCode',
       header: 'Course Code',
-      render: (v) => <span className="font-mono font-bold text-xs text-[#102A43]">{v}</span>,
+      render: (v) => <span className="font-mono font-bold text-xs text-[#111827]">{v}</span>,
     },
     {
       key: 'title',
       header: 'Course Title',
       render: (v, r) => (
         <div>
-          <p className="font-bold text-[#102A43] text-xs">{v}</p>
-          <p className="text-[11px] text-[#102A43]/70 line-clamp-1">{r.description || 'No description.'}</p>
+          <p className="font-bold text-[#111827] text-xs">{v}</p>
+          <p className="text-[11px] text-[#4B5563] line-clamp-1">{r.description || 'No description.'}</p>
         </div>
       ),
     },
     {
       key: 'department',
       header: 'Department',
-      render: (v) => <span className="text-xs font-semibold text-[#102A43]">{v?.name || v?.code || 'General'}</span>,
+      render: (v) => <span className="text-xs font-semibold text-[#111827]">{v?.name || v?.code || 'General'}</span>,
     },
     {
       key: 'semester',
@@ -290,7 +290,7 @@ export const AdminAcademics = () => {
     {
       key: 'credits',
       header: 'Credits',
-      render: (v) => <span className="font-mono text-xs font-bold text-[#0D9488]">{v} Credits</span>,
+      render: (v) => <span className="font-mono text-xs font-bold text-[#D99A00]">{v} Credits</span>,
     },
     {
       key: 'status',
@@ -349,15 +349,15 @@ export const AdminAcademics = () => {
       )}
 
       {/* Tabs Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-1.5 bg-[#CCFBF1]/30 border border-[#CCFBF1] rounded-xl">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-1.5 bg-[#FFF8E6]/30 border border-[#F1E7CF] rounded-xl">
         <div className="flex items-center gap-1 w-full sm:w-auto">
           <button
             type="button"
             onClick={() => setActiveTab('departments')}
             className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-bold transition-all ${
               activeTab === 'departments'
-                ? 'bg-[#0D9488] text-[#FFFFFF] shadow-xs'
-                : 'text-[#102A43]/70 hover:text-[#102A43] hover:bg-[#CCFBF1]/50'
+                ? 'bg-[#D99A00] text-[#FFFFFF] shadow-xs'
+                : 'text-[#4B5563] hover:text-[#111827] hover:bg-[#FFF8E6]/50'
             }`}
           >
             Departments ({departments.length})
@@ -367,8 +367,8 @@ export const AdminAcademics = () => {
             onClick={() => setActiveTab('courses')}
             className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-bold transition-all ${
               activeTab === 'courses'
-                ? 'bg-[#0D9488] text-[#FFFFFF] shadow-xs'
-                : 'text-[#102A43]/70 hover:text-[#102A43] hover:bg-[#CCFBF1]/50'
+                ? 'bg-[#D99A00] text-[#FFFFFF] shadow-xs'
+                : 'text-[#4B5563] hover:text-[#111827] hover:bg-[#FFF8E6]/50'
             }`}
           >
             Courses & Subjects ({courses.length})
@@ -489,22 +489,22 @@ export const AdminAcademics = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-[#102A43] mb-1.5">Description</label>
+            <label className="block text-xs font-bold text-[#111827] mb-1.5">Description</label>
             <textarea
               rows={3}
               placeholder="Academic disciplines, laboratory research focuses, and degree tracks..."
               value={deptForm.description}
               onChange={(e) => setDeptForm((p) => ({ ...p, description: e.target.value }))}
-              className="w-full p-2.5 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
+              className="w-full p-2.5 text-xs rounded-lg border border-[#F1E7CF] bg-[#FFFFFF] text-[#111827] focus:outline-none focus:border-[#D99A00] focus:ring-1 focus:ring-[#D99A00] font-medium"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-[#102A43] mb-1.5">Status</label>
+            <label className="block text-xs font-bold text-[#111827] mb-1.5">Status</label>
             <select
               value={deptForm.status}
               onChange={(e) => setDeptForm((p) => ({ ...p, status: e.target.value }))}
-              className="w-full h-10 px-3 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
+              className="w-full h-10 px-3 text-xs rounded-lg border border-[#F1E7CF] bg-[#FFFFFF] text-[#111827] focus:outline-none focus:border-[#D99A00] focus:ring-1 focus:ring-[#D99A00] font-medium"
             >
               <option value="Active">Active</option>
               <option value="Inactive">Inactive</option>
@@ -562,13 +562,13 @@ export const AdminAcademics = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs font-bold text-[#102A43] mb-1.5">
-                Department <span className="text-[#0D9488]">*</span>
+              <label className="block text-xs font-bold text-[#111827] mb-1.5">
+                Department <span className="text-[#D99A00]">*</span>
               </label>
               <select
                 value={courseForm.department}
                 onChange={(e) => setCourseForm((p) => ({ ...p, department: e.target.value }))}
-                className="w-full h-10 px-3 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
+                className="w-full h-10 px-3 text-xs rounded-lg border border-[#F1E7CF] bg-[#FFFFFF] text-[#111827] focus:outline-none focus:border-[#D99A00] focus:ring-1 focus:ring-[#D99A00] font-medium"
                 required
               >
                 {departments.map((d) => (
@@ -578,13 +578,13 @@ export const AdminAcademics = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#102A43] mb-1.5">
-                Semester <span className="text-[#0D9488]">*</span>
+              <label className="block text-xs font-bold text-[#111827] mb-1.5">
+                Semester <span className="text-[#D99A00]">*</span>
               </label>
               <select
                 value={courseForm.semester}
                 onChange={(e) => setCourseForm((p) => ({ ...p, semester: Number(e.target.value) }))}
-                className="w-full h-10 px-3 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
+                className="w-full h-10 px-3 text-xs rounded-lg border border-[#F1E7CF] bg-[#FFFFFF] text-[#111827] focus:outline-none focus:border-[#D99A00] focus:ring-1 focus:ring-[#D99A00] font-medium"
               >
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((s) => (
                   <option key={s} value={s}>Semester {s}</option>
@@ -606,13 +606,13 @@ export const AdminAcademics = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-[#102A43] mb-1.5">Course Description / Syllabus Overview</label>
+            <label className="block text-xs font-bold text-[#111827] mb-1.5">Course Description / Syllabus Overview</label>
             <textarea
               rows={3}
               placeholder="Core prerequisites, learning outcomes, laboratory modules..."
               value={courseForm.description}
               onChange={(e) => setCourseForm((p) => ({ ...p, description: e.target.value }))}
-              className="w-full p-2.5 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
+              className="w-full p-2.5 text-xs rounded-lg border border-[#F1E7CF] bg-[#FFFFFF] text-[#111827] focus:outline-none focus:border-[#D99A00] focus:ring-1 focus:ring-[#D99A00] font-medium"
             />
           </div>
         </form>
@@ -642,9 +642,9 @@ export const AdminAcademics = () => {
         }
       >
         {deleteItem && (
-          <div className="p-3 bg-[#CCFBF1]/30 border border-[#CCFBF1] rounded-lg text-xs text-[#102A43]">
+          <div className="p-3 bg-[#FFF8E6]/30 border border-[#F1E7CF] rounded-lg text-xs text-[#111827]">
             <p><strong>Item:</strong> {deleteItem.item?.name || deleteItem.item?.title} ({deleteItem.item?.code || deleteItem.item?.courseCode})</p>
-            <p className="mt-2 text-[11px] text-[#102A43]/80">
+            <p className="mt-2 text-[11px] text-[#4B5563]">
               Note: This action will be recorded in the administrative security audit log.
             </p>
           </div>

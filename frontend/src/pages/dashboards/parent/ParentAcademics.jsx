@@ -103,14 +103,14 @@ export const ParentAcademics = ({ selectedStudentId }) => {
 
       {/* Critical Shortage Warning Banner if attendance < 75% */}
       {attendance.isLowAttendance && (
-        <div className="bg-[#CCFBF1] border border-[#0D9488]/40 p-4 rounded-xl shadow-xs">
+        <div className="bg-[#FFF8E6] border border-[#D99A00]/40 p-4 rounded-xl shadow-xs">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-[#0D9488] shrink-0 mt-0.5" />
+            <AlertTriangle className="w-5 h-5 text-[#D99A00] shrink-0 mt-0.5" />
             <div className="space-y-1">
-              <h4 className="text-base font-bold text-[#102A43]">
+              <h4 className="text-base font-bold text-[#111827]">
                 Mandatory Attendance Shortage Notice: {attendance.overallPercentage}%
               </h4>
-              <p className="text-xs text-[#102A43]/80 leading-relaxed font-medium">
+              <p className="text-xs text-[#4B5563] leading-relaxed font-medium">
                 {student?.name || 'Your ward'}&apos;s cumulative attendance is below the university-prescribed 75% threshold.
                 Students with attendance below 75% are ineligible to sit for End-Semester Examinations (ESE) under Ordinance §14.2.
                 Please ensure attendance in upcoming makeup classes.
@@ -122,101 +122,101 @@ export const ParentAcademics = ({ selectedStudentId }) => {
 
       {/* Summary KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#CCFBF1] shadow-xs flex items-center justify-between">
+        <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#F1E7CF] shadow-xs flex items-center justify-between">
           <div>
-            <span className="text-xs font-bold text-[#102A43]/70 uppercase tracking-wider block">
+            <span className="text-xs font-bold text-[#4B5563] uppercase tracking-wider block">
               Cumulative Attendance
             </span>
             <div className="flex items-baseline gap-2 mt-1">
-              <span className={`text-2xl font-bold font-mono ${attendance.isLowAttendance ? 'text-[#102A43]' : 'text-[#0D9488]'}`}>
+              <span className={`text-2xl font-bold font-mono ${attendance.isLowAttendance ? 'text-[#111827]' : 'text-[#D99A00]'}`}>
                 {attendance.overallPercentage}%
               </span>
-              <span className="text-xs text-[#102A43]/60">/ 100%</span>
+              <span className="text-xs text-[#4B5563]">/ 100%</span>
             </div>
-            <span className="text-xs text-[#102A43]/70 mt-1 block font-semibold">
+            <span className="text-xs text-[#4B5563] mt-1 block font-semibold">
               {attendance.isLowAttendance ? 'Shortage Alert' : 'Above 75% Mandate'}
             </span>
           </div>
-          <div className="p-3 rounded-xl bg-[#CCFBF1] text-[#0D9488]">
+          <div className="p-3 rounded-xl bg-[#FFF8E6] text-[#D99A00]">
             <CalendarCheck className="w-6 h-6" />
           </div>
         </div>
 
-        <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#CCFBF1] shadow-xs flex items-center justify-between">
+        <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#F1E7CF] shadow-xs flex items-center justify-between">
           <div>
-            <span className="text-xs font-bold text-[#102A43]/70 uppercase tracking-wider block">
+            <span className="text-xs font-bold text-[#4B5563] uppercase tracking-wider block">
               Sessions Attended
             </span>
             <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-2xl font-bold text-[#102A43] font-mono">
+              <span className="text-2xl font-bold text-[#111827] font-mono">
                 {attendance.totalPresent}
               </span>
-              <span className="text-xs text-[#102A43]/60">/ {attendance.totalLectures}</span>
+              <span className="text-xs text-[#4B5563]">/ {attendance.totalLectures}</span>
             </div>
-            <span className="text-xs text-[#0D9488] mt-1 block font-bold">
+            <span className="text-xs text-[#D99A00] mt-1 block font-bold">
               Verified Biometric & Roll-call
             </span>
           </div>
-          <div className="p-3 rounded-xl bg-[#CCFBF1] text-[#0D9488]">
+          <div className="p-3 rounded-xl bg-[#FFF8E6] text-[#D99A00]">
             <CheckCircle2 className="w-6 h-6" />
           </div>
         </div>
 
-        <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#CCFBF1] shadow-xs flex items-center justify-between">
+        <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#F1E7CF] shadow-xs flex items-center justify-between">
           <div>
-            <span className="text-xs font-bold text-[#102A43]/70 uppercase tracking-wider block">
+            <span className="text-xs font-bold text-[#4B5563] uppercase tracking-wider block">
               Recorded Absences
             </span>
             <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-2xl font-bold font-mono text-[#102A43]">
+              <span className="text-2xl font-bold font-mono text-[#111827]">
                 {attendance.totalAbsent}
               </span>
-              <span className="text-xs text-[#102A43]/60">sessions</span>
+              <span className="text-xs text-[#4B5563]">sessions</span>
             </div>
-            <span className="text-xs text-[#102A43]/60 mt-1 block font-medium">
+            <span className="text-xs text-[#4B5563] mt-1 block font-medium">
               Across all enrolled courses
             </span>
           </div>
-          <div className="p-3 rounded-xl bg-[#CCFBF1] text-[#0D9488]">
+          <div className="p-3 rounded-xl bg-[#FFF8E6] text-[#D99A00]">
             <XCircle className="w-6 h-6" />
           </div>
         </div>
 
-        <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#CCFBF1] shadow-xs flex items-center justify-between">
+        <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#F1E7CF] shadow-xs flex items-center justify-between">
           <div>
-            <span className="text-xs font-bold text-[#102A43]/70 uppercase tracking-wider block">
+            <span className="text-xs font-bold text-[#4B5563] uppercase tracking-wider block">
               Exam Pass Ratio
             </span>
             <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-2xl font-bold text-[#0D9488] font-mono">
+              <span className="text-2xl font-bold text-[#D99A00] font-mono">
                 {passRate}%
               </span>
-              <span className="text-xs text-[#102A43]/60">({avgMarksPct}% avg)</span>
+              <span className="text-xs text-[#4B5563]">({avgMarksPct}% avg)</span>
             </div>
-            <span className="text-xs text-[#102A43]/60 mt-1 block font-medium">
+            <span className="text-xs text-[#4B5563] mt-1 block font-medium">
               {results.length} Published Papers
             </span>
           </div>
-          <div className="p-3 rounded-xl bg-[#CCFBF1] text-[#0D9488]">
+          <div className="p-3 rounded-xl bg-[#FFF8E6] text-[#D99A00]">
             <Award className="w-6 h-6" />
           </div>
         </div>
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex items-center gap-2 border-b border-[#CCFBF1] pb-2">
+      <div className="flex items-center gap-2 border-b border-[#F1E7CF] pb-2">
         <button
           onClick={() => setActiveTab('attendance')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
             activeTab === 'attendance'
-              ? 'bg-[#0D9488] text-[#FFFFFF] shadow-sm'
-              : 'text-[#102A43] hover:text-[#102A43] hover:bg-[#CCFBF1]'
+              ? 'bg-[#D99A00] text-[#FFFFFF] shadow-sm'
+              : 'text-[#111827] hover:text-[#111827] hover:bg-[#FFF8E6]'
           }`}
         >
           <CalendarCheck className="w-4 h-4" />
           Subject-wise Attendance & Logs
           <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-            activeTab === 'attendance' ? 'bg-[#FFFFFF]/20 text-[#FFFFFF]' : 'bg-[#CCFBF1] text-[#102A43]'
+            activeTab === 'attendance' ? 'bg-[#FFFFFF]/20 text-[#FFFFFF]' : 'bg-[#FFF8E6] text-[#111827]'
           }`}>
             {attendance.subjectBreakdown.length} Subjects
           </span>
@@ -226,14 +226,14 @@ export const ParentAcademics = ({ selectedStudentId }) => {
           onClick={() => setActiveTab('results')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
             activeTab === 'results'
-              ? 'bg-[#0D9488] text-[#FFFFFF] shadow-sm'
-              : 'text-[#102A43] hover:text-[#102A43] hover:bg-[#CCFBF1]'
+              ? 'bg-[#D99A00] text-[#FFFFFF] shadow-sm'
+              : 'text-[#111827] hover:text-[#111827] hover:bg-[#FFF8E6]'
           }`}
         >
           <Award className="w-4 h-4" />
           Published Examination Results
           <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-            activeTab === 'results' ? 'bg-[#FFFFFF]/20 text-[#FFFFFF]' : 'bg-[#CCFBF1] text-[#102A43]'
+            activeTab === 'results' ? 'bg-[#FFFFFF]/20 text-[#FFFFFF]' : 'bg-[#FFF8E6] text-[#111827]'
           }`}>
             {results.length} Tests
           </span>
@@ -262,13 +262,13 @@ export const ParentAcademics = ({ selectedStudentId }) => {
                     placeholder="Search subject..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-teal-500 w-44"
+                    className="pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-[#D99A00] w-44"
                   />
                 </div>
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-700 focus:outline-hidden focus:ring-1 focus:ring-teal-500"
+                  className="px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-700 focus:outline-hidden focus:ring-1 focus:ring-[#D99A00]"
                 >
                   <option value="ALL">All Subjects</option>
                   <option value="SHORTAGE">Shortage (&lt;75%)</option>
@@ -284,7 +284,7 @@ export const ParentAcademics = ({ selectedStudentId }) => {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-[#F0FDFA] text-[#102A43] font-bold border-b border-[#CCFBF1]">
+                  <thead className="bg-[#FFFDF5] text-[#111827] font-bold border-b border-[#F1E7CF]">
                     <tr>
                       <th className="p-3.5">Subject</th>
                       <th className="p-3.5 text-center">Conducted</th>
@@ -306,7 +306,7 @@ export const ParentAcademics = ({ selectedStudentId }) => {
                         <td className="p-3.5 text-center font-mono font-medium text-slate-700">
                           {sub.totalSessions}
                         </td>
-                        <td className="p-3.5 text-center font-mono font-bold text-teal-700">
+                        <td className="p-3.5 text-center font-mono font-bold text-[#D99A00]">
                           {sub.present}
                         </td>
                         <td className="p-3.5 text-center font-mono text-rose-600 font-medium">
@@ -325,7 +325,7 @@ export const ParentAcademics = ({ selectedStudentId }) => {
                                     ? 'bg-rose-500'
                                     : sub.percentage < 85
                                     ? 'bg-amber-500'
-                                    : 'bg-teal-600'
+                                    : 'bg-[#D99A00]'
                                 }`}
                                 style={{ width: `${Math.min(sub.percentage, 100)}%` }}
                               />
@@ -361,7 +361,7 @@ export const ParentAcademics = ({ selectedStudentId }) => {
             ) : (
               <div className="overflow-x-auto max-h-96">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-[#F0FDFA] text-[#102A43] font-bold border-b border-[#CCFBF1] sticky top-0">
+                  <thead className="bg-[#FFFDF5] text-[#111827] font-bold border-b border-[#F1E7CF] sticky top-0">
                     <tr>
                       <th className="p-3">Session Date</th>
                       <th className="p-3">Subject</th>
@@ -430,7 +430,7 @@ export const ParentAcademics = ({ selectedStudentId }) => {
               <div className="space-y-4">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-[#F0FDFA] text-[#102A43] font-bold border-b border-[#CCFBF1]">
+                    <thead className="bg-[#FFFDF5] text-[#111827] font-bold border-b border-[#F1E7CF]">
                       <tr>
                         <th className="p-3.5">Course & Code</th>
                         <th className="p-3.5">Assessment Type</th>
@@ -463,7 +463,7 @@ export const ParentAcademics = ({ selectedStudentId }) => {
                           <td className="p-3.5 text-center font-mono font-bold text-slate-900">
                             {res.marksObtained} <span className="text-slate-400 font-normal">/ {res.maxMarks}</span>
                           </td>
-                          <td className="p-3.5 text-center font-mono font-bold text-teal-700">
+                          <td className="p-3.5 text-center font-mono font-bold text-[#D99A00]">
                             {res.percentage}%
                           </td>
                           <td className="p-3.5 text-center">
@@ -472,7 +472,7 @@ export const ParentAcademics = ({ selectedStudentId }) => {
                                 res.grade === 'O' || res.grade === 'A+'
                                   ? 'bg-emerald-100 text-emerald-800'
                                   : res.grade === 'A' || res.grade === 'B'
-                                  ? 'bg-teal-100 text-teal-800'
+                                  ? 'bg-[#FFF8E6] text-[#111827]'
                                   : res.grade === 'C'
                                   ? 'bg-amber-100 text-amber-800'
                                   : 'bg-rose-100 text-rose-800'

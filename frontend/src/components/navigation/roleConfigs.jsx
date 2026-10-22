@@ -123,6 +123,20 @@ export const ROLE_CONFIGS = {
       { label: 'Complaints & Notices', to: '/staff/complaints', icon: <ClipboardList className="w-4 h-4" /> },
     ],
   },
+  hostel: {
+    label: 'Hostel Portal',
+    badgeVariant: 'teal',
+    basePath: '/hostel',
+    profileName: 'M. Karthikeyan',
+    roleTitle: 'Chief Warden & Estate Lead',
+    menuItems: [
+      { label: 'Overview', to: '/hostel', icon: <LayoutDashboard className="w-4 h-4" /> },
+      { label: 'Hostel Management', to: '/hostel/hostel', icon: <Home className="w-4 h-4" /> },
+      { label: 'Transport Fleet', to: '/hostel/transport', icon: <Bus className="w-4 h-4" /> },
+      { label: 'Student Records', to: '/hostel/students', icon: <Users className="w-4 h-4" /> },
+      { label: 'Complaints & Notices', to: '/hostel/complaints', icon: <ClipboardList className="w-4 h-4" /> },
+    ],
+  },
 };
 
 export default ROLE_CONFIGS;

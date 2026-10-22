@@ -16,14 +16,15 @@ export const DashboardLayout = () => {
     if (path.startsWith('/admin')) return 'admin';
     if (path.startsWith('/parent')) return 'parent';
     if (path.startsWith('/placement')) return 'placement';
-    if (path.startsWith('/staff') || path.startsWith('/hostel')) return 'staff';
+    if (path.startsWith('/hostel')) return 'hostel';
+    if (path.startsWith('/staff')) return 'staff';
     return 'student';
   };
 
   const currentRole = getRoleFromPath(location.pathname);
 
   return (
-    <div className="min-h-screen bg-[#F0FDFA] text-[#102A43] flex">
+    <div className="min-h-screen bg-[#FFFEFA] text-[#4B5563] flex">
       {/* Sidebar Navigation */}
       <Sidebar
         role={currentRole}

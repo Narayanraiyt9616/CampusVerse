@@ -187,16 +187,16 @@ export const AdminStudents = () => {
     {
       key: 'studentId',
       header: 'Roll / ID',
-      render: (v) => <span className="font-mono font-bold text-xs text-[#102A43]">{v}</span>,
+      render: (v) => <span className="font-mono font-bold text-xs text-[#111827]">{v}</span>,
     },
     {
       key: 'name',
       header: 'Student Name & Contact',
       render: (v, r) => (
         <div>
-          <p className="font-bold text-[#102A43] text-xs">{v}</p>
-          <p className="text-[11px] text-[#102A43]/70 font-mono flex items-center gap-1">
-            <Mail className="w-3 h-3 text-[#0D9488]" />
+          <p className="font-bold text-[#111827] text-xs">{v}</p>
+          <p className="text-[11px] text-[#4B5563] font-mono flex items-center gap-1">
+            <Mail className="w-3 h-3 text-[#D99A00]" />
             {r.email}
           </p>
         </div>
@@ -205,7 +205,7 @@ export const AdminStudents = () => {
     {
       key: 'department',
       header: 'Department',
-      render: (v) => <span className="text-xs font-semibold text-[#102A43]">{v?.name || v?.code || 'Unassigned'}</span>,
+      render: (v) => <span className="text-xs font-semibold text-[#111827]">{v?.name || v?.code || 'Unassigned'}</span>,
     },
     {
       key: 'semester',
@@ -215,7 +215,7 @@ export const AdminStudents = () => {
     {
       key: 'enrollmentYear',
       header: 'Batch',
-      render: (v) => <span className="font-mono text-xs text-[#102A43] font-semibold">{v}</span>,
+      render: (v) => <span className="font-mono text-xs text-[#111827] font-semibold">{v}</span>,
     },
     {
       key: 'status',
@@ -297,13 +297,13 @@ export const AdminStudents = () => {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
             <form onSubmit={handleSearch} className="flex items-center gap-2 flex-1 max-w-md">
               <div className="relative flex-1">
-                <Search className="w-4 h-4 text-[#0D9488] absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-[#D99A00] absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   placeholder="Search by name, roll no, or email..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full h-9 pl-9 pr-3 text-xs rounded-lg border border-[#CCFBF1] bg-[#F0FDFA] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
+                  className="w-full h-9 pl-9 pr-3 text-xs rounded-lg border border-[#F1E7CF] bg-[#FFFDF5] text-[#111827] focus:outline-none focus:border-[#D99A00] focus:ring-1 focus:ring-[#D99A00] font-medium"
                 />
               </div>
               <Button type="submit" variant="secondary" size="sm">Search</Button>
@@ -316,7 +316,7 @@ export const AdminStudents = () => {
                   setDepartmentFilter(e.target.value);
                   setPage(1);
                 }}
-                className="h-9 px-2.5 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
+                className="h-9 px-2.5 text-xs rounded-lg border border-[#F1E7CF] bg-[#FFFFFF] text-[#111827] focus:outline-none focus:border-[#D99A00] focus:ring-1 focus:ring-[#D99A00] font-medium"
               >
                 <option value="all">All Departments</option>
                 {departments.map((d) => (
@@ -330,7 +330,7 @@ export const AdminStudents = () => {
                   setSemesterFilter(e.target.value);
                   setPage(1);
                 }}
-                className="h-9 px-2.5 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
+                className="h-9 px-2.5 text-xs rounded-lg border border-[#F1E7CF] bg-[#FFFFFF] text-[#111827] focus:outline-none focus:border-[#D99A00] focus:ring-1 focus:ring-[#D99A00] font-medium"
               >
                 <option value="all">All Semesters</option>
                 {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
@@ -344,7 +344,7 @@ export const AdminStudents = () => {
                   setStatusFilter(e.target.value);
                   setPage(1);
                 }}
-                className="h-9 px-2.5 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
+                className="h-9 px-2.5 text-xs rounded-lg border border-[#F1E7CF] bg-[#FFFFFF] text-[#111827] focus:outline-none focus:border-[#D99A00] focus:ring-1 focus:ring-[#D99A00] font-medium"
               >
                 <option value="all">All Statuses</option>
                 <option value="Active">Active</option>
@@ -375,7 +375,7 @@ export const AdminStudents = () => {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between text-xs text-[#102A43]/70 pt-2 border-t border-[#CCFBF1]">
+            <div className="flex items-center justify-between text-xs text-[#4B5563] pt-2 border-t border-[#F1E7CF]">
               <span>Showing page {page} of {totalPages} ({totalRecords} students)</span>
               <div className="flex items-center gap-2">
                 <Button
@@ -461,13 +461,13 @@ export const AdminStudents = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#102A43] mb-1.5">
-                Department <span className="text-[#0D9488]">*</span>
+              <label className="block text-xs font-bold text-[#111827] mb-1.5">
+                Department <span className="text-[#D99A00]">*</span>
               </label>
               <select
                 value={formData.department}
                 onChange={(e) => setFormData((p) => ({ ...p, department: e.target.value }))}
-                className="w-full h-10 px-3 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
+                className="w-full h-10 px-3 text-xs rounded-lg border border-[#F1E7CF] bg-[#FFFFFF] text-[#111827] focus:outline-none focus:border-[#D99A00] focus:ring-1 focus:ring-[#D99A00] font-medium"
                 required
               >
                 {departments.map((d) => (
@@ -481,13 +481,13 @@ export const AdminStudents = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs font-bold text-[#102A43] mb-1.5">
-                Semester <span className="text-[#0D9488]">*</span>
+              <label className="block text-xs font-bold text-[#111827] mb-1.5">
+                Semester <span className="text-[#D99A00]">*</span>
               </label>
               <select
                 value={formData.semester}
                 onChange={(e) => setFormData((p) => ({ ...p, semester: Number(e.target.value) }))}
-                className="w-full h-10 px-3 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
+                className="w-full h-10 px-3 text-xs rounded-lg border border-[#F1E7CF] bg-[#FFFFFF] text-[#111827] focus:outline-none focus:border-[#D99A00] focus:ring-1 focus:ring-[#D99A00] font-medium"
               >
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((s) => (
                   <option key={s} value={s}>Semester {s}</option>
@@ -506,13 +506,13 @@ export const AdminStudents = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#102A43] mb-1.5">
+              <label className="block text-xs font-bold text-[#111827] mb-1.5">
                 Status
               </label>
               <select
                 value={formData.status}
                 onChange={(e) => setFormData((p) => ({ ...p, status: e.target.value }))}
-                className="w-full h-10 px-3 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
+                className="w-full h-10 px-3 text-xs rounded-lg border border-[#F1E7CF] bg-[#FFFFFF] text-[#111827] focus:outline-none focus:border-[#D99A00] focus:ring-1 focus:ring-[#D99A00] font-medium"
               >
                 <option value="Active">Active</option>
                 <option value="Graduated">Graduated</option>
@@ -531,7 +531,7 @@ export const AdminStudents = () => {
                 onChange={(e) => setFormData((p) => ({ ...p, password: e.target.value }))}
                 placeholder="Default: Campus@123"
               />
-              <p className="text-[11px] text-[#102A43]/70 mt-1">
+              <p className="text-[11px] text-[#4B5563] mt-1">
                 Student will use their email and this password to log in to the Student Portal.
               </p>
             </div>
@@ -563,10 +563,10 @@ export const AdminStudents = () => {
         }
       >
         {deletingStudent && (
-          <div className="p-3 bg-[#CCFBF1]/30 border border-[#CCFBF1] rounded-lg text-xs text-[#102A43] space-y-1">
+          <div className="p-3 bg-[#FFF8E6]/30 border border-[#F1E7CF] rounded-lg text-xs text-[#111827] space-y-1">
             <p><strong>Student:</strong> {deletingStudent.name} ({deletingStudent.studentId})</p>
             <p><strong>Email:</strong> {deletingStudent.email}</p>
-            <p className="text-[11px] text-[#102A43]/80 mt-2">
+            <p className="text-[11px] text-[#4B5563] mt-2">
               Warning: This action will permanently remove the student profile from MongoDB and will be logged in the system audit trail.
             </p>
           </div>

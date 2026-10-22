@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   Home,
@@ -21,17 +21,21 @@ import StaffTransport from './staff/StaffTransport';
 import StaffStudents from './staff/StaffStudents';
 import StaffComplaints from './staff/StaffComplaints';
 
-const SECTIONS = [
-  { id: 'dashboard', path: '/staff', label: 'Overview', icon: LayoutDashboard },
-  { id: 'hostel', path: '/staff/hostel', label: 'Hostel Management', icon: Home },
-  { id: 'transport', path: '/staff/transport', label: 'Transport Fleet', icon: Bus },
-  { id: 'students', path: '/staff/students', label: 'Student Records', icon: Users },
-  { id: 'complaints', path: '/staff/complaints', label: 'Complaints & Notices', icon: ClipboardList },
-];
-
 export const StaffDashboard = () => {
   const { section } = useParams();
   const { user } = useAuth();
+  const location = useLocation();
+  const isHostelPath = location.pathname.startsWith('/hostel');
+  const basePath = isHostelPath ? '/hostel' : '/staff';
+
+  const SECTIONS = [
+    { id: 'dashboard', path: basePath, label: 'Overview', icon: LayoutDashboard },
+    { id: 'hostel', path: `${basePath}/hostel`, label: 'Hostel Management', icon: Home },
+    { id: 'transport', path: `${basePath}/transport`, label: 'Transport Fleet', icon: Bus },
+    { id: 'students', path: `${basePath}/students`, label: 'Student Records', icon: Users },
+    { id: 'complaints', path: `${basePath}/complaints`, label: 'Complaints & Notices', icon: ClipboardList },
+  ];
+
   const currentSection = section ? section.toLowerCase() : 'dashboard';
   const isOverview = currentSection === 'dashboard' || currentSection === 'overview';
   const loggedInName = user?.name || user?.username || 'M. Karthikeyan';
@@ -92,8 +96,8 @@ export const StaffDashboard = () => {
         subtitle={meta.subtitle}
         breadcrumbs={
           isOverview
-            ? [{ label: 'Hostel Portal', to: '/staff' }, { label: 'Overview' }]
-            : [{ label: 'Hostel Portal', to: '/staff' }, { label: meta.breadcrumb }]
+            ? [{ label: 'Hostel Portal', to: basePath }, { label: 'Overview' }]
+            : [{ label: 'Hostel Portal', to: basePath }, { label: meta.breadcrumb }]
         }
         badge={
           <Badge variant="teal" size="sm" hasDot>
@@ -103,7 +107,7 @@ export const StaffDashboard = () => {
         actions={
           <div className="flex items-center gap-2.5">
             {!isOverview && (
-              <Link to="/staff">
+              <Link to={basePath}>
                 <Button variant="secondary" size="sm" leftIcon={<ArrowLeft className="w-3.5 h-3.5" />}>
                   Overview
                 </Button>
@@ -121,8 +125,8 @@ export const StaffDashboard = () => {
         }
       />
 
-      {/* Modern Navigation Pills Strip matching Student Portal Tabs */}
-      <div className="p-1.5 rounded-2xl bg-[#CCFBF1]/30 border border-[#CCFBF1] flex items-center gap-2 overflow-x-auto scrollbar-none">
+      {/* Modern Navigation Pills Strip matching Gold & Yellow theme */}
+      <div className="p-1.5 rounded-2xl bg-[#FFF8E6]/60 border border-[#F1E7CF] flex items-center gap-2 overflow-x-auto scrollbar-none">
         {SECTIONS.map((sec) => {
           const Icon = sec.icon;
           const isActive =
@@ -136,8 +140,8 @@ export const StaffDashboard = () => {
               to={sec.path}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
                 isActive
-                  ? 'bg-[#0D9488] text-white shadow-sm'
-                  : 'text-[#102A43] hover:bg-[#CCFBF1]'
+                  ? 'bg-[#D99A00] text-white shadow-sm'
+                  : 'text-[#111827] hover:bg-[#FFF8E6]'
               }`}
             >
               <Icon className="w-4 h-4" />

@@ -33,30 +33,30 @@ export const UnauthorizedPage = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-140px)] flex flex-col justify-center items-center py-12 px-4 sm:px-6 lg:px-8 bg-[#F0FDFA] text-[#102A43]">
-      <div className="max-w-md w-full bg-white p-8 rounded-2xl border border-[#CCFBF1] shadow-card text-center space-y-6">
-        <div className="w-16 h-16 rounded-2xl bg-[#CCFBF1] border border-[#0D9488] text-[#0D9488] flex items-center justify-center mx-auto">
+    <div className="min-h-[calc(100vh-140px)] flex flex-col justify-center items-center py-12 px-4 sm:px-6 lg:px-8 bg-[#FFFEFA] text-[#111827]">
+      <div className="max-w-md w-full bg-white p-8 rounded-2xl border border-[#F1E7CF] shadow-card text-center space-y-6">
+        <div className="w-16 h-16 rounded-2xl bg-[#FFF8E6] border border-[#F1E7CF] text-[#D99A00] flex items-center justify-center mx-auto">
           <ShieldAlert className="w-9 h-9" />
         </div>
 
         <div className="space-y-2">
-          <h1 className="text-2xl font-bold text-[#102A43] tracking-tight">
+          <h1 className="text-2xl font-bold text-[#111827] tracking-tight">
             Access Restricted
           </h1>
-          <p className="text-sm text-[#102A43]/75 leading-relaxed font-medium">
+          <p className="text-sm text-[#4B5563] leading-relaxed font-medium">
             You do not have the required role permissions to access this portal or resource.
           </p>
         </div>
 
         {user && (
-          <div className="p-4 rounded-xl bg-[#F0FDFA] border border-[#CCFBF1] text-left text-xs space-y-2 font-medium">
+          <div className="p-4 rounded-xl bg-[#FFFDF5] border border-[#F1E7CF] text-left text-xs space-y-2 font-medium">
             <div className="flex justify-between">
-              <span className="text-[#102A43]/70 font-bold">Logged in as:</span>
-              <span className="font-bold text-[#102A43]">{user.email}</span>
+              <span className="text-[#64748B] font-bold">Logged in as:</span>
+              <span className="font-bold text-[#111827]">{user.email}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#102A43]/70 font-bold">Your Assigned Role:</span>
-              <span className="font-bold text-[#0D9488] uppercase tracking-wide">{user.role}</span>
+              <span className="text-[#64748B] font-bold">Your Assigned Role:</span>
+              <span className="font-bold text-[#D99A00] uppercase tracking-wide">{user.role}</span>
             </div>
           </div>
         )}
@@ -86,10 +86,10 @@ export const UnauthorizedPage = () => {
           </Button>
         </div>
 
-        <div className="pt-2 border-t border-[#CCFBF1]">
+        <div className="pt-2 border-t border-[#F1E7CF]">
           <Link
             to="/login"
-            className="inline-flex items-center gap-1.5 text-xs text-[#102A43]/70 hover:text-[#0D9488] font-bold"
+            className="inline-flex items-center gap-1.5 text-xs text-[#64748B] hover:text-[#D99A00] font-bold"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Return to Portal Directory</span>

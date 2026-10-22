@@ -3,29 +3,35 @@
 @tailwind utilities;
 
 :root {
-  --color-sidebar: #102A43;
-  --color-primary: #0D9488;
-  --color-bg: #F0FDFA;
+  --color-sidebar: #111827;
+  --color-primary: #D99A00;
+  --color-primary-yellow: #FFC107;
+  --color-hover: #E5A900;
+  --color-bg: #FFFEFA;
+  --color-soft-yellow: #FFFDF5;
   --color-card: #FFFFFF;
-  --color-highlight: #CCFBF1;
-  --color-text-dark: #102A43;
-  --color-text-light: #FFFFFF;
+  --color-highlight: #FFF8E6;
+  --color-text-dark: #111827;
+  --color-text-body: #4B5563;
+  --color-text-secondary: #64748B;
+  --color-border: #F1E7CF;
+  --color-accent: #F5B301;
 }
 
 @layer base {
   * {
-    border-color: #CCFBF1;
+    border-color: #F1E7CF;
   }
   
   html {
     scroll-behavior: smooth;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-    background-color: #F0FDFA;
+    background-color: #FFFEFA;
   }
 
   body {
-    background-color: #F0FDFA;
-    color: #102A43;
+    background-color: #FFFEFA;
+    color: #4B5563;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 0.9375rem; /* 15px - slightly larger, highly readable */
     line-height: 1.6;
@@ -35,7 +41,7 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: '"Plus Jakarta Sans"', 'Inter', sans-serif;
-    color: #102A43;
+    color: #111827;
     font-weight: 700;
     letter-spacing: -0.02em;
   }
@@ -46,81 +52,93 @@
   }
 }
 
-/* Custom Scrollbar - 5 colors only */
+/* Custom Scrollbar - Gold & Yellow theme */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #F0FDFA;
+  background: #FFFEFA;
 }
 ::-webkit-scrollbar-thumb {
-  background: #CCFBF1;
+  background: #F1E7CF;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #0D9488;
+  background: #D99A00;
 }
 
 /* Component Utility Classes */
 @layer components {
-  /* Buttons - strictly 5 colors */
+  /* Buttons - Gold & Yellow theme */
   .btn-primary {
-    @apply inline-flex items-center justify-center font-bold rounded-xl text-sm px-4 py-2.5 bg-[#0D9488] text-white hover:opacity-95 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#0D9488] focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm border border-[#0D9488];
+    @apply inline-flex items-center justify-center font-bold rounded-xl text-sm px-4 py-2.5 bg-[#D99A00] text-white hover:bg-[#E5A900] transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#D99A00] focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm border border-[#D99A00];
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center font-semibold rounded-xl text-sm px-4 py-2.5 bg-white text-[#102A43] border border-[#CCFBF1] hover:bg-[#CCFBF1] hover:text-[#102A43] transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#0D9488] focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm;
+    @apply inline-flex items-center justify-center font-semibold rounded-xl text-sm px-4 py-2.5 bg-white text-[#111827] border border-[#F1E7CF] hover:bg-[#FFF8E6] hover:text-[#111827] transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#D99A00] focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm;
   }
 
-  .btn-teal {
-    @apply inline-flex items-center justify-center font-bold rounded-xl text-sm px-4 py-2.5 bg-[#0D9488] text-white hover:opacity-95 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#0D9488] focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm border border-[#0D9488];
+  .btn-teal, .btn-gold {
+    @apply inline-flex items-center justify-center font-bold rounded-xl text-sm px-4 py-2.5 bg-[#D99A00] text-white hover:bg-[#E5A900] transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#D99A00] focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm border border-[#D99A00];
+  }
+
+  .btn-yellow {
+    @apply inline-flex items-center justify-center font-bold rounded-xl text-sm px-4 py-2.5 bg-[#FFC107] text-[#111827] hover:bg-[#F5B301] transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#FFC107] focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm border border-[#FFC107];
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center font-semibold rounded-xl text-sm px-3.5 py-2 text-[#102A43] hover:text-[#102A43] hover:bg-[#CCFBF1] transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#0D9488];
+    @apply inline-flex items-center justify-center font-semibold rounded-xl text-sm px-3.5 py-2 text-[#4B5563] hover:text-[#111827] hover:bg-[#FFF8E6] transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#D99A00];
   }
 
   .btn-outline {
-    @apply inline-flex items-center justify-center font-semibold rounded-xl text-sm px-4 py-2 bg-transparent text-[#0D9488] border border-[#0D9488] hover:bg-[#CCFBF1] hover:text-[#102A43] transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#0D9488];
+    @apply inline-flex items-center justify-center font-semibold rounded-xl text-sm px-4 py-2 bg-transparent text-[#D99A00] border border-[#D99A00] hover:bg-[#FFF8E6] hover:text-[#111827] transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#D99A00];
   }
 
-  /* Cards - strictly 5 colors */
+  /* Cards - Gold & Yellow theme */
   .card-standard {
-    @apply bg-white border border-[#CCFBF1] rounded-2xl shadow-card transition-all duration-200;
+    @apply bg-white border border-[#F1E7CF] rounded-2xl shadow-card transition-all duration-200;
   }
 
   .card-hoverable {
-    @apply bg-white border border-[#CCFBF1] rounded-2xl shadow-card hover:shadow-card-hover hover:border-[#0D9488] transition-all duration-200;
+    @apply bg-white border border-[#F1E7CF] rounded-2xl shadow-card hover:shadow-card-hover hover:border-[#D99A00] transition-all duration-200;
   }
 
-  /* Form Elements - strictly 5 colors */
+  /* Form Elements - Gold & Yellow theme */
   .input-standard {
-    @apply w-full rounded-xl border border-[#CCFBF1] px-4 py-2.5 text-sm font-medium text-[#102A43] placeholder:text-[#102A43]/50 bg-white focus:outline-none focus:ring-2 focus:ring-[#0D9488] focus:border-[#0D9488] transition-all duration-150;
+    @apply w-full rounded-xl border border-[#F1E7CF] px-4 py-2.5 text-sm font-medium text-[#111827] placeholder:text-[#64748B] bg-white focus:outline-none focus:ring-2 focus:ring-[#D99A00] focus:border-[#D99A00] transition-all duration-150;
   }
 
   .label-standard {
-    @apply block text-xs font-bold text-[#102A43] uppercase tracking-wider mb-2;
+    @apply block text-xs font-bold text-[#111827] uppercase tracking-wider mb-2;
   }
 
-  /* Badges - strictly 5 colors */
+  /* Badges - Gold & Yellow theme */
   .badge-base {
     @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold;
   }
 
   .badge-demo {
-    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-[#CCFBF1] text-[#102A43] border border-[#CCFBF1] uppercase tracking-wide;
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-[#FFF8E6] text-[#D99A00] border border-[#F1E7CF] uppercase tracking-wide;
   }
 
-  .badge-success, .badge-teal {
-    @apply bg-[#0D9488] text-white border border-[#0D9488];
+  .badge-success {
+    @apply bg-[#16A34A] text-white border border-[#16A34A];
+  }
+
+  .badge-teal, .badge-gold {
+    @apply bg-[#D99A00] text-white border border-[#D99A00];
+  }
+
+  .badge-yellow {
+    @apply bg-[#FFC107] text-[#111827] border border-[#FFC107];
   }
 
   .badge-warning, .badge-highlight, .badge-info {
-    @apply bg-[#CCFBF1] text-[#102A43] border border-[#CCFBF1];
+    @apply bg-[#FFF8E6] text-[#D99A00] border border-[#F1E7CF];
   }
 
   .badge-danger, .badge-navy, .badge-dark {
-    @apply bg-[#102A43] text-white border border-[#102A43];
+    @apply bg-[#111827] text-white border border-[#111827];
   }
 }

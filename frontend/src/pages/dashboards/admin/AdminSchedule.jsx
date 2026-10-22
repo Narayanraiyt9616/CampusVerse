@@ -185,7 +185,7 @@ export const AdminSchedule = () => {
       key: 'time',
       header: 'Time Slot',
       render: (_, r) => (
-        <span className="font-mono text-xs font-bold text-[#102A43]">
+        <span className="font-mono text-xs font-bold text-[#111827]">
           {r.startTime} - {r.endTime}
         </span>
       ),
@@ -195,20 +195,20 @@ export const AdminSchedule = () => {
       header: 'Course & Subject',
       render: (c) => (
         <div>
-          <p className="font-mono font-bold text-xs text-[#102A43]">{c?.courseCode || 'Course'}</p>
-          <p className="text-[11px] text-[#102A43]/70 line-clamp-1">{c?.title}</p>
+          <p className="font-mono font-bold text-xs text-[#111827]">{c?.courseCode || 'Course'}</p>
+          <p className="text-[11px] text-[#4B5563] line-clamp-1">{c?.title}</p>
         </div>
       ),
     },
     {
       key: 'faculty',
       header: 'Instructor',
-      render: (f) => <span className="text-xs font-semibold text-[#102A43]">{f?.name || 'Assigned Faculty'}</span>,
+      render: (f) => <span className="text-xs font-semibold text-[#111827]">{f?.name || 'Assigned Faculty'}</span>,
     },
     {
       key: 'classroom',
       header: 'Room',
-      render: (v) => <span className="font-mono text-xs font-bold text-[#0D9488]">{v}</span>,
+      render: (v) => <span className="font-mono text-xs font-bold text-[#D99A00]">{v}</span>,
     },
     {
       key: 'actions',
@@ -251,15 +251,15 @@ export const AdminSchedule = () => {
       )}
 
       {/* Tabs */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-1.5 bg-[#CCFBF1]/30 border border-[#CCFBF1] rounded-xl">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-1.5 bg-[#FFF8E6]/30 border border-[#F1E7CF] rounded-xl">
         <div className="flex items-center gap-1 w-full sm:w-auto">
           <button
             type="button"
             onClick={() => setActiveTab('timetable')}
             className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-bold transition-all ${
               activeTab === 'timetable'
-                ? 'bg-[#0D9488] text-[#FFFFFF] shadow-xs'
-                : 'text-[#102A43]/70 hover:text-[#102A43] hover:bg-[#CCFBF1]/50'
+                ? 'bg-[#D99A00] text-[#FFFFFF] shadow-xs'
+                : 'text-[#4B5563] hover:text-[#111827] hover:bg-[#FFF8E6]/50'
             }`}
           >
             Weekly Timetable Slots ({timetables.length})
@@ -269,8 +269,8 @@ export const AdminSchedule = () => {
             onClick={() => setActiveTab('notices')}
             className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-bold transition-all ${
               activeTab === 'notices'
-                ? 'bg-[#0D9488] text-[#FFFFFF] shadow-xs'
-                : 'text-[#102A43]/70 hover:text-[#102A43] hover:bg-[#CCFBF1]/50'
+                ? 'bg-[#D99A00] text-[#FFFFFF] shadow-xs'
+                : 'text-[#4B5563] hover:text-[#111827] hover:bg-[#FFF8E6]/50'
             }`}
           >
             Campus Notices & Broadcasts ({notices.length})
@@ -344,28 +344,28 @@ export const AdminSchedule = () => {
         >
           <div className="space-y-3">
             {notices.length === 0 ? (
-              <p className="text-xs text-[#102A43]/70 py-8 text-center font-medium">No notices published yet.</p>
+              <p className="text-xs text-[#4B5563] py-8 text-center font-medium">No notices published yet.</p>
             ) : (
               notices.map((n) => (
                 <div
                   key={n._id}
                   className={`p-4 rounded-xl border transition-all ${
                     n.pinned
-                      ? 'bg-[#CCFBF1]/30 border-[#0D9488] shadow-xs'
-                      : 'bg-white border-[#CCFBF1]'
+                      ? 'bg-[#FFF8E6]/30 border-[#D99A00] shadow-xs'
+                      : 'bg-white border-[#F1E7CF]'
                   }`}
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
                     <div className="flex items-center gap-2">
                       {n.pinned && (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded bg-[#CCFBF1] text-[#0D9488] border border-[#0D9488]/40">
-                          <Pin className="w-3 h-3 fill-[#0D9488] text-[#0D9488]" />
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded bg-[#FFF8E6] text-[#D99A00] border border-[#D99A00]/40">
+                          <Pin className="w-3 h-3 fill-[#D99A00] text-[#D99A00]" />
                           PINNED
                         </span>
                       )}
                       <Badge variant="teal" size="sm">{n.category}</Badge>
                       <Badge variant="neutral" size="sm">Audience: {n.targetAudience}</Badge>
-                      <span className="text-[11px] text-[#102A43]/70 font-mono">
+                      <span className="text-[11px] text-[#4B5563] font-mono">
                         {n.publishedAt ? new Date(n.publishedAt).toLocaleDateString() : ''}
                       </span>
                     </div>
@@ -392,9 +392,9 @@ export const AdminSchedule = () => {
                     </div>
                   </div>
 
-                  <h4 className="text-sm font-bold text-[#102A43]">{n.title}</h4>
-                  <p className="text-xs text-[#102A43]/80 mt-1.5 leading-relaxed">{n.content}</p>
-                  <p className="text-[10px] text-[#102A43]/60 mt-2 font-medium">
+                  <h4 className="text-sm font-bold text-[#111827]">{n.title}</h4>
+                  <p className="text-xs text-[#4B5563] mt-1.5 leading-relaxed">{n.content}</p>
+                  <p className="text-[10px] text-[#4B5563] mt-2 font-medium">
                     Issued by: {n.authorName || 'Campus Administration'}
                   </p>
                 </div>
@@ -430,11 +430,11 @@ export const AdminSchedule = () => {
         <form onSubmit={handleSaveSlot} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-[#102A43] mb-1.5">Department</label>
+              <label className="block text-xs font-bold text-[#111827] mb-1.5">Department</label>
               <select
                 value={slotForm.department}
                 onChange={(e) => setSlotForm((p) => ({ ...p, department: e.target.value }))}
-                className="w-full h-10 px-3 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
+                className="w-full h-10 px-3 text-xs rounded-lg border border-[#F1E7CF] bg-[#FFFFFF] text-[#111827] focus:outline-none focus:border-[#D99A00] focus:ring-1 focus:ring-[#D99A00] font-medium"
                 required
               >
                 {departments.map((d) => (
@@ -444,11 +444,11 @@ export const AdminSchedule = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#102A43] mb-1.5">Course Subject</label>
+              <label className="block text-xs font-bold text-[#111827] mb-1.5">Course Subject</label>
               <select
                 value={slotForm.course}
                 onChange={(e) => setSlotForm((p) => ({ ...p, course: e.target.value }))}
-                className="w-full h-10 px-3 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
+                className="w-full h-10 px-3 text-xs rounded-lg border border-[#F1E7CF] bg-[#FFFFFF] text-[#111827] focus:outline-none focus:border-[#D99A00] focus:ring-1 focus:ring-[#D99A00] font-medium"
                 required
               >
                 {courses.map((c) => (
@@ -460,11 +460,11 @@ export const AdminSchedule = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-[#102A43] mb-1.5">Assigned Faculty</label>
+              <label className="block text-xs font-bold text-[#111827] mb-1.5">Assigned Faculty</label>
               <select
                 value={slotForm.faculty}
                 onChange={(e) => setSlotForm((p) => ({ ...p, faculty: e.target.value }))}
-                className="w-full h-10 px-3 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
+                className="w-full h-10 px-3 text-xs rounded-lg border border-[#F1E7CF] bg-[#FFFFFF] text-[#111827] focus:outline-none focus:border-[#D99A00] focus:ring-1 focus:ring-[#D99A00] font-medium"
                 required
               >
                 {faculty.map((f) => (
@@ -474,11 +474,11 @@ export const AdminSchedule = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#102A43] mb-1.5">Day of Week</label>
+              <label className="block text-xs font-bold text-[#111827] mb-1.5">Day of Week</label>
               <select
                 value={slotForm.dayOfWeek}
                 onChange={(e) => setSlotForm((p) => ({ ...p, dayOfWeek: e.target.value }))}
-                className="w-full h-10 px-3 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
+                className="w-full h-10 px-3 text-xs rounded-lg border border-[#F1E7CF] bg-[#FFFFFF] text-[#111827] focus:outline-none focus:border-[#D99A00] focus:ring-1 focus:ring-[#D99A00] font-medium"
               >
                 {DAYS.map((d) => (
                   <option key={d} value={d}>{d}</option>
@@ -559,11 +559,11 @@ export const AdminSchedule = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-[#102A43] mb-1.5">Category</label>
+              <label className="block text-xs font-bold text-[#111827] mb-1.5">Category</label>
               <select
                 value={noticeForm.category}
                 onChange={(e) => setNoticeForm((p) => ({ ...p, category: e.target.value }))}
-                className="w-full h-10 px-3 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
+                className="w-full h-10 px-3 text-xs rounded-lg border border-[#F1E7CF] bg-[#FFFFFF] text-[#111827] focus:outline-none focus:border-[#D99A00] focus:ring-1 focus:ring-[#D99A00] font-medium"
               >
                 <option value="General">General</option>
                 <option value="Academic">Academic</option>
@@ -574,11 +574,11 @@ export const AdminSchedule = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#102A43] mb-1.5">Target Audience</label>
+              <label className="block text-xs font-bold text-[#111827] mb-1.5">Target Audience</label>
               <select
                 value={noticeForm.targetAudience}
                 onChange={(e) => setNoticeForm((p) => ({ ...p, targetAudience: e.target.value }))}
-                className="w-full h-10 px-3 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
+                className="w-full h-10 px-3 text-xs rounded-lg border border-[#F1E7CF] bg-[#FFFFFF] text-[#111827] focus:outline-none focus:border-[#D99A00] focus:ring-1 focus:ring-[#D99A00] font-medium"
               >
                 <option value="All">All Campus Roles</option>
                 <option value="Students">Students Only</option>
@@ -589,24 +589,24 @@ export const AdminSchedule = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-[#102A43] mb-1.5">Notice Content / Body</label>
+            <label className="block text-xs font-bold text-[#111827] mb-1.5">Notice Content / Body</label>
             <textarea
               rows={4}
               placeholder="Full official circular details..."
               value={noticeForm.content}
               onChange={(e) => setNoticeForm((p) => ({ ...p, content: e.target.value }))}
-              className="w-full p-2.5 text-xs rounded-lg border border-[#CCFBF1] bg-[#FFFFFF] text-[#102A43] focus:outline-none focus:border-[#0D9488] focus:ring-1 focus:ring-[#0D9488] font-medium"
+              className="w-full p-2.5 text-xs rounded-lg border border-[#F1E7CF] bg-[#FFFFFF] text-[#111827] focus:outline-none focus:border-[#D99A00] focus:ring-1 focus:ring-[#D99A00] font-medium"
               required
             />
           </div>
 
           <div>
-            <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-[#102A43]">
+            <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-[#111827]">
               <input
                 type="checkbox"
                 checked={noticeForm.pinned}
                 onChange={(e) => setNoticeForm((p) => ({ ...p, pinned: e.target.checked }))}
-                className="rounded text-[#0D9488] focus:ring-[#0D9488]"
+                className="rounded text-[#D99A00] focus:ring-[#D99A00]"
               />
               <span>Pin this notice to top of portals</span>
             </label>
@@ -631,7 +631,7 @@ export const AdminSchedule = () => {
           </div>
         }
       >
-        <p className="text-xs text-[#102A43]/80">This action will update the schedules and feeds in MongoDB.</p>
+        <p className="text-xs text-[#4B5563]">This action will update the schedules and feeds in MongoDB.</p>
       </Modal>
     </div>
   );

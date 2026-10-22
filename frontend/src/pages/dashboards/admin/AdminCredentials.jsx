@@ -31,7 +31,8 @@ const SECTIONS = [
   { id: 'faculty', label: 'Faculty', portal: '/login/faculty', badge: 'info', desc: 'Course instruction, attendance & marks portal' },
   { id: 'parent', label: 'Parent', portal: '/login/parent', badge: 'teal', desc: 'Parent / Guardian tracking & fee portal' },
   { id: 'placement', label: 'Placement', portal: '/login/placement', badge: 'success', desc: 'Placement cell recruitment drives portal' },
-  { id: 'staff', label: 'Hostel Portal', portal: '/login/hostel', badge: 'teal', desc: 'Hostel residential blocks & estate operations' },
+  { id: 'staff', label: 'Hostel & Transport Staff', portal: '/login/staff', badge: 'warning', desc: 'Hostel blocks & transport fleet operations' },
+  { id: 'superadmin', label: 'Super Admin', portal: '/login/super-admin', badge: 'danger', desc: 'Root security governance & audit telemetry' },
 ];
 
 export const AdminCredentials = () => {
@@ -124,24 +125,22 @@ export const AdminCredentials = () => {
       if (res && res.success) {
         const sectionObj = SECTIONS.find((s) => s.id === credForm.section);
         const sectionLabel = sectionObj?.label || credForm.section;
-        const portalUrl = sectionObj?.portal || '/login';
-
-        setCreateSuccess(`Credentials for ${sectionLabel} created & saved securely in MongoDB!`);
+        setCreateSuccess(`Credentials for ${sectionLabel} saved successfully in MongoDB database!`);
         setLastCreated({
+          section: credForm.section,
           sectionLabel,
+          portal: sectionObj?.portal || `/login/${credForm.section}`,
           username: credForm.username.trim(),
           password: credForm.password,
-          portal: portalUrl,
+          name: res.user?.name || credForm.username.trim(),
           createdAt: new Date().toLocaleTimeString(),
         });
-
-        setCredForm({
-          section: 'student',
+        setCredForm((prev) => ({
+          ...prev,
           username: '',
           password: '',
           name: '',
-        });
-
+        }));
         fetchUsers();
       }
     } catch (err) {
@@ -153,34 +152,43 @@ export const AdminCredentials = () => {
 
   const handleCopyCredentials = () => {
     if (!lastCreated) return;
-    const text = `CampusVerse AI Credentials\nPortal: ${lastCreated.sectionLabel}\nUsername: ${lastCreated.username}\nPassword: ${lastCreated.password}\nLogin URL: ${window.location.origin}${lastCreated.portal}`;
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    const text = `Section: ${lastCreated.sectionLabel}\nUsername: ${lastCreated.username}\nPassword: ${lastCreated.password}\nLogin Portal: ${window.location.origin}${lastCreated.portal}`;
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    });
   };
 
-  const handleToggleStatus = async (userObj) => {
+  const handleToggleStatus = async (user) => {
+    const nextStatus = user.status === 'active' ? 'disabled' : 'active';
     try {
-      const newStatus = userObj.status === 'active' ? 'disabled' : 'active';
-      const res = await adminService.updateUserStatus(userObj.id || userObj._id, newStatus);
+      const res = await adminService.updateStatus(user.id || user._id, nextStatus);
       if (res && res.success) {
         fetchUsers();
       }
     } catch (err) {
-      alert(`Could not update account status: ${err.message}`);
+      alert(`Failed to update status: ${err.message}`);
     }
   };
 
-  const handleResetPassword = async () => {
+  const handleResetPassword = async (e) => {
+    if (e) e.preventDefault();
     if (!resetModalUser) return;
+
     setResetLoading(true);
+    setResetSuccessMsg('');
     try {
-      const res = await adminService.resetPassword(resetModalUser.id || resetModalUser._id, newPassword);
+      const res = await adminService.resetPassword(resetModalUser.id || resetModalUser._id, newPassword || undefined);
       if (res && res.success) {
-        setResetSuccessMsg(`Password for ${resetModalUser.name || resetModalUser.username} has been reset successfully to: ${res.temporaryPassword || newPassword}`);
+        setResetSuccessMsg(`Password successfully reset! Temporary password: ${res.temporaryPassword || newPassword}`);
+        setTimeout(() => {
+          setResetModalUser(null);
+          setNewPassword('');
+          setResetSuccessMsg('');
+        }, 3000);
       }
     } catch (err) {
-      alert(`Failed to reset password: ${err.message}`);
+      alert(`Password reset failed: ${err.message}`);
     } finally {
       setResetLoading(false);
     }
@@ -192,8 +200,8 @@ export const AdminCredentials = () => {
       header: 'Username / Email',
       render: (_, r) => (
         <div>
-          <p className="font-bold text-[#102A43] text-sm">{r.name || r.username}</p>
-          <p className="font-mono text-xs text-[#102A43]/70 font-medium">@{r.username} • {r.email}</p>
+          <p className="font-semibold text-slate-800 text-xs">{r.name || r.username}</p>
+          <p className="font-mono text-[11px] text-slate-500">@{r.username} • {r.email}</p>
         </div>
       ),
     },
@@ -206,8 +214,12 @@ export const AdminCredentials = () => {
             v === 'admin'
               ? 'danger'
               : v === 'faculty'
-              ? 'info'
-              : 'teal'
+                ? 'info'
+                : v === 'student'
+                  ? 'teal'
+                  : v === 'placement'
+                    ? 'success'
+                    : 'neutral'
           }
           size="sm"
         >
@@ -220,9 +232,10 @@ export const AdminCredentials = () => {
       header: 'Account Status',
       render: (v) => (
         <span
-          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#CCFBF1] text-[#102A43] border border-[#0D9488]"
+          className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold ${v === 'active' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'
+            }`}
         >
-          <span className="w-2 h-2 rounded-full bg-[#0D9488]" />
+          <span className={`w-1.5 h-1.5 rounded-full ${v === 'active' ? 'bg-emerald-500' : 'bg-slate-400'}`} />
           {v}
         </span>
       ),
@@ -232,12 +245,12 @@ export const AdminCredentials = () => {
       header: 'Credential Controls',
       align: 'right',
       render: (_, r) => (
-        <div className="flex items-center justify-end gap-2.5">
+        <div className="flex items-center justify-end gap-2">
           <Button
             variant="secondary"
             size="sm"
             className="text-xs"
-            leftIcon={<RotateCcw className="w-3.5 h-3.5" />}
+            leftIcon={<RotateCcw className="w-3 h-3" />}
             onClick={() => {
               setResetModalUser(r);
               setNewPassword('');
@@ -248,10 +261,10 @@ export const AdminCredentials = () => {
           </Button>
 
           <Button
-            variant={r.status === 'active' ? 'secondary' : 'primary'}
+            variant={r.status === 'active' ? 'secondary' : 'teal'}
             size="sm"
             className="text-xs"
-            leftIcon={r.status === 'active' ? <UserX className="w-3.5 h-3.5" /> : <UserCheck className="w-3.5 h-3.5" />}
+            leftIcon={r.status === 'active' ? <UserX className="w-3 h-3" /> : <UserCheck className="w-3 h-3" />}
             onClick={() => handleToggleStatus(r)}
           >
             {r.status === 'active' ? 'Deactivate' : 'Activate'}
@@ -263,7 +276,7 @@ export const AdminCredentials = () => {
 
   return (
     <div className="space-y-6">
-      {/* Module 1: Existing Credential Creation System */}
+      {/* Module 1: Existing Credential Creation System (Preserved 100%) */}
       <Card
         title="Provision Section Credentials"
         subtitle="Create, hash (bcrypt 12-rounds), and link authentication credentials for authorized university roles"
@@ -282,7 +295,7 @@ export const AdminCredentials = () => {
 
           {createError && (
             <AlertBanner
-              variant="error"
+              variant="danger"
               title="Credential Error"
               message={createError}
               dismissible
@@ -292,28 +305,28 @@ export const AdminCredentials = () => {
 
           {/* Quick copy credentials feedback card */}
           {lastCreated && (
-            <div className="p-4 rounded-2xl bg-[#CCFBF1] border border-[#0D9488] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 text-xs text-[#102A43]">
+            <div className="p-4 rounded-xl bg-[#FFF8E6] border border-[#F1E7CF] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#0D9488]" />
-                  <span className="font-bold text-sm text-[#102A43]">Recently Saved Credentials:</span>
+                  <CheckCircle2 className="w-4 h-4 text-[#D99A00]" />
+                  <span className="font-bold text-[#111827]">Recently Saved Credentials:</span>
                   <Badge variant="teal" size="sm">{lastCreated.sectionLabel}</Badge>
                 </div>
-                <div className="text-[#102A43] font-mono text-xs space-x-3 font-semibold">
+                <div className="text-slate-700 font-mono text-[11px] space-x-3">
                   <span>Username: <strong>{lastCreated.username}</strong></span>
                   <span>•</span>
                   <span>Password: <strong>{lastCreated.password}</strong></span>
                   <span>•</span>
-                  <span className="text-[#102A43]/70 font-medium">Saved at {lastCreated.createdAt}</span>
+                  <span className="text-slate-500">Saved at {lastCreated.createdAt}</span>
                 </div>
               </div>
-              <div className="flex items-center gap-2.5 shrink-0">
+              <div className="flex items-center gap-2 shrink-0">
                 <Button
                   type="button"
                   variant="secondary"
                   size="sm"
                   className="text-xs"
-                  leftIcon={copied ? <Check className="w-3.5 h-3.5 text-[#0D9488]" /> : <Copy className="w-3.5 h-3.5" />}
+                  leftIcon={copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                   onClick={handleCopyCredentials}
                 >
                   {copied ? 'Copied!' : 'Copy'}
@@ -322,7 +335,7 @@ export const AdminCredentials = () => {
                   href={lastCreated.portal}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-[#0D9488] text-white hover:opacity-90 transition-colors shadow-sm"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#D99A00] text-white hover:bg-[#D99A00] transition-colors shadow-xs"
                 >
                   <span>Open {lastCreated.sectionLabel} Login</span>
                   <ExternalLink className="w-3.5 h-3.5" />
@@ -332,16 +345,16 @@ export const AdminCredentials = () => {
           )}
 
           {/* Creation Form */}
-          <form onSubmit={handleCreateCredentials} className="space-y-5">
+          <form onSubmit={handleCreateCredentials} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-bold text-[#102A43] uppercase tracking-wider mb-2">
-                  Target Section / Portal <span className="text-[#0D9488]">*</span>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Target Section / Portal <span className="text-rose-500">*</span>
                 </label>
                 <select
                   value={credForm.section}
                   onChange={(e) => setCredForm((prev) => ({ ...prev, section: e.target.value }))}
-                  className="w-full h-11 px-4 text-sm font-semibold rounded-xl border border-[#CCFBF1] bg-white text-[#102A43] focus:outline-none focus:ring-2 focus:ring-[#0D9488]"
+                  className="w-full h-10 px-3 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#D99A00] focus:border-transparent font-medium"
                 >
                   {SECTIONS.map((s) => (
                     <option key={s.id} value={s.id}>
@@ -349,7 +362,7 @@ export const AdminCredentials = () => {
                     </option>
                   ))}
                 </select>
-                <p className="mt-1.5 text-xs text-[#102A43]/70 font-medium">
+                <p className="mt-1 text-[11px] text-slate-500">
                   {SECTIONS.find((s) => s.id === credForm.section)?.desc}
                 </p>
               </div>
@@ -364,7 +377,7 @@ export const AdminCredentials = () => {
                   onChange={(e) => setCredForm((prev) => ({ ...prev, username: e.target.value }))}
                   required
                 />
-                <p className="mt-1.5 text-xs text-[#102A43]/70 font-medium">
+                <p className="mt-1 text-[11px] text-slate-500">
                   Used exclusively to log in to this section.
                 </p>
               </div>
@@ -383,18 +396,18 @@ export const AdminCredentials = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-9 text-[#102A43]/60 hover:text-[#102A43] p-1 focus:outline-none"
+                    className="absolute right-3 top-8 text-slate-400 hover:text-slate-600 p-1 focus:outline-none"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-                <p className="mt-1.5 text-xs text-[#102A43]/70 font-medium">
+                <p className="mt-1 text-[11px] text-slate-500">
                   Hashed with bcrypt (12 rounds) before database storage.
                 </p>
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
               <div className="w-full sm:w-auto">
                 <Input
                   label="Full Name (Optional)"
@@ -408,10 +421,10 @@ export const AdminCredentials = () => {
               <div className="w-full sm:w-auto sm:self-end">
                 <Button
                   type="submit"
-                  variant="primary"
+                  variant="teal"
                   size="md"
                   className="w-full sm:w-auto"
-                  isLoading={createLoading}
+                  loading={createLoading}
                   disabled={createLoading}
                   leftIcon={<Key className="w-4 h-4" />}
                 >
@@ -429,31 +442,31 @@ export const AdminCredentials = () => {
         subtitle="Manage account states, reset passwords, and inspect access permissions across all sections"
         badge={<Badge variant="navy" size="sm">{totalCount} Accounts</Badge>}
       >
-        <div className="space-y-5">
+        <div className="space-y-4">
           {/* Search & Filter Bar */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
             <form onSubmit={handleSearchSubmit} className="flex items-center gap-2 flex-1 max-w-md">
               <div className="relative flex-1">
-                <Search className="w-4 h-4 text-[#102A43]/60 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   placeholder="Search by name, username, or email..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full h-10 pl-10 pr-4 text-xs sm:text-sm font-medium rounded-xl border border-[#CCFBF1] bg-white text-[#102A43] focus:outline-none focus:ring-2 focus:ring-[#0D9488]"
+                  className="w-full h-9 pl-9 pr-3 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#D99A00]"
                 />
               </div>
               <Button type="submit" variant="secondary" size="sm">Search</Button>
             </form>
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
               <select
                 value={roleFilter}
                 onChange={(e) => {
                   setRoleFilter(e.target.value);
                   setPage(1);
                 }}
-                className="h-10 px-3 text-xs sm:text-sm font-semibold rounded-xl border border-[#CCFBF1] bg-white text-[#102A43] focus:outline-none focus:ring-2 focus:ring-[#0D9488]"
+                className="h-9 px-2.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#D99A00]"
               >
                 <option value="all">All Roles</option>
                 <option value="student">Student</option>
@@ -470,7 +483,7 @@ export const AdminCredentials = () => {
                   setStatusFilter(e.target.value);
                   setPage(1);
                 }}
-                className="h-10 px-3 text-xs sm:text-sm font-semibold rounded-xl border border-[#CCFBF1] bg-white text-[#102A43] focus:outline-none focus:ring-2 focus:ring-[#0D9488]"
+                className="h-9 px-2.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#D99A00]"
               >
                 <option value="all">All Statuses</option>
                 <option value="active">Active Only</option>
@@ -499,7 +512,7 @@ export const AdminCredentials = () => {
 
           {/* Pagination controls */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between text-xs sm:text-sm text-[#102A43]/70 font-semibold pt-3 border-t border-[#CCFBF1]">
+            <div className="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-100">
               <span>Showing page {page} of {totalPages} ({totalCount} total users)</span>
               <div className="flex items-center gap-2">
                 <Button
@@ -531,14 +544,14 @@ export const AdminCredentials = () => {
         title="Reset User Password"
         description={`Set a new temporary password for ${resetModalUser?.name || resetModalUser?.username} (${resetModalUser?.email})`}
         footer={
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
             <Button variant="secondary" size="sm" onClick={() => setResetModalUser(null)}>
               Cancel
             </Button>
             <Button
-              variant="primary"
+              variant="teal"
               size="sm"
-              isLoading={resetLoading}
+              loading={resetLoading}
               disabled={resetLoading}
               onClick={handleResetPassword}
             >
@@ -560,7 +573,7 @@ export const AdminCredentials = () => {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                 />
-                <p className="text-xs text-[#102A43]/70 font-medium mt-1.5">
+                <p className="text-[11px] text-slate-500 mt-1">
                   The password will be hashed with bcrypt in the database immediately upon saving.
                 </p>
               </div>

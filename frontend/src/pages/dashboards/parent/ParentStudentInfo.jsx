@@ -75,21 +75,21 @@ export const ParentStudentInfo = ({ selectedStudentId }) => {
       )}
 
       {/* Main Student Profile Card */}
-      <div className="bg-[#FFFFFF] rounded-2xl border border-[#CCFBF1] p-6 shadow-xs space-y-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-[#CCFBF1]">
+      <div className="bg-[#FFFFFF] rounded-2xl border border-[#F1E7CF] p-6 shadow-xs space-y-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-[#F1E7CF]">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-[#CCFBF1] border border-[#0D9488]/30 flex items-center justify-center text-[#0D9488] font-bold text-2xl shadow-xs">
+            <div className="w-16 h-16 rounded-2xl bg-[#FFF8E6] border border-[#D99A00]/30 flex items-center justify-center text-[#D99A00] font-bold text-2xl shadow-xs">
               {student?.name?.charAt(0) || 'S'}
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-2xl font-bold text-[#102A43]">{student?.name}</h2>
+                <h2 className="text-2xl font-bold text-[#111827]">{student?.name}</h2>
                 <Badge variant={student?.status === 'Active' ? 'success' : 'neutral'} size="sm" hasDot>
                   {student?.status || 'Active'}
                 </Badge>
               </div>
-              <p className="text-xs text-[#102A43]/70 font-mono mt-1">
-                Student ID / Roll No: <strong className="text-[#102A43] font-bold">{student?.studentId}</strong> • Institutional ID
+              <p className="text-xs text-[#4B5563] font-mono mt-1">
+                Student ID / Roll No: <strong className="text-[#111827] font-bold">{student?.studentId}</strong> • Institutional ID
               </p>
             </div>
           </div>
@@ -97,7 +97,7 @@ export const ParentStudentInfo = ({ selectedStudentId }) => {
           <Button
             variant="secondary"
             size="sm"
-            leftIcon={<RefreshCw className={`w-3.5 h-3.5 text-[#0D9488] ${loading ? 'animate-spin' : ''}`} />}
+            leftIcon={<RefreshCw className={`w-3.5 h-3.5 text-[#D99A00] ${loading ? 'animate-spin' : ''}`} />}
             onClick={fetchStudent}
           >
             Refresh Profile
@@ -106,28 +106,28 @@ export const ParentStudentInfo = ({ selectedStudentId }) => {
 
         {/* Detailed Grid Parameters */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-          <div className="p-4 rounded-xl bg-[#F0FDFA] border border-[#CCFBF1] space-y-1">
-            <span className="text-[#102A43]/70 font-bold uppercase text-[10px] block">Academic School / Department</span>
-            <span className="font-bold text-[#102A43] text-base block">{student?.departmentName || 'Computer Science & Engineering'}</span>
-            <span className="text-xs text-[#102A43]/60 font-mono font-medium">Code: {student?.departmentCode || 'CSE'}</span>
+          <div className="p-4 rounded-xl bg-[#FFFDF5] border border-[#F1E7CF] space-y-1">
+            <span className="text-[#4B5563] font-bold uppercase text-[10px] block">Academic School / Department</span>
+            <span className="font-bold text-[#111827] text-base block">{student?.departmentName || 'Computer Science & Engineering'}</span>
+            <span className="text-xs text-[#4B5563] font-mono font-medium">Code: {student?.departmentCode || 'CSE'}</span>
           </div>
 
-          <div className="p-4 rounded-xl bg-[#F0FDFA] border border-[#CCFBF1] space-y-1">
-            <span className="text-[#102A43]/70 font-bold uppercase text-[10px] block">Current Academic Standing</span>
-            <span className="font-bold text-[#0D9488] text-base block">Semester {student?.semester}</span>
-            <span className="text-xs text-[#102A43]/60 font-medium">Degree: Bachelor of Technology (B.Tech)</span>
+          <div className="p-4 rounded-xl bg-[#FFFDF5] border border-[#F1E7CF] space-y-1">
+            <span className="text-[#4B5563] font-bold uppercase text-[10px] block">Current Academic Standing</span>
+            <span className="font-bold text-[#D99A00] text-base block">Semester {student?.semester}</span>
+            <span className="text-xs text-[#4B5563] font-medium">Degree: Bachelor of Technology (B.Tech)</span>
           </div>
 
-          <div className="p-4 rounded-xl bg-[#F0FDFA] border border-[#CCFBF1] space-y-1">
-            <span className="text-[#102A43]/70 font-bold uppercase text-[10px] block">Enrollment & Batch</span>
-            <span className="font-bold text-[#102A43] text-base block font-mono">Class of {student?.enrollmentYear ? student.enrollmentYear + 4 : '2025'}</span>
-            <span className="text-xs text-[#102A43]/60 font-mono font-medium">Enrolled: {student?.enrollmentYear}</span>
+          <div className="p-4 rounded-xl bg-[#FFFDF5] border border-[#F1E7CF] space-y-1">
+            <span className="text-[#4B5563] font-bold uppercase text-[10px] block">Enrollment & Batch</span>
+            <span className="font-bold text-[#111827] text-base block font-mono">Class of {student?.enrollmentYear ? student.enrollmentYear + 4 : '2025'}</span>
+            <span className="text-xs text-[#4B5563] font-mono font-medium">Enrolled: {student?.enrollmentYear}</span>
           </div>
 
-          <div className="p-4 rounded-xl bg-[#F0FDFA] border border-[#CCFBF1] space-y-1">
-            <span className="text-[#102A43]/70 font-bold uppercase text-[10px] block">Institutional Email</span>
-            <span className="font-bold text-[#102A43] text-xs block font-mono truncate">{student?.email}</span>
-            <span className="text-xs text-[#0D9488] font-bold flex items-center gap-1">
+          <div className="p-4 rounded-xl bg-[#FFFDF5] border border-[#F1E7CF] space-y-1">
+            <span className="text-[#4B5563] font-bold uppercase text-[10px] block">Institutional Email</span>
+            <span className="font-bold text-[#111827] text-xs block font-mono truncate">{student?.email}</span>
+            <span className="text-xs text-[#D99A00] font-bold flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5" />
               Verified Student Account
             </span>
@@ -148,13 +148,13 @@ export const ParentStudentInfo = ({ selectedStudentId }) => {
                 <p className="text-xs text-slate-500 py-6 text-center">No specific curriculum courses assigned yet.</p>
               ) : (
                 courses.map((c) => (
-                  <div key={c._id} className="p-3.5 rounded-xl border border-[#CCFBF1] bg-[#FFFFFF] hover:bg-[#CCFBF1]/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                  <div key={c._id} className="p-3.5 rounded-xl border border-[#F1E7CF] bg-[#FFFFFF] hover:bg-[#FFF8E6]/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono font-bold text-[#102A43] bg-[#CCFBF1] px-2 py-0.5 rounded text-xs">{c.courseCode}</span>
-                        <h4 className="font-bold text-[#102A43] text-sm">{c.title}</h4>
+                        <span className="font-mono font-bold text-[#111827] bg-[#FFF8E6] px-2 py-0.5 rounded text-xs">{c.courseCode}</span>
+                        <h4 className="font-bold text-[#111827] text-sm">{c.title}</h4>
                       </div>
-                      <p className="text-xs text-[#102A43]/70 line-clamp-1 font-medium">{c.description || 'Core departmental subject'}</p>
+                      <p className="text-xs text-[#4B5563] line-clamp-1 font-medium">{c.description || 'Core departmental subject'}</p>
                     </div>
 
                     <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
@@ -175,35 +175,35 @@ export const ParentStudentInfo = ({ selectedStudentId }) => {
             subtitle="Official institutional mentor assigned to supervise your ward's academic progression"
           >
             <div className="space-y-4 text-xs">
-              <div className="flex items-center gap-3 p-3.5 bg-[#F0FDFA] border border-[#CCFBF1] rounded-xl">
-                <div className="w-12 h-12 rounded-xl bg-[#CCFBF1] text-[#0D9488] flex items-center justify-center font-bold text-lg shrink-0">
+              <div className="flex items-center gap-3 p-3.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl">
+                <div className="w-12 h-12 rounded-xl bg-[#FFF8E6] text-[#D99A00] flex items-center justify-center font-bold text-lg shrink-0">
                   {advisor.name?.charAt(0) || 'D'}
                 </div>
                 <div>
-                  <h4 className="font-bold text-[#102A43] text-sm">{advisor.name}</h4>
-                  <p className="text-xs text-[#102A43]/70 font-medium">{advisor.designation}</p>
+                  <h4 className="font-bold text-[#111827] text-sm">{advisor.name}</h4>
+                  <p className="text-xs text-[#4B5563] font-medium">{advisor.designation}</p>
                 </div>
               </div>
 
-              <div className="space-y-2 text-[#102A43]">
-                <div className="flex items-center gap-2 py-1 border-b border-[#CCFBF1]">
-                  <Mail className="w-3.5 h-3.5 text-[#0D9488] shrink-0" />
+              <div className="space-y-2 text-[#111827]">
+                <div className="flex items-center gap-2 py-1 border-b border-[#F1E7CF]">
+                  <Mail className="w-3.5 h-3.5 text-[#D99A00] shrink-0" />
                   <span className="font-mono text-xs">{advisor.email}</span>
                 </div>
-                <div className="flex items-center gap-2 py-1 border-b border-[#CCFBF1]">
-                  <Phone className="w-3.5 h-3.5 text-[#0D9488] shrink-0" />
+                <div className="flex items-center gap-2 py-1 border-b border-[#F1E7CF]">
+                  <Phone className="w-3.5 h-3.5 text-[#D99A00] shrink-0" />
                   <span className="font-mono text-xs">{advisor.contact}</span>
                 </div>
                 <div className="flex items-center gap-2 py-1">
-                  <Clock className="w-3.5 h-3.5 text-[#0D9488] shrink-0" />
+                  <Clock className="w-3.5 h-3.5 text-[#D99A00] shrink-0" />
                   <span className="text-xs font-medium">Office Hours: Tue & Thu, 2:00 PM - 4:30 PM</span>
                 </div>
               </div>
 
               <div className="pt-2">
                 {meetingRequested ? (
-                  <div className="p-3 rounded-lg bg-[#CCFBF1] border border-[#0D9488]/40 text-[#102A43] text-xs font-bold flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-[#0D9488]" />
+                  <div className="p-3 rounded-lg bg-[#FFF8E6] border border-[#D99A00]/40 text-[#111827] text-xs font-bold flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[#D99A00]" />
                     <span>Meeting request dispatched to Faculty Advisor!</span>
                   </div>
                 ) : (

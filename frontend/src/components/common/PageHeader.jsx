@@ -23,13 +23,13 @@ export const PageHeader = ({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#102A43] tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#111827] tracking-tight">
               {title}
             </h1>
             {badge}
           </div>
           {subtitle && (
-            <p className="text-sm text-[#102A43]/75 mt-1.5 leading-relaxed font-medium">
+            <p className="text-sm text-[#4B5563] mt-1.5 leading-relaxed font-medium">
               {subtitle}
             </p>
           )}

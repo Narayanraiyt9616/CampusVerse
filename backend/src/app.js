@@ -26,12 +26,16 @@ const createApp = () => {
     cors({
       origin: (origin, callback) => {
         if (!origin) return callback(null, true);
-        if (origin === allowedOrigin || origin.startsWith('http://localhost:')) {
+        if (
+          origin === allowedOrigin ||
+          origin.startsWith('http://localhost:') ||
+          origin.startsWith('http://127.0.0.1:')
+        ) {
           return callback(null, true);
         }
         return callback(new Error(`CORS policy does not allow access from origin ${origin}`));
       },
-      methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
       credentials: true,
     })

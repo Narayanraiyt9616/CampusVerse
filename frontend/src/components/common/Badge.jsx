@@ -2,7 +2,7 @@ import React from 'react';
 
 /**
  * Reusable Badge Component for CampusVerse AI Design System
- * Strictly adheres to the 5 colors: #102A43, #0D9488, #F0FDFA, #FFFFFF, #CCFBF1
+ * CampusVerse Gold & Yellow Theme (#D99A00, #FFC107, #FFF8E6, #FFFDF5, #FFFEFA, #F1E7CF)
  */
 export const Badge = ({
   children,
@@ -22,25 +22,29 @@ export const Badge = ({
   };
 
   const variantClasses = {
-    success: 'bg-[#0D9488] text-white border border-[#0D9488]',
-    teal: 'bg-[#0D9488] text-white border border-[#0D9488]',
-    warning: 'bg-[#CCFBF1] text-[#102A43] border border-[#0D9488]/30 font-bold',
-    danger: 'bg-[#102A43] text-white border border-[#102A43]',
-    info: 'bg-[#CCFBF1] text-[#102A43] border border-[#CCFBF1]',
-    navy: 'bg-[#102A43] text-white border border-[#102A43]',
-    neutral: 'bg-[#CCFBF1] text-[#102A43] border border-[#CCFBF1]',
-    demo: 'bg-[#CCFBF1] text-[#102A43] border border-[#0D9488] font-bold uppercase',
+    success: 'bg-[#DCFCE7] text-[#16A34A] border border-[#86EFAC]',
+    teal: 'bg-[#FFF8E6] text-[#D99A00] border border-[#F1E7CF]',
+    gold: 'bg-[#D99A00] text-white border border-[#D99A00]',
+    yellow: 'bg-[#FFC107] text-[#111827] border border-[#FFC107]',
+    warning: 'bg-[#FFF8E6] text-[#D99A00] border border-[#F1E7CF] font-bold',
+    danger: 'bg-[#FEF2F2] text-[#EF4444] border border-[#FECACA]',
+    info: 'bg-[#FFF8E6] text-[#B45309] border border-[#F1E7CF]',
+    navy: 'bg-[#111827] text-white border border-[#111827]',
+    neutral: 'bg-[#FFFDF5] text-[#4B5563] border border-[#F1E7CF]',
+    demo: 'bg-[#FFF8E6] text-[#D99A00] border border-[#F1E7CF] font-bold uppercase',
   };
 
   const dotClasses = {
-    success: 'bg-white',
-    teal: 'bg-white',
-    warning: 'bg-[#0D9488]',
-    danger: 'bg-[#CCFBF1]',
-    info: 'bg-[#0D9488]',
-    navy: 'bg-[#CCFBF1]',
-    neutral: 'bg-[#0D9488]',
-    demo: 'bg-[#0D9488]',
+    success: 'bg-[#16A34A]',
+    teal: 'bg-[#D99A00]',
+    gold: 'bg-white',
+    yellow: 'bg-[#111827]',
+    warning: 'bg-[#D99A00]',
+    danger: 'bg-[#EF4444]',
+    info: 'bg-[#D99A00]',
+    navy: 'bg-[#FFC107]',
+    neutral: 'bg-[#D99A00]',
+    demo: 'bg-[#D99A00]',
   };
 
   return (
@@ -50,7 +54,7 @@ export const Badge = ({
     >
       {hasDot && (
         <span
-          className={`h-1.5 w-1.5 rounded-full ${dotClasses[variant] || 'bg-[#0D9488]'} shrink-0`}
+          className={`h-1.5 w-1.5 rounded-full ${dotClasses[variant] || 'bg-[#D99A00]'} shrink-0`}
           aria-hidden="true"
         />
       )}

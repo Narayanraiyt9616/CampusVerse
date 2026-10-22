@@ -30,13 +30,13 @@ const getAttendanceBadge = (pct) => {
 };
 
 const getGradeLetter = (pct) => {
-  if (pct >= 90) return { grade: 'O', label: 'Outstanding', color: 'text-[#0D9488]' };
-  if (pct >= 80) return { grade: 'A+', label: 'Excellent', color: 'text-[#0D9488]' };
-  if (pct >= 70) return { grade: 'A', label: 'Very Good', color: 'text-[#0D9488]' };
-  if (pct >= 60) return { grade: 'B+', label: 'Good', color: 'text-[#102A43]' };
-  if (pct >= 50) return { grade: 'B', label: 'Average', color: 'text-[#102A43]' };
-  if (pct >= 40) return { grade: 'C', label: 'Pass', color: 'text-[#102A43]' };
-  return { grade: 'F', label: 'Fail', color: 'text-[#102A43]' };
+  if (pct >= 90) return { grade: 'O', label: 'Outstanding', color: 'text-[#D99A00]' };
+  if (pct >= 80) return { grade: 'A+', label: 'Excellent', color: 'text-[#D99A00]' };
+  if (pct >= 70) return { grade: 'A', label: 'Very Good', color: 'text-[#D99A00]' };
+  if (pct >= 60) return { grade: 'B+', label: 'Good', color: 'text-[#111827]' };
+  if (pct >= 50) return { grade: 'B', label: 'Average', color: 'text-[#111827]' };
+  if (pct >= 40) return { grade: 'C', label: 'Pass', color: 'text-[#111827]' };
+  return { grade: 'F', label: 'Fail', color: 'text-[#111827]' };
 };
 
 const formatDate = (d) => {
@@ -105,8 +105,8 @@ const ProfileSection = ({ user, profile, onSave, saving }) => {
     <section id="profile" className="scroll-mt-20 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-[#102A43]">Student Profile</h2>
-          <p className="text-xs sm:text-sm text-[#102A43]/75 mt-0.5 font-medium">Personal details, contact &amp; guardian information</p>
+          <h2 className="text-xl font-bold text-[#111827]">Student Profile</h2>
+          <p className="text-xs sm:text-sm text-[#4B5563] mt-0.5 font-medium">Personal details, contact &amp; guardian information</p>
         </div>
         {editing ? (
           <div className="flex gap-2">
@@ -125,31 +125,31 @@ const ProfileSection = ({ user, profile, onSave, saving }) => {
         <Card className="lg:col-span-1">
           <div className="flex flex-col items-center text-center space-y-3.5 py-2">
             <div className="relative">
-              <div className="w-24 h-24 rounded-full overflow-hidden ring-4 ring-[#CCFBF1] bg-[#0D9488] flex items-center justify-center text-white">
+              <div className="w-24 h-24 rounded-full overflow-hidden ring-4 ring-[#F1E7CF] bg-[#D99A00] flex items-center justify-center text-white">
                 <img src={DEMO_STUDENT.avatar} alt={displayName} className="w-full h-full object-cover" onError={(e) => { e.target.style.display='none'; }} />
               </div>
               {editing && (
-                <button className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-[#0D9488] text-white flex items-center justify-center shadow-lg hover:bg-[#0D9488]/90 transition-colors">
+                <button className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-[#D99A00] text-white flex items-center justify-center shadow-lg hover:bg-[#D99A00]/90 transition-colors">
                   <Camera className="w-4 h-4" />
                 </button>
               )}
             </div>
             <div>
-              <h3 className="font-bold text-[#102A43] text-lg">{displayName}</h3>
-              <p className="text-xs text-[#102A43]/70 font-mono mt-0.5">{rollNo}</p>
+              <h3 className="font-bold text-[#111827] text-lg">{displayName}</h3>
+              <p className="text-xs text-[#4B5563] font-mono mt-0.5">{rollNo}</p>
             </div>
             <Badge variant={statusVariant} size="sm" hasDot>{status}</Badge>
-            <div className="w-full pt-3.5 border-t border-[#CCFBF1] space-y-2.5 text-xs text-left">
-              <div className="flex items-center gap-2.5 text-[#102A43]">
-                <BookOpen className="w-4 h-4 text-[#0D9488] flex-shrink-0" />
+            <div className="w-full pt-3.5 border-t border-[#F1E7CF] space-y-2.5 text-xs text-left">
+              <div className="flex items-center gap-2.5 text-[#111827]">
+                <BookOpen className="w-4 h-4 text-[#D99A00] flex-shrink-0" />
                 <span className="truncate font-semibold">{dept}</span>
               </div>
-              <div className="flex items-center gap-2.5 text-[#102A43]">
-                <GraduationCap className="w-4 h-4 text-[#0D9488] flex-shrink-0" />
+              <div className="flex items-center gap-2.5 text-[#111827]">
+                <GraduationCap className="w-4 h-4 text-[#D99A00] flex-shrink-0" />
                 <span className="font-medium">{sem} &bull; Batch {enrollYear}</span>
               </div>
-              <div className="flex items-center gap-2.5 text-[#102A43]">
-                <Shield className="w-4 h-4 text-[#0D9488] flex-shrink-0" />
+              <div className="flex items-center gap-2.5 text-[#111827]">
+                <Shield className="w-4 h-4 text-[#D99A00] flex-shrink-0" />
                 <span className="truncate text-xs font-mono">{email}</span>
               </div>
             </div>
@@ -158,7 +158,7 @@ const ProfileSection = ({ user, profile, onSave, saving }) => {
 
         {/* Editable details */}
         <Card className="lg:col-span-2">
-          <h4 className="text-base font-bold text-[#102A43] mb-4">Personal &amp; Contact Information</h4>
+          <h4 className="text-base font-bold text-[#111827] mb-4">Personal &amp; Contact Information</h4>
           {editing ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input label="Mobile / Phone" id="stu-phone" value={form.phone} onChange={(e) => handleChange('phone', e.target.value)} error={errors.phone} placeholder="+91 98765 43210" leftIcon={<Phone className="w-4 h-4" />} />
@@ -167,8 +167,8 @@ const ProfileSection = ({ user, profile, onSave, saving }) => {
               <div className="sm:col-span-2">
                 <Input label="Residential Address" id="stu-address" value={form.address} onChange={(e) => handleChange('address', e.target.value)} placeholder="Full address…" leftIcon={<MapPin className="w-4 h-4" />} />
               </div>
-              <div className="sm:col-span-2 pt-3 border-t border-[#CCFBF1]">
-                <p className="text-xs font-bold text-[#102A43] uppercase tracking-wider mb-3">Guardian / Parent Information</p>
+              <div className="sm:col-span-2 pt-3 border-t border-[#F1E7CF]">
+                <p className="text-xs font-bold text-[#111827] uppercase tracking-wider mb-3">Guardian / Parent Information</p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <Input label="Guardian Name" id="stu-gname" value={form.guardianName} onChange={(e) => handleChange('guardianName', e.target.value)} placeholder="Full name" />
                   <Input label="Guardian Phone" id="stu-gphone" value={form.guardianPhone} onChange={(e) => handleChange('guardianPhone', e.target.value)} error={errors.guardianPhone} placeholder="+91 …" leftIcon={<Phone className="w-4 h-4" />} />
@@ -189,22 +189,22 @@ const ProfileSection = ({ user, profile, onSave, saving }) => {
                   { label: 'Mobile / Phone', value: form.phone || '—' },
                   { label: 'Academic Status', value: status },
                 ].map((item) => (
-                  <div key={item.label} className="flex flex-col gap-1 p-3 rounded-xl bg-[#F0FDFA] border border-[#CCFBF1]">
-                    <span className="text-[11px] text-[#102A43]/70 font-bold uppercase tracking-wider">{item.label}</span>
-                    <span className={`text-[#102A43] font-bold text-sm ${item.mono ? 'font-mono' : ''}`}>{item.value}</span>
+                  <div key={item.label} className="flex flex-col gap-1 p-3 rounded-xl bg-[#FFFDF5] border border-[#F1E7CF]">
+                    <span className="text-[11px] text-[#4B5563] font-bold uppercase tracking-wider">{item.label}</span>
+                    <span className={`text-[#111827] font-bold text-sm ${item.mono ? 'font-mono' : ''}`}>{item.value}</span>
                   </div>
                 ))}
               </div>
-              <div className="p-3 rounded-xl bg-[#F0FDFA] border border-[#CCFBF1]">
-                <span className="text-[11px] text-[#102A43]/70 font-bold uppercase tracking-wider block mb-1">Address</span>
-                <span className="text-[#102A43] text-sm font-semibold">{form.address || '—'}</span>
+              <div className="p-3 rounded-xl bg-[#FFFDF5] border border-[#F1E7CF]">
+                <span className="text-[11px] text-[#4B5563] font-bold uppercase tracking-wider block mb-1">Address</span>
+                <span className="text-[#111827] text-sm font-semibold">{form.address || '—'}</span>
               </div>
-              <div className="p-3.5 rounded-xl bg-[#CCFBF1] border border-[#0D9488]/30">
-                <p className="text-xs font-bold text-[#102A43] uppercase tracking-wider mb-2">Guardian / Parent Details</p>
+              <div className="p-3.5 rounded-xl bg-[#FFF8E6] border border-[#D99A00]/30">
+                <p className="text-xs font-bold text-[#111827] uppercase tracking-wider mb-2">Guardian / Parent Details</p>
                 <div className="grid grid-cols-3 gap-3 text-xs">
-                  <div><span className="text-[#102A43]/70 block font-medium">Name</span><span className="font-bold text-[#102A43] text-sm">{form.guardianName || '—'}</span></div>
-                  <div><span className="text-[#102A43]/70 block font-medium">Phone</span><span className="font-bold text-[#102A43] text-sm">{form.guardianPhone || '—'}</span></div>
-                  <div><span className="text-[#102A43]/70 block font-medium">Relation</span><span className="font-bold text-[#102A43] text-sm">{form.guardianRelation || '—'}</span></div>
+                  <div><span className="text-[#4B5563] block font-medium">Name</span><span className="font-bold text-[#111827] text-sm">{form.guardianName || '—'}</span></div>
+                  <div><span className="text-[#4B5563] block font-medium">Phone</span><span className="font-bold text-[#111827] text-sm">{form.guardianPhone || '—'}</span></div>
+                  <div><span className="text-[#4B5563] block font-medium">Relation</span><span className="font-bold text-[#111827] text-sm">{form.guardianRelation || '—'}</span></div>
                 </div>
               </div>
             </div>
@@ -249,30 +249,30 @@ const AcademicsSection = ({ results }) => {
   return (
     <section id="academics" className="scroll-mt-20 space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-[#102A43]">Academic History</h2>
-        <p className="text-xs sm:text-sm text-[#102A43]/75 mt-0.5 font-medium">Semester-wise marks, grades, percentages and academic progress</p>
+        <h2 className="text-xl font-bold text-[#111827]">Academic History</h2>
+        <p className="text-xs sm:text-sm text-[#4B5563] mt-0.5 font-medium">Semester-wise marks, grades, percentages and academic progress</p>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="p-5 rounded-2xl bg-[#0D9488] text-white text-center shadow-sm">
-          <p className="text-xs font-bold text-[#CCFBF1] uppercase tracking-wider">Cumulative CGPA</p>
+        <div className="p-5 rounded-2xl bg-[#D99A00] text-white text-center shadow-sm">
+          <p className="text-xs font-bold text-[#F1E7CF] uppercase tracking-wider">Cumulative CGPA</p>
           <p className="text-3xl font-extrabold font-mono mt-1.5">{cgpa.toFixed(2)}</p>
-          <p className="text-xs text-[#CCFBF1] mt-0.5 font-medium">/ 10.0</p>
+          <p className="text-xs text-[#F1E7CF] mt-0.5 font-medium">/ 10.0</p>
         </div>
-        <div className="p-5 rounded-2xl bg-white border border-[#CCFBF1] text-center shadow-sm">
-          <p className="text-xs font-bold text-[#102A43]/75 uppercase tracking-wider">Current SGPA</p>
-          <p className="text-3xl font-extrabold font-mono mt-1.5 text-[#102A43]">{currentSgpa.toFixed(2)}</p>
-          <p className="text-xs text-[#102A43]/70 mt-0.5 font-medium">This Semester</p>
+        <div className="p-5 rounded-2xl bg-white border border-[#F1E7CF] text-center shadow-sm">
+          <p className="text-xs font-bold text-[#4B5563] uppercase tracking-wider">Current SGPA</p>
+          <p className="text-3xl font-extrabold font-mono mt-1.5 text-[#111827]">{currentSgpa.toFixed(2)}</p>
+          <p className="text-xs text-[#4B5563] mt-0.5 font-medium">This Semester</p>
         </div>
-        <div className="p-5 rounded-2xl bg-white border border-[#CCFBF1] text-center shadow-sm">
-          <p className="text-xs font-bold text-[#102A43]/75 uppercase tracking-wider">Credits Earned</p>
-          <p className="text-3xl font-extrabold font-mono mt-1.5 text-[#102A43]">{totalCredits}</p>
-          <p className="text-xs text-[#102A43]/70 mt-0.5 font-medium">Total Credits</p>
+        <div className="p-5 rounded-2xl bg-white border border-[#F1E7CF] text-center shadow-sm">
+          <p className="text-xs font-bold text-[#4B5563] uppercase tracking-wider">Credits Earned</p>
+          <p className="text-3xl font-extrabold font-mono mt-1.5 text-[#111827]">{totalCredits}</p>
+          <p className="text-xs text-[#4B5563] mt-0.5 font-medium">Total Credits</p>
         </div>
-        <div className="p-5 rounded-2xl bg-white border border-[#CCFBF1] text-center shadow-sm">
-          <p className="text-xs font-bold text-[#102A43]/75 uppercase tracking-wider">Academic Standing</p>
-          <p className="text-lg font-extrabold mt-2 text-[#0D9488]">Dean's List</p>
-          <p className="text-xs text-[#102A43]/70 mt-0.5 font-medium">Top 5% Cohort</p>
+        <div className="p-5 rounded-2xl bg-white border border-[#F1E7CF] text-center shadow-sm">
+          <p className="text-xs font-bold text-[#4B5563] uppercase tracking-wider">Academic Standing</p>
+          <p className="text-lg font-extrabold mt-2 text-[#D99A00]">Dean's List</p>
+          <p className="text-xs text-[#4B5563] mt-0.5 font-medium">Top 5% Cohort</p>
         </div>
       </div>
 
@@ -282,70 +282,70 @@ const AcademicsSection = ({ results }) => {
             const gradeInfo = getGradeLetter(s.pct);
             const isOpen = expandedSem === s.sem;
             return (
-              <div key={s.sem} className="rounded-2xl border border-[#CCFBF1] overflow-hidden">
+              <div key={s.sem} className="rounded-2xl border border-[#F1E7CF] overflow-hidden">
                 <button
-                  className="w-full flex items-center gap-3.5 p-4 bg-white hover:bg-[#CCFBF1]/30 transition-colors text-left"
+                  className="w-full flex items-center gap-3.5 p-4 bg-white hover:bg-[#FFF8E6]/30 transition-colors text-left"
                   onClick={() => setExpandedSem(isOpen ? null : s.sem)}
                 >
-                  <div className="w-8 h-8 rounded-xl bg-[#CCFBF1] flex items-center justify-center flex-shrink-0 text-[#0D9488]">
+                  <div className="w-8 h-8 rounded-xl bg-[#FFF8E6] flex items-center justify-center flex-shrink-0 text-[#D99A00]">
                     <span className="text-xs font-bold">{i + 1}</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2.5 flex-wrap">
-                      <span className="text-sm font-bold text-[#102A43]">{s.sem}</span>
+                      <span className="text-sm font-bold text-[#111827]">{s.sem}</span>
                       {s.status && <Badge variant={s.status === 'In Progress' ? 'warning' : 'teal'} size="sm">{s.status}</Badge>}
                       {s.backlogs > 0 && <Badge variant="danger" size="sm">{s.backlogs} Backlog{s.backlogs > 1 ? 's' : ''}</Badge>}
                     </div>
                     <div className="mt-2 flex items-center gap-2.5">
-                      <div className="flex-1 bg-[#CCFBF1] rounded-full h-2 overflow-hidden">
+                      <div className="flex-1 bg-[#FFF8E6] rounded-full h-2 overflow-hidden">
                         <div
-                          className="h-full rounded-full transition-all duration-500 bg-[#0D9488]"
+                          className="h-full rounded-full transition-all duration-500 bg-[#D99A00]"
                           style={{ width: `${Math.min(s.pct, 100)}%` }}
                         />
                       </div>
-                      <span className="text-xs font-bold text-[#102A43] font-mono w-10 text-right">{s.pct}%</span>
+                      <span className="text-xs font-bold text-[#111827] font-mono w-10 text-right">{s.pct}%</span>
                     </div>
                   </div>
                   <div className="text-right flex-shrink-0 mr-2">
                     {s.sgpa !== undefined ? (
                       <>
-                        <span className="text-xl font-bold text-[#102A43] font-mono">{s.sgpa.toFixed(2)}</span>
-                        <span className="text-xs text-[#102A43]/70 font-semibold block">SGPA &bull; {s.credits} Cr</span>
+                        <span className="text-xl font-bold text-[#111827] font-mono">{s.sgpa.toFixed(2)}</span>
+                        <span className="text-xs text-[#4B5563] font-semibold block">SGPA &bull; {s.credits} Cr</span>
                       </>
                     ) : (
                       <>
                         <span className={`text-xl font-bold font-mono ${gradeInfo.color}`}>{gradeInfo.grade}</span>
-                        <span className="text-xs text-[#102A43]/70 font-semibold block">{s.obtained}/{s.max}</span>
+                        <span className="text-xs text-[#4B5563] font-semibold block">{s.obtained}/{s.max}</span>
                       </>
                     )}
                   </div>
-                  {isOpen ? <ChevronUp className="w-4 h-4 text-[#102A43] flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-[#102A43] flex-shrink-0" />}
+                  {isOpen ? <ChevronUp className="w-4 h-4 text-[#111827] flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-[#111827] flex-shrink-0" />}
                 </button>
 
                 {isOpen && (
-                  <div className="border-t border-[#CCFBF1] bg-[#F0FDFA] p-4">
+                  <div className="border-t border-[#F1E7CF] bg-[#FFFDF5] p-4">
                     {s.results.length > 0 ? (
                       <div className="space-y-2.5">
                         {s.results.map((r) => {
                           const subPct = r.maxMarks > 0 ? Math.round(((r.marksObtained || 0) / r.maxMarks) * 100) : 0;
                           const subG = getGradeLetter(subPct);
                           return (
-                            <div key={r._id || r.assessmentName} className="flex items-center gap-3 bg-white rounded-xl p-3 border border-[#CCFBF1] text-xs">
+                            <div key={r._id || r.assessmentName} className="flex items-center gap-3 bg-white rounded-xl p-3 border border-[#F1E7CF] text-xs">
                               <div className="flex-1 min-w-0">
-                                <p className="font-bold text-[#102A43] truncate">{r.assessmentName}</p>
-                                <p className="text-[#102A43]/70 text-[11px] font-medium">{r.course?.courseCode || ''} &bull; {r.assessmentType}</p>
+                                <p className="font-bold text-[#111827] truncate">{r.assessmentName}</p>
+                                <p className="text-[#4B5563] text-[11px] font-medium">{r.course?.courseCode || ''} &bull; {r.assessmentType}</p>
                               </div>
-                              {r.feedback && <p className="text-[#102A43]/70 text-xs italic max-w-[140px] truncate">"{r.feedback}"</p>}
+                              {r.feedback && <p className="text-[#4B5563] text-xs italic max-w-[140px] truncate">"{r.feedback}"</p>}
                               <div className="text-right flex-shrink-0">
                                 <span className={`font-bold text-sm ${subG.color}`}>{subG.grade}</span>
-                                <span className="text-[#102A43]/70 block text-xs font-mono font-semibold">{r.marksObtained ?? '—'}/{r.maxMarks}</span>
+                                <span className="text-[#4B5563] block text-xs font-mono font-semibold">{r.marksObtained ?? '—'}/{r.maxMarks}</span>
                               </div>
                             </div>
                           );
                         })}
                       </div>
                     ) : (
-                      <p className="text-xs text-[#102A43]/70 text-center py-3 font-semibold">Subject-level data will appear when results are published by faculty.</p>
+                      <p className="text-xs text-[#4B5563] text-center py-3 font-semibold">Subject-level data will appear when results are published by faculty.</p>
                     )}
                   </div>
                 )}
@@ -365,21 +365,21 @@ const AttendanceSection = () => {
   const overall = summary.overallPercentage;
 
   const attendanceColumns = [
-    { key: 'code', header: 'Code', render: (v) => <span className="font-mono text-xs font-bold text-[#102A43]">{v}</span> },
+    { key: 'code', header: 'Code', render: (v) => <span className="font-mono text-xs font-bold text-[#111827]">{v}</span> },
     {
       key: 'name',
       header: 'Subject',
       render: (v, r) => (
         <div>
-          <p className="font-bold text-xs text-[#102A43]">{v}</p>
-          <p className="text-[11px] text-[#102A43]/70 font-medium">{r.faculty}</p>
+          <p className="font-bold text-xs text-[#111827]">{v}</p>
+          <p className="text-[11px] text-[#4B5563] font-medium">{r.faculty}</p>
         </div>
       ),
     },
     {
       key: 'attended',
       header: 'Classes',
-      render: (v, r) => <span className="text-xs font-bold font-mono text-[#102A43]">{r.attended}/{r.total}</span>,
+      render: (v, r) => <span className="text-xs font-bold font-mono text-[#111827]">{r.attended}/{r.total}</span>,
     },
     {
       key: 'percentage',
@@ -387,10 +387,10 @@ const AttendanceSection = () => {
       render: (v) => {
         return (
           <div className="flex items-center gap-2.5">
-            <div className="w-24 bg-[#CCFBF1] rounded-full h-2 overflow-hidden">
-              <div className="h-full rounded-full bg-[#0D9488]" style={{ width: `${Math.min(v, 100)}%` }} />
+            <div className="w-24 bg-[#FFF8E6] rounded-full h-2 overflow-hidden">
+              <div className="h-full rounded-full bg-[#D99A00]" style={{ width: `${Math.min(v, 100)}%` }} />
             </div>
-            <span className="text-xs font-bold font-mono text-[#102A43]">{formatPercent(v)}</span>
+            <span className="text-xs font-bold font-mono text-[#111827]">{formatPercent(v)}</span>
           </div>
         );
       },
@@ -412,31 +412,31 @@ const AttendanceSection = () => {
   return (
     <section id="attendance" className="scroll-mt-20 space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-[#102A43]">Attendance</h2>
-        <p className="text-xs sm:text-sm text-[#102A43]/75 mt-0.5 font-medium">Overall and subject-wise attendance with shortage warnings</p>
+        <h2 className="text-xl font-bold text-[#111827]">Attendance</h2>
+        <p className="text-xs sm:text-sm text-[#4B5563] mt-0.5 font-medium">Overall and subject-wise attendance with shortage warnings</p>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: 'Overall Attendance', value: formatPercent(overall), sub: 'Min. 75% required', color: 'text-[#0D9488]' },
-          { label: 'Classes Attended', value: summary.attendedClasses, sub: `Out of ${summary.totalClasses}`, color: 'text-[#102A43]' },
-          { label: 'Classes Missed', value: summary.missedClasses, sub: 'Total absences', color: 'text-[#102A43]' },
-          { label: 'Enrolled Subjects', value: summary.courseBreakdown.length, sub: 'Active this semester', color: 'text-[#102A43]' },
+          { label: 'Overall Attendance', value: formatPercent(overall), sub: 'Min. 75% required', color: 'text-[#D99A00]' },
+          { label: 'Classes Attended', value: summary.attendedClasses, sub: `Out of ${summary.totalClasses}`, color: 'text-[#111827]' },
+          { label: 'Classes Missed', value: summary.missedClasses, sub: 'Total absences', color: 'text-[#111827]' },
+          { label: 'Enrolled Subjects', value: summary.courseBreakdown.length, sub: 'Active this semester', color: 'text-[#111827]' },
         ].map((c) => (
-          <div key={c.label} className="p-5 rounded-2xl bg-white border border-[#CCFBF1] text-center shadow-sm">
-            <p className="text-xs text-[#102A43]/75 font-bold uppercase tracking-wider">{c.label}</p>
+          <div key={c.label} className="p-5 rounded-2xl bg-white border border-[#F1E7CF] text-center shadow-sm">
+            <p className="text-xs text-[#4B5563] font-bold uppercase tracking-wider">{c.label}</p>
             <p className={`text-2xl font-extrabold font-mono mt-1.5 ${c.color}`}>{c.value}</p>
-            <p className="text-xs text-[#102A43]/70 mt-0.5 font-medium">{c.sub}</p>
+            <p className="text-xs text-[#4B5563] mt-0.5 font-medium">{c.sub}</p>
           </div>
         ))}
       </div>
 
       {shortage.length > 0 && (
-        <div className="p-4 rounded-2xl bg-[#CCFBF1] border border-[#0D9488] flex gap-3 text-[#102A43]">
-          <AlertTriangle className="w-5 h-5 text-[#0D9488] flex-shrink-0 mt-0.5" />
+        <div className="p-4 rounded-2xl bg-[#FFF8E6] border border-[#D99A00] flex gap-3 text-[#111827]">
+          <AlertTriangle className="w-5 h-5 text-[#D99A00] flex-shrink-0 mt-0.5" />
           <div className="text-sm">
-            <p className="font-bold text-[#102A43]">Attendance Shortage Warning</p>
-            <p className="text-[#102A43] text-xs sm:text-sm mt-0.5 font-medium">
+            <p className="font-bold text-[#111827]">Attendance Shortage Warning</p>
+            <p className="text-[#111827] text-xs sm:text-sm mt-0.5 font-medium">
               You have below 75% attendance in <strong>{shortage.length}</strong> subject(s): <strong>{shortage.map((s) => s.code).join(', ')}</strong>.
               Contact the department faculty coordinator immediately.
             </p>
@@ -444,11 +444,11 @@ const AttendanceSection = () => {
         </div>
       )}
       {advisory.length > 0 && shortage.length === 0 && (
-        <div className="p-4 rounded-2xl bg-[#CCFBF1] border border-[#0D9488]/50 flex gap-3 text-[#102A43]">
-          <AlertCircle className="w-5 h-5 text-[#0D9488] flex-shrink-0 mt-0.5" />
+        <div className="p-4 rounded-2xl bg-[#FFF8E6] border border-[#D99A00]/50 flex gap-3 text-[#111827]">
+          <AlertCircle className="w-5 h-5 text-[#D99A00] flex-shrink-0 mt-0.5" />
           <div className="text-sm">
-            <p className="font-bold text-[#102A43]">Attendance Advisory</p>
-            <p className="text-[#102A43] text-xs sm:text-sm mt-0.5 font-medium">
+            <p className="font-bold text-[#111827]">Attendance Advisory</p>
+            <p className="text-[#111827] text-xs sm:text-sm mt-0.5 font-medium">
               {advisory.length} subject(s) between 75–85%: <strong>{advisory.map((s) => s.code).join(', ')}</strong>. Maintain regularity.
             </p>
           </div>
@@ -481,8 +481,8 @@ const AssignmentsSection = ({ results, assignments }) => {
       header: 'Assignment',
       render: (v, r) => (
         <div>
-          <p className="font-bold text-xs text-[#102A43] leading-snug">{v || r.assessmentName}</p>
-          <p className="text-[11px] text-[#102A43]/70 mt-0.5 font-medium">{r.course?.title || r.course || ''}</p>
+          <p className="font-bold text-xs text-[#111827] leading-snug">{v || r.assessmentName}</p>
+          <p className="text-[11px] text-[#4B5563] mt-0.5 font-medium">{r.course?.title || r.course || ''}</p>
         </div>
       ),
     },
@@ -491,13 +491,13 @@ const AssignmentsSection = ({ results, assignments }) => {
       header: 'Deadline',
       render: (v) => {
         const od = isOverdue(v);
-        return <span className={`font-mono text-xs font-bold ${od ? 'text-[#0D9488]' : 'text-[#102A43]'}`}>{formatDate(v)}{od ? ' ⚠' : ''}</span>;
+        return <span className={`font-mono text-xs font-bold ${od ? 'text-[#D99A00]' : 'text-[#111827]'}`}>{formatDate(v)}{od ? ' ⚠' : ''}</span>;
       },
     },
     {
       key: 'weight',
       header: 'Marks',
-      render: (v, r) => <span className="text-xs font-bold text-[#102A43]">{v || `${r.maxMarks || '—'} Marks`}</span>,
+      render: (v, r) => <span className="text-xs font-bold text-[#111827]">{v || `${r.maxMarks || '—'} Marks`}</span>,
     },
     {
       key: 'status',
@@ -506,7 +506,7 @@ const AssignmentsSection = ({ results, assignments }) => {
         <div className="flex items-center gap-2">
           <Badge variant={getStatusBadgeVariant(v)} size="sm" hasDot>{v}</Badge>
           {(r.score !== undefined || r.marksObtained !== undefined) && (
-            <span className="text-xs font-bold text-[#102A43] font-mono">({r.score ?? r.marksObtained}/{r.maxMarks})</span>
+            <span className="text-xs font-bold text-[#111827] font-mono">({r.score ?? r.marksObtained}/{r.maxMarks})</span>
           )}
         </div>
       ),
@@ -514,7 +514,7 @@ const AssignmentsSection = ({ results, assignments }) => {
     {
       key: 'feedback',
       header: 'Feedback',
-      render: (v) => v ? <span className="text-xs text-[#102A43]/80 italic">{v}</span> : <span className="text-xs text-[#102A43]/40">—</span>,
+      render: (v) => v ? <span className="text-xs text-[#4B5563] italic">{v}</span> : <span className="text-xs text-[#4B5563]">—</span>,
     },
   ];
 
@@ -524,12 +524,12 @@ const AssignmentsSection = ({ results, assignments }) => {
       header: 'Exam',
       render: (v, r) => (
         <div>
-          <p className="font-bold text-xs text-[#102A43]">{v}</p>
-          <p className="text-[11px] text-[#102A43]/70 font-medium">{r.course?.courseCode || ''} &bull; {r.assessmentType}</p>
+          <p className="font-bold text-xs text-[#111827]">{v}</p>
+          <p className="text-[11px] text-[#4B5563] font-medium">{r.course?.courseCode || ''} &bull; {r.assessmentType}</p>
         </div>
       ),
     },
-    { key: 'session', header: 'Session', render: (v) => <span className="text-xs font-bold font-mono text-[#102A43]">{v}</span> },
+    { key: 'session', header: 'Session', render: (v) => <span className="text-xs font-bold font-mono text-[#111827]">{v}</span> },
     {
       key: 'marksObtained',
       header: 'Result',
@@ -538,13 +538,13 @@ const AssignmentsSection = ({ results, assignments }) => {
         const g = getGradeLetter(pct);
         return (
           <div className="flex items-center gap-2">
-            <span className="font-mono text-xs font-bold text-[#102A43]">{v}/{r.maxMarks}</span>
+            <span className="font-mono text-xs font-bold text-[#111827]">{v}/{r.maxMarks}</span>
             <span className={`font-bold ${g.color}`}>{g.grade}</span>
           </div>
         );
       },
     },
-    { key: 'feedback', header: 'Remarks', render: (v) => v ? <span className="text-xs text-[#102A43]/80 italic">{v}</span> : <span className="text-[#102A43]/40 text-xs">—</span> },
+    { key: 'feedback', header: 'Remarks', render: (v) => v ? <span className="text-xs text-[#4B5563] italic">{v}</span> : <span className="text-[#4B5563] text-xs">—</span> },
   ];
 
   const TABS = [
@@ -560,35 +560,35 @@ const AssignmentsSection = ({ results, assignments }) => {
   return (
     <section id="assignments" className="scroll-mt-20 space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-[#102A43]">Assignments &amp; Exams</h2>
-        <p className="text-xs sm:text-sm text-[#102A43]/75 mt-0.5 font-medium">Pending, submitted, overdue assignments and published exam results</p>
+        <h2 className="text-xl font-bold text-[#111827]">Assignments &amp; Exams</h2>
+        <p className="text-xs sm:text-sm text-[#4B5563] mt-0.5 font-medium">Pending, submitted, overdue assignments and published exam results</p>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: 'Pending', value: pending.length, num: 'text-[#0D9488]' },
-          { label: 'Submitted', value: submitted.length, num: 'text-[#102A43]' },
-          { label: 'Graded', value: graded.length, num: 'text-[#0D9488]' },
-          { label: 'Overdue', value: overdue.length, num: 'text-[#102A43]' },
+          { label: 'Pending', value: pending.length, num: 'text-[#D99A00]' },
+          { label: 'Submitted', value: submitted.length, num: 'text-[#111827]' },
+          { label: 'Graded', value: graded.length, num: 'text-[#D99A00]' },
+          { label: 'Overdue', value: overdue.length, num: 'text-[#111827]' },
         ].map((c) => (
-          <div key={c.label} className="p-5 rounded-2xl bg-white border border-[#CCFBF1] text-center shadow-sm">
+          <div key={c.label} className="p-5 rounded-2xl bg-white border border-[#F1E7CF] text-center shadow-sm">
             <p className={`text-3xl font-extrabold font-mono ${c.num}`}>{c.value}</p>
-            <p className="text-xs text-[#102A43]/75 font-bold uppercase tracking-wider mt-1.5">{c.label}</p>
+            <p className="text-xs text-[#4B5563] font-bold uppercase tracking-wider mt-1.5">{c.label}</p>
           </div>
         ))}
       </div>
 
       <Card>
-        <div className="flex items-center gap-1.5 bg-[#F0FDFA] p-1.5 rounded-xl border border-[#CCFBF1] mb-5 overflow-x-auto">
+        <div className="flex items-center gap-1.5 bg-[#FFFDF5] p-1.5 rounded-xl border border-[#F1E7CF] mb-5 overflow-x-auto">
           {TABS.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`px-3.5 py-2 text-xs font-bold rounded-lg whitespace-nowrap transition-all flex items-center gap-2 ${activeTab === tab.key ? 'bg-[#0D9488] text-white shadow-sm' : 'text-[#102A43] hover:bg-[#CCFBF1]'}`}
+              className={`px-3.5 py-2 text-xs font-bold rounded-lg whitespace-nowrap transition-all flex items-center gap-2 ${activeTab === tab.key ? 'bg-[#D99A00] text-white shadow-sm' : 'text-[#111827] hover:bg-[#FFF8E6]'}`}
             >
               {tab.label}
               {tab.count > 0 && (
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${activeTab === tab.key ? 'bg-white text-[#0D9488]' : 'bg-[#CCFBF1] text-[#102A43]'}`}>{tab.count}</span>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${activeTab === tab.key ? 'bg-white text-[#D99A00]' : 'bg-[#FFF8E6] text-[#111827]'}`}>{tab.count}</span>
               )}
             </button>
           ))}
@@ -599,9 +599,9 @@ const AssignmentsSection = ({ results, assignments }) => {
             <Table columns={examColumns} data={examResults} keyField="_id" />
           ) : (
             <div className="text-center py-10">
-              <Award className="w-10 h-10 text-[#0D9488] mx-auto mb-3" />
-              <p className="text-sm font-bold text-[#102A43]">No published exam results yet</p>
-              <p className="text-xs text-[#102A43]/70 mt-1 font-medium">Results will appear once published by faculty</p>
+              <Award className="w-10 h-10 text-[#D99A00] mx-auto mb-3" />
+              <p className="text-sm font-bold text-[#111827]">No published exam results yet</p>
+              <p className="text-xs text-[#4B5563] mt-1 font-medium">Results will appear once published by faculty</p>
             </div>
           )
         ) : (
@@ -626,27 +626,27 @@ const FeesSection = ({ fees }) => {
     {
       key: 'invoiceId',
       header: 'Invoice #',
-      render: (v, r) => <span className="font-mono font-bold text-xs text-[#102A43]">{v || r.invoiceNumber}</span>,
+      render: (v, r) => <span className="font-mono font-bold text-xs text-[#111827]">{v || r.invoiceNumber}</span>,
     },
     {
       key: 'category',
       header: 'Description',
       render: (v, r) => (
         <div>
-          <p className="font-bold text-xs text-[#102A43]">{v || r.description}</p>
-          {r.academicYear && <p className="text-[11px] text-[#102A43]/70 font-medium">{r.academicYear}</p>}
+          <p className="font-bold text-xs text-[#111827]">{v || r.description}</p>
+          {r.academicYear && <p className="text-[11px] text-[#4B5563] font-medium">{r.academicYear}</p>}
         </div>
       ),
     },
     {
       key: 'amount',
       header: 'Amount',
-      render: (v) => <span className="font-extrabold text-xs font-mono text-[#102A43]">{formatCurrency(v)}</span>,
+      render: (v) => <span className="font-extrabold text-xs font-mono text-[#111827]">{formatCurrency(v)}</span>,
     },
     {
       key: 'dueDate',
       header: 'Due Date',
-      render: (v) => <span className={`text-xs font-mono font-semibold ${isOverdue(v) ? 'text-[#0D9488]' : 'text-[#102A43]'}`}>{formatDate(v)}</span>,
+      render: (v) => <span className={`text-xs font-mono font-semibold ${isOverdue(v) ? 'text-[#D99A00]' : 'text-[#111827]'}`}>{formatDate(v)}</span>,
     },
     {
       key: 'status',
@@ -668,28 +668,28 @@ const FeesSection = ({ fees }) => {
   return (
     <section id="fees" className="scroll-mt-20 space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-[#102A43]">Fees</h2>
-        <p className="text-xs sm:text-sm text-[#102A43]/75 mt-0.5 font-medium">Total fees, paid amount, balance, due dates and payment history</p>
+        <h2 className="text-xl font-bold text-[#111827]">Fees</h2>
+        <p className="text-xs sm:text-sm text-[#4B5563] mt-0.5 font-medium">Total fees, paid amount, balance, due dates and payment history</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-5 rounded-2xl bg-[#102A43] text-white shadow-sm">
-          <p className="text-xs font-bold text-[#CCFBF1] uppercase tracking-wider">Total Fees</p>
+        <div className="p-5 rounded-2xl bg-[#111827] text-white shadow-sm">
+          <p className="text-xs font-bold text-[#F1E7CF] uppercase tracking-wider">Total Fees</p>
           <p className="text-3xl font-extrabold font-mono mt-2">{formatCurrency(totalFees)}</p>
-          <p className="text-xs text-[#CCFBF1] mt-1 font-medium">Academic Year 2026–27</p>
+          <p className="text-xs text-[#F1E7CF] mt-1 font-medium">Academic Year 2026–27</p>
         </div>
-        <div className="p-5 rounded-2xl bg-white border border-[#CCFBF1] text-[#102A43] shadow-sm">
-          <p className="text-xs font-bold text-[#0D9488] uppercase tracking-wider">Paid Amount</p>
-          <p className="text-3xl font-extrabold font-mono mt-2 text-[#0D9488]">{formatCurrency(paidFees)}</p>
+        <div className="p-5 rounded-2xl bg-white border border-[#F1E7CF] text-[#111827] shadow-sm">
+          <p className="text-xs font-bold text-[#D99A00] uppercase tracking-wider">Paid Amount</p>
+          <p className="text-3xl font-extrabold font-mono mt-2 text-[#D99A00]">{formatCurrency(paidFees)}</p>
           <div className="mt-2 flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-[#0D9488]" />
-            <p className="text-xs text-[#102A43] font-semibold">{feeData.filter((f) => f.status === 'Paid').length} invoices cleared</p>
+            <CheckCircle2 className="w-4 h-4 text-[#D99A00]" />
+            <p className="text-xs text-[#111827] font-semibold">{feeData.filter((f) => f.status === 'Paid').length} invoices cleared</p>
           </div>
         </div>
-        <div className="p-5 rounded-2xl bg-[#CCFBF1] border border-[#0D9488] text-[#102A43] shadow-sm">
-          <p className="text-xs font-bold uppercase tracking-wider text-[#102A43]">Balance Due</p>
-          <p className="text-3xl font-extrabold font-mono mt-2 text-[#102A43]">{formatCurrency(balance)}</p>
-          <p className="text-xs mt-1 font-semibold text-[#102A43]">
+        <div className="p-5 rounded-2xl bg-[#FFF8E6] border border-[#D99A00] text-[#111827] shadow-sm">
+          <p className="text-xs font-bold uppercase tracking-wider text-[#111827]">Balance Due</p>
+          <p className="text-3xl font-extrabold font-mono mt-2 text-[#111827]">{formatCurrency(balance)}</p>
+          <p className="text-xs mt-1 font-semibold text-[#111827]">
             {balance > 0 ? `${feeData.filter((f) => f.status === 'Pending').length} pending invoice(s)` : 'All dues cleared ✓'}
           </p>
         </div>
@@ -721,8 +721,8 @@ const FeesSection = ({ fees }) => {
         }
       >
         {receiptModal.item && (
-          <div className="space-y-4 text-xs text-[#102A43]">
-            <div className="p-4 rounded-xl bg-[#F0FDFA] border border-[#CCFBF1] space-y-2.5">
+          <div className="space-y-4 text-xs text-[#111827]">
+            <div className="p-4 rounded-xl bg-[#FFFDF5] border border-[#F1E7CF] space-y-2.5">
               {[
                 { label: 'Invoice #', value: receiptModal.item.invoiceId || receiptModal.item.invoiceNumber, mono: true },
                 { label: 'Category', value: receiptModal.item.category },
@@ -731,26 +731,26 @@ const FeesSection = ({ fees }) => {
                 { label: 'Status', value: receiptModal.item.status },
               ].map((row) => (
                 <div key={row.label} className="flex justify-between">
-                  <span className="text-[#102A43]/70 font-medium">{row.label}:</span>
-                  <span className={`font-bold text-[#102A43] ${row.mono ? 'font-mono' : ''}`}>{row.value}</span>
+                  <span className="text-[#4B5563] font-medium">{row.label}:</span>
+                  <span className={`font-bold text-[#111827] ${row.mono ? 'font-mono' : ''}`}>{row.value}</span>
                 </div>
               ))}
               {receiptModal.item.status === 'Paid' && (
-                <div className="border-t border-[#CCFBF1] pt-2 space-y-1.5">
+                <div className="border-t border-[#F1E7CF] pt-2 space-y-1.5">
                   <div className="flex justify-between">
-                    <span className="text-[#102A43]/70 font-medium">Payment Date:</span>
-                    <span className="font-bold text-[#102A43]">{formatDate(receiptModal.item.paymentDate)}</span>
+                    <span className="text-[#4B5563] font-medium">Payment Date:</span>
+                    <span className="font-bold text-[#111827]">{formatDate(receiptModal.item.paymentDate)}</span>
                   </div>
                   {receiptModal.item.receiptNumber && (
                     <div className="flex justify-between">
-                      <span className="text-[#102A43]/70 font-medium">Receipt #:</span>
-                      <span className="font-bold font-mono text-[#0D9488]">{receiptModal.item.receiptNumber}</span>
+                      <span className="text-[#4B5563] font-medium">Receipt #:</span>
+                      <span className="font-bold font-mono text-[#D99A00]">{receiptModal.item.receiptNumber}</span>
                     </div>
                   )}
                 </div>
               )}
             </div>
-            <p className="text-xs text-[#102A43]/70 leading-relaxed font-medium">
+            <p className="text-xs text-[#4B5563] leading-relaxed font-medium">
               This is an electronic statement from CampusVerse AI. For discrepancies, contact the accounts office.
             </p>
           </div>
@@ -773,10 +773,10 @@ const OverviewSection = ({ profile, results, fees }) => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Attendance" value={formatPercent(overall)} subtitle="Semester average" change="Safe standing" changeType="increase" icon={<CalendarCheck className="w-5 h-5 text-[#0D9488]" />} />
-        <StatCard title="CGPA" value={DEMO_STUDENT.cgpa.toFixed(2)} subtitle={`Current SGPA: ${DEMO_STUDENT.currentSgpa}`} change="+0.04 vs Sem 6" changeType="increase" icon={<GraduationCap className="w-5 h-5 text-[#0D9488]" />} />
-        <StatCard title="Pending Tasks" value={pendingAssignments} subtitle="Assignments due" change={pendingAssignments > 0 ? 'Action needed' : 'All clear'} changeType={pendingAssignments > 0 ? 'decrease' : 'increase'} icon={<ClipboardList className="w-5 h-5 text-[#0D9488]" />} />
-        <StatCard title="Fee Balance" value={formatCurrency(feeDue)} subtitle="Outstanding dues" change={feeDue === 0 ? 'All cleared' : 'Due soon'} changeType={feeDue === 0 ? 'increase' : 'decrease'} icon={<IndianRupee className="w-5 h-5 text-[#0D9488]" />} />
+        <StatCard title="Attendance" value={formatPercent(overall)} subtitle="Semester average" change="Safe standing" changeType="increase" icon={<CalendarCheck className="w-5 h-5 text-[#D99A00]" />} />
+        <StatCard title="CGPA" value={DEMO_STUDENT.cgpa.toFixed(2)} subtitle={`Current SGPA: ${DEMO_STUDENT.currentSgpa}`} change="+0.04 vs Sem 6" changeType="increase" icon={<GraduationCap className="w-5 h-5 text-[#D99A00]" />} />
+        <StatCard title="Pending Tasks" value={pendingAssignments} subtitle="Assignments due" change={pendingAssignments > 0 ? 'Action needed' : 'All clear'} changeType={pendingAssignments > 0 ? 'decrease' : 'increase'} icon={<ClipboardList className="w-5 h-5 text-[#D99A00]" />} />
+        <StatCard title="Fee Balance" value={formatCurrency(feeDue)} subtitle="Outstanding dues" change={feeDue === 0 ? 'All cleared' : 'Due soon'} changeType={feeDue === 0 ? 'increase' : 'decrease'} icon={<IndianRupee className="w-5 h-5 text-[#D99A00]" />} />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
@@ -788,12 +788,12 @@ const OverviewSection = ({ profile, results, fees }) => {
           { to: '/student/fees', label: 'Fees', icon: <IndianRupee className="w-5 h-5" />, desc: 'Invoices & payment history' },
         ].map((item) => (
           <Link key={item.to} to={item.to} className="group block">
-            <div className="p-5 rounded-2xl border border-[#CCFBF1] bg-white hover:border-[#0D9488] shadow-sm hover:shadow-card-hover transition-all duration-200 group-hover:-translate-y-0.5 h-full">
-              <div className="w-10 h-10 rounded-xl bg-[#CCFBF1] text-[#0D9488] flex items-center justify-center mb-3.5 shadow-sm group-hover:scale-110 transition-transform">
+            <div className="p-5 rounded-2xl border border-[#F1E7CF] bg-white hover:border-[#D99A00] shadow-sm hover:shadow-card-hover transition-all duration-200 group-hover:-translate-y-0.5 h-full">
+              <div className="w-10 h-10 rounded-xl bg-[#FFF8E6] text-[#D99A00] flex items-center justify-center mb-3.5 shadow-sm group-hover:scale-110 transition-transform">
                 {item.icon}
               </div>
-              <p className="font-bold text-[#102A43] text-sm">{item.label}</p>
-              <p className="text-xs text-[#102A43]/70 font-medium mt-1 leading-relaxed">{item.desc}</p>
+              <p className="font-bold text-[#111827] text-sm">{item.label}</p>
+              <p className="text-xs text-[#4B5563] font-medium mt-1 leading-relaxed">{item.desc}</p>
             </div>
           </Link>
         ))}
@@ -802,13 +802,13 @@ const OverviewSection = ({ profile, results, fees }) => {
       <Card title="Recent Notices" subtitle="Latest campus communications">
         <div className="space-y-3">
           {DEMO_STUDENT.notifications.slice(0, 3).map((n) => (
-            <div key={n.id} className="p-4 rounded-xl border border-[#CCFBF1] bg-white hover:bg-[#CCFBF1]/20 transition-colors text-xs">
+            <div key={n.id} className="p-4 rounded-xl border border-[#F1E7CF] bg-white hover:bg-[#FFF8E6]/20 transition-colors text-xs">
               <div className="flex items-center justify-between gap-2">
-                <span className="font-bold text-sm text-[#102A43]">{n.title}</span>
+                <span className="font-bold text-sm text-[#111827]">{n.title}</span>
                 <Badge variant={n.priority === 'High' ? 'warning' : 'neutral'} size="sm">{n.category}</Badge>
               </div>
-              <p className="text-[#102A43]/80 text-xs mt-1.5 leading-relaxed font-medium">{n.message}</p>
-              <p className="text-[#102A43]/60 text-[11px] font-semibold mt-1.5">{n.date}</p>
+              <p className="text-[#4B5563] text-xs mt-1.5 leading-relaxed font-medium">{n.message}</p>
+              <p className="text-[#4B5563] text-[11px] font-semibold mt-1.5">{n.date}</p>
             </div>
           ))}
         </div>
@@ -916,24 +916,24 @@ export const StudentDashboard = () => {
       />
 
       {error && (
-        <div className="flex items-center gap-2.5 p-4 rounded-xl bg-[#CCFBF1] border border-[#0D9488] text-xs sm:text-sm text-[#102A43] font-medium">
-          <AlertCircle className="w-5 h-5 text-[#0D9488] flex-shrink-0" />{error}
+        <div className="flex items-center gap-2.5 p-4 rounded-xl bg-[#FFF8E6] border border-[#D99A00] text-xs sm:text-sm text-[#111827] font-medium">
+          <AlertCircle className="w-5 h-5 text-[#D99A00] flex-shrink-0" />{error}
         </div>
       )}
       {saveSuccess && (
-        <div className="flex items-center gap-2.5 p-4 rounded-xl bg-[#CCFBF1] border border-[#0D9488] text-xs sm:text-sm text-[#102A43] font-bold">
-          <Check className="w-5 h-5 text-[#0D9488] flex-shrink-0" />Profile updated successfully.
+        <div className="flex items-center gap-2.5 p-4 rounded-xl bg-[#FFF8E6] border border-[#D99A00] text-xs sm:text-sm text-[#111827] font-bold">
+          <Check className="w-5 h-5 text-[#D99A00] flex-shrink-0" />Profile updated successfully.
         </div>
       )}
       {saveError && (
-        <div className="flex items-center gap-2.5 p-4 rounded-xl bg-[#CCFBF1] border border-[#102A43] text-xs sm:text-sm text-[#102A43] font-bold">
-          <AlertCircle className="w-5 h-5 text-[#102A43] flex-shrink-0" />{saveError}
+        <div className="flex items-center gap-2.5 p-4 rounded-xl bg-[#FFF8E6] border border-[#111827] text-xs sm:text-sm text-[#111827] font-bold">
+          <AlertCircle className="w-5 h-5 text-[#111827] flex-shrink-0" />{saveError}
         </div>
       )}
 
       {loading ? (
         <div className="space-y-4">
-          {[...Array(3)].map((_, i) => <div key={i} className="h-28 rounded-2xl bg-[#CCFBF1]/30 animate-pulse border border-[#CCFBF1]" />)}
+          {[...Array(3)].map((_, i) => <div key={i} className="h-28 rounded-2xl bg-[#FFF8E6]/30 animate-pulse border border-[#F1E7CF]" />)}
         </div>
       ) : (
         <>

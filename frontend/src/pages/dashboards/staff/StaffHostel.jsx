@@ -79,16 +79,21 @@ export const StaffHostel = () => {
     setError('');
     try {
       const [roomsRes, allocsRes, complaintsRes, studentsRes] = await Promise.all([
-        staffService.getHostelRooms(),
-        staffService.getHostelAllocations(),
-        staffService.getComplaints({ type: 'Hostel' }),
-        studentService.getAll(),
+        staffService.getHostelRooms().catch(() => null),
+        staffService.getHostelAllocations().catch(() => null),
+        staffService.getComplaints({ type: 'Hostel' }).catch(() => null),
+        staffService.getStudentRecords().catch(() => studentService.getAll().catch(() => null)),
       ]);
 
-      if (roomsRes && roomsRes.success) setRooms(roomsRes.rooms || []);
-      if (allocsRes && allocsRes.success) setAllocations(allocsRes.allocations || []);
-      if (complaintsRes && complaintsRes.success) setComplaints(complaintsRes.complaints || []);
-      if (studentsRes && studentsRes.success) setAllStudents(studentsRes.data || []);
+      const fetchedRooms = roomsRes && roomsRes.success ? (roomsRes.rooms || []) : [];
+      const fetchedAllocs = allocsRes && allocsRes.success ? (allocsRes.allocations || []) : [];
+      const fetchedComplaints = complaintsRes && complaintsRes.success ? (complaintsRes.complaints || []) : [];
+      const fetchedStudents = studentsRes && studentsRes.success ? (studentsRes.students || studentsRes.data || []) : [];
+
+      setRooms(fetchedRooms);
+      setAllocations(fetchedAllocs);
+      setComplaints(fetchedComplaints);
+      setAllStudents(fetchedStudents);
     } catch (err) {
       setError(err.message || 'Failed to load hostel records.');
     } finally {
@@ -106,18 +111,21 @@ export const StaffHostel = () => {
       selectedBlock === 'All Blocks' || r.block === selectedBlock;
     const matchesStatus =
       statusFilter === 'ALL' || r.status === statusFilter;
+    const roomNum = String(r.roomNumber || '');
+    const blockName = String(r.block || '');
+    const q = searchQuery.toLowerCase();
     const matchesSearch =
-      r.roomNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.block.toLowerCase().includes(searchQuery.toLowerCase());
+      roomNum.toLowerCase().includes(q) ||
+      blockName.toLowerCase().includes(q);
     return matchesBlock && matchesStatus && matchesSearch;
   });
 
   // Filtered allocations
   const filteredAllocations = allocations.filter((a) => {
-    const name = a.student?.name || '';
+    const name = a.student?.name || a.studentName || '';
     const id = a.student?.studentId || '';
-    const room = a.room?.roomNumber || '';
-    const block = a.room?.block || '';
+    const room = a.room?.roomNumber || a.roomNumber || '';
+    const block = a.room?.block || a.hostelBlock || '';
     const q = searchQuery.toLowerCase();
     return (
       name.toLowerCase().includes(q) ||
@@ -234,7 +242,7 @@ export const StaffHostel = () => {
     return (
       <div className="flex flex-col items-center justify-center p-16">
         <LoadingSpinner />
-        <p className="mt-3 text-xs text-[#102A43]/70 font-semibold">Loading residential inventory & records...</p>
+        <p className="mt-3 text-xs text-[#4B5563] font-semibold">Loading residential inventory & records...</p>
       </div>
     );
   }
@@ -262,48 +270,48 @@ export const StaffHostel = () => {
 
       {/* Summary KPI Ribbon matching Student Portal metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3.5">
-        <div className="p-5 rounded-2xl bg-[#102A43] text-white shadow-sm">
-          <span className="text-xs font-bold text-[#CCFBF1] uppercase tracking-wider block">Total Rooms</span>
+        <div className="p-5 rounded-2xl bg-[#111827] text-white shadow-sm">
+          <span className="text-xs font-bold text-[#F1E7CF] uppercase tracking-wider block">Total Rooms</span>
           <span className="text-2xl font-extrabold font-mono text-white mt-1.5 block">{rooms.length}</span>
-          <span className="text-xs text-[#CCFBF1] font-medium mt-0.5 block">Across 5 Blocks</span>
+          <span className="text-xs text-[#F1E7CF] font-medium mt-0.5 block">Across 5 Blocks</span>
         </div>
-        <div className="p-5 rounded-2xl bg-white border border-[#CCFBF1] text-center shadow-sm">
-          <span className="text-xs font-bold text-[#102A43]/75 uppercase tracking-wider block">Bed Capacity</span>
-          <span className="text-2xl font-extrabold font-mono text-[#102A43] mt-1.5 block">{totalBeds} Beds</span>
-          <span className="text-xs text-[#102A43]/70 font-medium mt-0.5 block">Furnished Inventory</span>
+        <div className="p-5 rounded-2xl bg-white border border-[#F1E7CF] text-center shadow-sm">
+          <span className="text-xs font-bold text-[#4B5563] uppercase tracking-wider block">Bed Capacity</span>
+          <span className="text-2xl font-extrabold font-mono text-[#111827] mt-1.5 block">{totalBeds} Beds</span>
+          <span className="text-xs text-[#4B5563] font-medium mt-0.5 block">Furnished Inventory</span>
         </div>
-        <div className="p-5 rounded-2xl bg-white border border-[#CCFBF1] text-center shadow-sm">
-          <span className="text-xs font-bold text-[#102A43]/75 uppercase tracking-wider block">Occupied Beds</span>
-          <span className="text-2xl font-extrabold font-mono text-[#0D9488] mt-1.5 block">{occupiedBeds}</span>
-          <span className="text-xs text-[#0D9488] font-bold mt-0.5 block">{Math.round((occupiedBeds / (totalBeds || 1)) * 100)}% Occupancy</span>
+        <div className="p-5 rounded-2xl bg-white border border-[#F1E7CF] text-center shadow-sm">
+          <span className="text-xs font-bold text-[#4B5563] uppercase tracking-wider block">Occupied Beds</span>
+          <span className="text-2xl font-extrabold font-mono text-[#D99A00] mt-1.5 block">{occupiedBeds}</span>
+          <span className="text-xs text-[#D99A00] font-bold mt-0.5 block">{Math.round((occupiedBeds / (totalBeds || 1)) * 100)}% Occupancy</span>
         </div>
-        <div className="p-5 rounded-2xl bg-[#CCFBF1] border border-[#0D9488] text-center shadow-sm">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#102A43] block">Available Beds</span>
-          <span className="text-2xl font-extrabold font-mono text-[#102A43] mt-1.5 block">{availableBeds}</span>
-          <span className="text-xs text-[#102A43] font-semibold mt-0.5 block">Ready for check-in</span>
+        <div className="p-5 rounded-2xl bg-[#FFF8E6] border border-[#D99A00] text-center shadow-sm">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#111827] block">Available Beds</span>
+          <span className="text-2xl font-extrabold font-mono text-[#111827] mt-1.5 block">{availableBeds}</span>
+          <span className="text-xs text-[#111827] font-semibold mt-0.5 block">Ready for check-in</span>
         </div>
-        <div className="p-5 rounded-2xl bg-white border border-[#CCFBF1] text-center shadow-sm">
-          <span className="text-xs font-bold text-[#102A43]/75 uppercase tracking-wider block">Maintenance</span>
-          <span className="text-2xl font-extrabold font-mono text-[#102A43] mt-1.5 block">{maintenanceRooms}</span>
-          <span className="text-xs text-[#102A43]/70 font-medium mt-0.5 block">Civil / Electrical tasks</span>
+        <div className="p-5 rounded-2xl bg-white border border-[#F1E7CF] text-center shadow-sm">
+          <span className="text-xs font-bold text-[#4B5563] uppercase tracking-wider block">Maintenance</span>
+          <span className="text-2xl font-extrabold font-mono text-[#111827] mt-1.5 block">{maintenanceRooms}</span>
+          <span className="text-xs text-[#4B5563] font-medium mt-0.5 block">Civil / Electrical tasks</span>
         </div>
       </div>
 
       {/* Tabs Switcher & Actions Strip */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="p-1.5 rounded-2xl bg-[#CCFBF1]/30 border border-[#CCFBF1] flex items-center gap-2 overflow-x-auto scrollbar-none w-full sm:w-auto">
+        <div className="p-1.5 rounded-2xl bg-[#FFF8E6]/30 border border-[#F1E7CF] flex items-center gap-2 overflow-x-auto scrollbar-none w-full sm:w-auto">
           <button
             onClick={() => setActiveTab('rooms')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
               activeTab === 'rooms'
-                ? 'bg-[#0D9488] text-[#FFFFFF] shadow-sm'
-                : 'text-[#102A43] hover:bg-[#CCFBF1]'
+                ? 'bg-[#D99A00] text-[#FFFFFF] shadow-sm'
+                : 'text-[#111827] hover:bg-[#FFF8E6]'
             }`}
           >
             <DoorOpen className="w-4 h-4" />
             Hostel Rooms & Inventory
             <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-              activeTab === 'rooms' ? 'bg-[#FFFFFF]/20 text-[#FFFFFF]' : 'bg-[#CCFBF1] text-[#102A43]'
+              activeTab === 'rooms' ? 'bg-[#FFFFFF]/20 text-[#FFFFFF]' : 'bg-[#FFF8E6] text-[#111827]'
             }`}>
               {rooms.length}
             </span>
@@ -313,14 +321,14 @@ export const StaffHostel = () => {
             onClick={() => setActiveTab('allocations')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
               activeTab === 'allocations'
-                ? 'bg-[#0D9488] text-[#FFFFFF] shadow-sm'
-                : 'text-[#102A43] hover:bg-[#CCFBF1]'
+                ? 'bg-[#D99A00] text-[#FFFFFF] shadow-sm'
+                : 'text-[#111827] hover:bg-[#FFF8E6]'
             }`}
           >
             <Users className="w-4 h-4" />
             Student Accommodations
             <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-              activeTab === 'allocations' ? 'bg-[#FFFFFF]/20 text-[#FFFFFF]' : 'bg-[#CCFBF1] text-[#102A43]'
+              activeTab === 'allocations' ? 'bg-[#FFFFFF]/20 text-[#FFFFFF]' : 'bg-[#FFF8E6] text-[#111827]'
             }`}>
               {allocations.length}
             </span>
@@ -330,14 +338,14 @@ export const StaffHostel = () => {
             onClick={() => setActiveTab('complaints')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
               activeTab === 'complaints'
-                ? 'bg-[#0D9488] text-[#FFFFFF] shadow-sm'
-                : 'text-[#102A43] hover:bg-[#CCFBF1]'
+                ? 'bg-[#D99A00] text-[#FFFFFF] shadow-sm'
+                : 'text-[#111827] hover:bg-[#FFF8E6]'
             }`}
           >
             <Wrench className="w-4 h-4" />
             Hostel Complaints
             <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-              activeTab === 'complaints' ? 'bg-[#FFFFFF]/20 text-[#FFFFFF]' : 'bg-[#CCFBF1] text-[#102A43]'
+              activeTab === 'complaints' ? 'bg-[#FFFFFF]/20 text-[#FFFFFF]' : 'bg-[#FFF8E6] text-[#111827]'
             }`}>
               {complaints.length}
             </span>
@@ -373,20 +381,20 @@ export const StaffHostel = () => {
             headerAction={
               <div className="flex flex-wrap items-center gap-2">
                 <div className="relative">
-                  <Search className="w-3.5 h-3.5 text-[#102A43]/60 absolute left-3 top-2.5" />
+                  <Search className="w-3.5 h-3.5 text-[#4B5563] absolute left-3 top-2.5" />
                   <input
                     type="text"
                     placeholder="Search room #..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-8 pr-3 py-1.5 text-xs bg-[#F0FDFA] border border-[#CCFBF1] rounded-xl text-[#102A43] font-semibold focus:outline-none focus:ring-1 focus:ring-[#0D9488] w-36 sm:w-44"
+                    className="pl-8 pr-3 py-1.5 text-xs bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00] w-36 sm:w-44"
                   />
                 </div>
 
                 <select
                   value={selectedBlock}
                   onChange={(e) => setSelectedBlock(e.target.value)}
-                  className="px-2.5 py-1.5 text-xs bg-[#F0FDFA] border border-[#CCFBF1] rounded-xl text-[#102A43] font-semibold focus:outline-none focus:ring-1 focus:ring-[#0D9488]"
+                  className="px-2.5 py-1.5 text-xs bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00]"
                 >
                   {BLOCKS.map((b) => (
                     <option key={b} value={b}>{b}</option>
@@ -396,7 +404,7 @@ export const StaffHostel = () => {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-2.5 py-1.5 text-xs bg-[#F0FDFA] border border-[#CCFBF1] rounded-xl text-[#102A43] font-semibold focus:outline-none focus:ring-1 focus:ring-[#0D9488]"
+                  className="px-2.5 py-1.5 text-xs bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00]"
                 >
                   <option value="ALL">All Statuses</option>
                   <option value="Available">Available Beds</option>
@@ -407,13 +415,13 @@ export const StaffHostel = () => {
             }
           >
             {filteredRooms.length === 0 ? (
-              <div className="p-12 text-center text-xs text-[#102A43]/60 font-semibold">
+              <div className="p-12 text-center text-xs text-[#4B5563] font-semibold">
                 No rooms found matching the selected filter criteria.
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-[#F0FDFA] text-[#102A43] font-bold text-xs uppercase tracking-wider border-b border-[#CCFBF1]">
+                  <thead className="bg-[#FFFDF5] text-[#111827] font-bold text-xs uppercase tracking-wider border-b border-[#F1E7CF]">
                     <tr>
                       <th className="p-3.5">Room #</th>
                       <th className="p-3.5">Hostel Complex</th>
@@ -427,42 +435,42 @@ export const StaffHostel = () => {
                       <th className="p-3.5 text-right">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#CCFBF1]">
+                  <tbody className="divide-y divide-[#F1E7CF]">
                     {filteredRooms.map((r) => {
                       const avail = Math.max(0, r.capacity - r.occupiedBeds);
                       return (
-                        <tr key={r._id} className="hover:bg-[#CCFBF1]/30 transition-colors">
-                          <td className="p-3.5 font-mono font-bold text-[#102A43] text-sm">
+                        <tr key={r._id} className="hover:bg-[#FFF8E6]/30 transition-colors">
+                          <td className="p-3.5 font-mono font-bold text-[#111827] text-sm">
                             {r.roomNumber}
                           </td>
-                          <td className="p-3.5 font-bold text-[#102A43]">
+                          <td className="p-3.5 font-bold text-[#111827]">
                             {r.block}
                           </td>
-                          <td className="p-3.5 font-mono font-medium text-[#102A43]/70">
+                          <td className="p-3.5 font-mono font-medium text-[#4B5563]">
                             Floor {r.floor}
                           </td>
                           <td className="p-3.5">
                             <Badge variant="neutral" size="sm">{r.roomType}</Badge>
                           </td>
-                          <td className="p-3.5 text-center font-mono font-bold text-[#102A43]">
+                          <td className="p-3.5 text-center font-mono font-bold text-[#111827]">
                             {r.capacity}
                           </td>
-                          <td className="p-3.5 text-center font-mono font-bold text-[#0D9488]">
+                          <td className="p-3.5 text-center font-mono font-bold text-[#D99A00]">
                             {r.occupiedBeds}
                           </td>
-                          <td className="p-3.5 text-center font-mono font-bold text-[#0D9488]">
+                          <td className="p-3.5 text-center font-mono font-bold text-[#D99A00]">
                             {avail}
                           </td>
                           <td className="p-3.5">
                             <div className="flex flex-wrap gap-1 max-w-xs">
                               {(r.amenities || []).map((am, i) => (
-                                <span key={i} className="text-[10px] px-2 py-0.5 rounded-md bg-[#CCFBF1] text-[#102A43] font-mono font-semibold">
+                                <span key={i} className="text-[10px] px-2 py-0.5 rounded-md bg-[#FFF8E6] text-[#111827] font-mono font-semibold">
                                   {am}
                                 </span>
                               ))}
                             </div>
                           </td>
-                          <td className="p-3.5 text-right font-mono font-bold text-[#102A43]">
+                          <td className="p-3.5 text-right font-mono font-bold text-[#111827]">
                             ₹{(r.monthlyRent || 4500).toLocaleString('en-IN')}
                           </td>
                           <td className="p-3.5 text-right">
@@ -498,25 +506,25 @@ export const StaffHostel = () => {
           subtitle="Registered residential students, room allotments, bed assignments, and emergency contacts"
           headerAction={
             <div className="relative">
-              <Search className="w-3.5 h-3.5 text-[#102A43]/60 absolute left-3 top-2.5" />
+              <Search className="w-3.5 h-3.5 text-[#4B5563] absolute left-3 top-2.5" />
               <input
                 type="text"
                 placeholder="Search student or room..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 pr-3 py-1.5 text-xs bg-[#F0FDFA] border border-[#CCFBF1] rounded-xl text-[#102A43] font-semibold focus:outline-none focus:ring-1 focus:ring-[#0D9488] w-52"
+                className="pl-8 pr-3 py-1.5 text-xs bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00] w-52"
               />
             </div>
           }
         >
           {filteredAllocations.length === 0 ? (
-            <div className="p-12 text-center text-xs text-[#102A43]/60 font-semibold">
+            <div className="p-12 text-center text-xs text-[#4B5563] font-semibold">
               No accommodation records found matching your query.
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-[#F0FDFA] text-[#102A43] font-bold text-xs uppercase tracking-wider border-b border-[#CCFBF1]">
+                <thead className="bg-[#FFFDF5] text-[#111827] font-bold text-xs uppercase tracking-wider border-b border-[#F1E7CF]">
                   <tr>
                     <th className="p-3.5">Student Name & Roll #</th>
                     <th className="p-3.5">Hostel Block</th>
@@ -527,40 +535,40 @@ export const StaffHostel = () => {
                     <th className="p-3.5 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#CCFBF1]">
+                <tbody className="divide-y divide-[#F1E7CF]">
                   {filteredAllocations.map((a) => {
                     const isActive = a.status === 'Active';
                     return (
-                      <tr key={a._id} className="hover:bg-[#CCFBF1]/30 transition-colors">
+                      <tr key={a._id} className="hover:bg-[#FFF8E6]/30 transition-colors">
                         <td className="p-3.5">
-                          <span className="font-bold text-[#102A43] block">{a.student?.name || 'Student'}</span>
-                          <span className="text-[11px] font-mono text-[#0D9488] font-bold block">
+                          <span className="font-bold text-[#111827] block">{a.student?.name || 'Student'}</span>
+                          <span className="text-[11px] font-mono text-[#D99A00] font-bold block">
                             {a.student?.studentId} • Sem {a.student?.semester || 7}
                           </span>
                         </td>
-                        <td className="p-3.5 font-bold text-[#102A43]">
+                        <td className="p-3.5 font-bold text-[#111827]">
                           {a.room?.block || 'Hostel Block'}
                         </td>
                         <td className="p-3.5 font-mono">
-                          <span className="font-bold text-[#102A43] block">Room {a.room?.roomNumber}</span>
-                          <span className="text-[11px] text-[#102A43]/70 font-semibold">{a.bedNumber}</span>
+                          <span className="font-bold text-[#111827] block">Room {a.room?.roomNumber}</span>
+                          <span className="text-[11px] text-[#4B5563] font-semibold">{a.bedNumber}</span>
                         </td>
-                        <td className="p-3.5 font-mono font-medium text-[#102A43]">
+                        <td className="p-3.5 font-mono font-medium text-[#111827]">
                           {a.checkInDate ? new Date(a.checkInDate).toLocaleDateString('en-IN') : '—'}
                         </td>
-                        <td className="p-3.5 text-[#102A43]">
+                        <td className="p-3.5 text-[#111827]">
                           {a.emergencyContact?.name ? (
                             <div>
-                              <span className="font-bold text-[#102A43] block">
+                              <span className="font-bold text-[#111827] block">
                                 {a.emergencyContact.name} ({a.emergencyContact.relation || 'Guardian'})
                               </span>
-                              <span className="text-[11px] font-mono text-[#102A43]/70 font-semibold flex items-center gap-1">
-                                <Phone className="w-3 h-3 text-[#0D9488]" />
+                              <span className="text-[11px] font-mono text-[#4B5563] font-semibold flex items-center gap-1">
+                                <Phone className="w-3 h-3 text-[#D99A00]" />
                                 {a.emergencyContact.phone}
                               </span>
                             </div>
                           ) : (
-                            <span className="text-[#102A43]/50 italic">Not specified</span>
+                            <span className="text-[#4B5563] italic">Not specified</span>
                           )}
                         </td>
                         <td className="p-3.5 text-center">
@@ -596,13 +604,13 @@ export const StaffHostel = () => {
           subtitle="Maintenance requests logged for plumbing, electrical, solar geysers, and hygiene"
         >
           {complaints.length === 0 ? (
-            <div className="p-12 text-center text-xs text-[#102A43]/60 font-semibold">
+            <div className="p-12 text-center text-xs text-[#4B5563] font-semibold">
               Zero complaints logged for hostel residential halls.
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-[#F0FDFA] text-[#102A43] font-bold text-xs uppercase tracking-wider border-b border-[#CCFBF1]">
+                <thead className="bg-[#FFFDF5] text-[#111827] font-bold text-xs uppercase tracking-wider border-b border-[#F1E7CF]">
                   <tr>
                     <th className="p-3.5">Ticket #</th>
                     <th className="p-3.5">Location</th>
@@ -613,21 +621,21 @@ export const StaffHostel = () => {
                     <th className="p-3.5">Assigned To</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#CCFBF1]">
+                <tbody className="divide-y divide-[#F1E7CF]">
                   {complaints.map((c) => (
-                    <tr key={c._id} className="hover:bg-[#CCFBF1]/30 transition-colors">
-                      <td className="p-3.5 font-mono font-bold text-[#0D9488]">
+                    <tr key={c._id} className="hover:bg-[#FFF8E6]/30 transition-colors">
+                      <td className="p-3.5 font-mono font-bold text-[#D99A00]">
                         {c.ticketNumber}
                       </td>
-                      <td className="p-3.5 font-bold text-[#102A43]">
+                      <td className="p-3.5 font-bold text-[#111827]">
                         <span>{c.hostelBlock}</span>
-                        {c.roomNumber && <span className="block text-[11px] font-mono text-[#102A43]/70 font-semibold">{c.roomNumber}</span>}
+                        {c.roomNumber && <span className="block text-[11px] font-mono text-[#4B5563] font-semibold">{c.roomNumber}</span>}
                       </td>
                       <td className="p-3.5">
                         <Badge variant="neutral" size="sm">{c.category}</Badge>
-                        <span className="font-bold text-[#102A43] block mt-1">{c.title}</span>
+                        <span className="font-bold text-[#111827] block mt-1">{c.title}</span>
                       </td>
-                      <td className="p-3.5 text-[#102A43]/80 max-w-xs text-[11px] font-medium">
+                      <td className="p-3.5 text-[#4B5563] max-w-xs text-[11px] font-medium">
                         {c.description}
                       </td>
                       <td className="p-3.5 text-center">
@@ -644,7 +652,7 @@ export const StaffHostel = () => {
                           {c.status}
                         </Badge>
                       </td>
-                      <td className="p-3.5 text-[#102A43] font-mono text-[11px] font-semibold">
+                      <td className="p-3.5 text-[#111827] font-mono text-[11px] font-semibold">
                         {c.assignedTo || 'Unassigned'}
                       </td>
                     </tr>
@@ -658,29 +666,29 @@ export const StaffHostel = () => {
 
       {/* MODAL: ALLOCATE BED TO STUDENT */}
       {showAllocateModal && (
-        <div className="fixed inset-0 z-50 bg-[#102A43]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#CCFBF1] relative animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 bg-[#111827]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#F1E7CF] relative animate-in fade-in zoom-in-95 duration-200">
             <button
               onClick={() => setShowAllocateModal(false)}
-              className="absolute top-4 right-4 p-2 rounded-xl text-[#102A43]/60 hover:text-[#102A43] hover:bg-[#CCFBF1] transition-colors"
+              className="absolute top-4 right-4 p-2 rounded-xl text-[#4B5563] hover:text-[#111827] hover:bg-[#FFF8E6] transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
 
-            <h3 className="text-base font-bold text-[#102A43] flex items-center gap-2">
-              <UserPlus className="w-5 h-5 text-[#0D9488]" />
+            <h3 className="text-base font-bold text-[#111827] flex items-center gap-2">
+              <UserPlus className="w-5 h-5 text-[#D99A00]" />
               Allocate Hostel Bed
             </h3>
-            <p className="text-xs text-[#102A43]/70 font-medium mt-1">Assign an available hostel bed to a registered university student.</p>
+            <p className="text-xs text-[#4B5563] font-medium mt-1">Assign an available hostel bed to a registered university student.</p>
 
             <form onSubmit={handleAllocateSubmit} className="mt-4 space-y-3 text-xs">
               <div>
-                <label className="font-bold text-[#102A43] block mb-1">Select Student *</label>
+                <label className="font-bold text-[#111827] block mb-1">Select Student *</label>
                 <select
                   required
                   value={allocateForm.studentId}
                   onChange={(e) => setAllocateForm({ ...allocateForm, studentId: e.target.value })}
-                  className="w-full p-2.5 bg-[#F0FDFA] border border-[#CCFBF1] rounded-xl text-[#102A43] font-semibold focus:outline-none focus:ring-1 focus:ring-[#0D9488]"
+                  className="w-full p-2.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00]"
                 >
                   <option value="">-- Choose Student --</option>
                   {allStudents.map((s) => (
@@ -692,12 +700,12 @@ export const StaffHostel = () => {
               </div>
 
               <div>
-                <label className="font-bold text-[#102A43] block mb-1">Select Available Room *</label>
+                <label className="font-bold text-[#111827] block mb-1">Select Available Room *</label>
                 <select
                   required
                   value={allocateForm.roomId}
                   onChange={(e) => setAllocateForm({ ...allocateForm, roomId: e.target.value })}
-                  className="w-full p-2.5 bg-[#F0FDFA] border border-[#CCFBF1] rounded-xl text-[#102A43] font-semibold focus:outline-none focus:ring-1 focus:ring-[#0D9488]"
+                  className="w-full p-2.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00]"
                 >
                   <option value="">-- Choose Room with Available Bed --</option>
                   {rooms
@@ -712,21 +720,21 @@ export const StaffHostel = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-[#102A43] block mb-1">Bed Number</label>
+                  <label className="font-bold text-[#111827] block mb-1">Bed Number</label>
                   <input
                     type="text"
                     value={allocateForm.bedNumber}
                     onChange={(e) => setAllocateForm({ ...allocateForm, bedNumber: e.target.value })}
                     placeholder="e.g. Bed 1 (Window Side)"
-                    className="w-full p-2.5 bg-[#F0FDFA] border border-[#CCFBF1] rounded-xl text-[#102A43] font-semibold focus:outline-none focus:ring-1 focus:ring-[#0D9488]"
+                    className="w-full p-2.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00]"
                   />
                 </div>
                 <div>
-                  <label className="font-bold text-[#102A43] block mb-1">Relation</label>
+                  <label className="font-bold text-[#111827] block mb-1">Relation</label>
                   <select
                     value={allocateForm.emergencyContactRelation}
                     onChange={(e) => setAllocateForm({ ...allocateForm, emergencyContactRelation: e.target.value })}
-                    className="w-full p-2.5 bg-[#F0FDFA] border border-[#CCFBF1] rounded-xl text-[#102A43] font-semibold focus:outline-none focus:ring-1 focus:ring-[#0D9488]"
+                    className="w-full p-2.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00]"
                   >
                     <option value="Parent">Parent</option>
                     <option value="Guardian">Guardian</option>
@@ -737,39 +745,39 @@ export const StaffHostel = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-[#102A43] block mb-1">Emergency Contact Name</label>
+                  <label className="font-bold text-[#111827] block mb-1">Emergency Contact Name</label>
                   <input
                     type="text"
                     value={allocateForm.emergencyContactName}
                     onChange={(e) => setAllocateForm({ ...allocateForm, emergencyContactName: e.target.value })}
                     placeholder="Name"
-                    className="w-full p-2.5 bg-[#F0FDFA] border border-[#CCFBF1] rounded-xl text-[#102A43] font-semibold focus:outline-none focus:ring-1 focus:ring-[#0D9488]"
+                    className="w-full p-2.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00]"
                   />
                 </div>
                 <div>
-                  <label className="font-bold text-[#102A43] block mb-1">Emergency Phone</label>
+                  <label className="font-bold text-[#111827] block mb-1">Emergency Phone</label>
                   <input
                     type="text"
                     value={allocateForm.emergencyContactPhone}
                     onChange={(e) => setAllocateForm({ ...allocateForm, emergencyContactPhone: e.target.value })}
                     placeholder="+91 XXXXX XXXXX"
-                    className="w-full p-2.5 bg-[#F0FDFA] border border-[#CCFBF1] rounded-xl text-[#102A43] font-semibold focus:outline-none focus:ring-1 focus:ring-[#0D9488]"
+                    className="w-full p-2.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="font-bold text-[#102A43] block mb-1">Remarks</label>
+                <label className="font-bold text-[#111827] block mb-1">Remarks</label>
                 <textarea
                   rows={2}
                   value={allocateForm.remarks}
                   onChange={(e) => setAllocateForm({ ...allocateForm, remarks: e.target.value })}
                   placeholder="Additional accommodation notes..."
-                  className="w-full p-2.5 bg-[#F0FDFA] border border-[#CCFBF1] rounded-xl text-[#102A43] font-semibold focus:outline-none focus:ring-1 focus:ring-[#0D9488]"
+                  className="w-full p-2.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00]"
                 />
               </div>
 
-              <div className="pt-3 border-t border-[#CCFBF1] flex items-center justify-end gap-2">
+              <div className="pt-3 border-t border-[#F1E7CF] flex items-center justify-end gap-2">
                 <Button variant="secondary" size="sm" onClick={() => setShowAllocateModal(false)}>
                   Cancel
                 </Button>
@@ -784,40 +792,40 @@ export const StaffHostel = () => {
 
       {/* MODAL: ADD NEW ROOM */}
       {showAddRoomModal && (
-        <div className="fixed inset-0 z-50 bg-[#102A43]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#CCFBF1] relative animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 bg-[#111827]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#F1E7CF] relative animate-in fade-in zoom-in-95 duration-200">
             <button
               onClick={() => setShowAddRoomModal(false)}
-              className="absolute top-4 right-4 p-2 rounded-xl text-[#102A43]/60 hover:text-[#102A43] hover:bg-[#CCFBF1] transition-colors"
+              className="absolute top-4 right-4 p-2 rounded-xl text-[#4B5563] hover:text-[#111827] hover:bg-[#FFF8E6] transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
 
-            <h3 className="text-base font-bold text-[#102A43] flex items-center gap-2">
-              <Plus className="w-5 h-5 text-[#0D9488]" />
+            <h3 className="text-base font-bold text-[#111827] flex items-center gap-2">
+              <Plus className="w-5 h-5 text-[#D99A00]" />
               Add Room to Inventory
             </h3>
-            <p className="text-xs text-[#102A43]/70 font-medium mt-1">Register a newly constructed or refurbished room.</p>
+            <p className="text-xs text-[#4B5563] font-medium mt-1">Register a newly constructed or refurbished room.</p>
 
             <form onSubmit={handleCreateRoom} className="mt-4 space-y-3 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-[#102A43] block mb-1">Room Number *</label>
+                  <label className="font-bold text-[#111827] block mb-1">Room Number *</label>
                   <input
                     required
                     type="text"
                     value={roomForm.roomNumber}
                     onChange={(e) => setRoomForm({ ...roomForm, roomNumber: e.target.value })}
                     placeholder="e.g. B-301"
-                    className="w-full p-2.5 bg-[#F0FDFA] border border-[#CCFBF1] rounded-xl text-[#102A43] font-semibold focus:outline-none focus:ring-1 focus:ring-[#0D9488]"
+                    className="w-full p-2.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00]"
                   />
                 </div>
                 <div>
-                  <label className="font-bold text-[#102A43] block mb-1">Hostel Block *</label>
+                  <label className="font-bold text-[#111827] block mb-1">Hostel Block *</label>
                   <select
                     value={roomForm.block}
                     onChange={(e) => setRoomForm({ ...roomForm, block: e.target.value })}
-                    className="w-full p-2.5 bg-[#F0FDFA] border border-[#CCFBF1] rounded-xl text-[#102A43] font-semibold focus:outline-none focus:ring-1 focus:ring-[#0D9488]"
+                    className="w-full p-2.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00]"
                   >
                     <option value="Block A (Boys)">Block A (Boys)</option>
                     <option value="Block B (Boys)">Block B (Boys)</option>
@@ -830,22 +838,22 @@ export const StaffHostel = () => {
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="font-bold text-[#102A43] block mb-1">Floor</label>
+                  <label className="font-bold text-[#111827] block mb-1">Floor</label>
                   <input
                     type="number"
                     min="0"
                     max="10"
                     value={roomForm.floor}
                     onChange={(e) => setRoomForm({ ...roomForm, floor: e.target.value })}
-                    className="w-full p-2.5 bg-[#F0FDFA] border border-[#CCFBF1] rounded-xl text-[#102A43] font-semibold focus:outline-none focus:ring-1 focus:ring-[#0D9488]"
+                    className="w-full p-2.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00]"
                   />
                 </div>
                 <div>
-                  <label className="font-bold text-[#102A43] block mb-1">Room Type</label>
+                  <label className="font-bold text-[#111827] block mb-1">Room Type</label>
                   <select
                     value={roomForm.roomType}
                     onChange={(e) => setRoomForm({ ...roomForm, roomType: e.target.value })}
-                    className="w-full p-2.5 bg-[#F0FDFA] border border-[#CCFBF1] rounded-xl text-[#102A43] font-semibold focus:outline-none focus:ring-1 focus:ring-[#0D9488]"
+                    className="w-full p-2.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00]"
                   >
                     <option value="Single">Single</option>
                     <option value="Double">Double</option>
@@ -854,40 +862,40 @@ export const StaffHostel = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="font-bold text-[#102A43] block mb-1">Bed Capacity</label>
+                  <label className="font-bold text-[#111827] block mb-1">Bed Capacity</label>
                   <input
                     type="number"
                     min="1"
                     max="6"
                     value={roomForm.capacity}
                     onChange={(e) => setRoomForm({ ...roomForm, capacity: e.target.value })}
-                    className="w-full p-2.5 bg-[#F0FDFA] border border-[#CCFBF1] rounded-xl text-[#102A43] font-semibold focus:outline-none focus:ring-1 focus:ring-[#0D9488]"
+                    className="w-full p-2.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="font-bold text-[#102A43] block mb-1">Monthly Rent (INR)</label>
+                <label className="font-bold text-[#111827] block mb-1">Monthly Rent (INR)</label>
                 <input
                   type="number"
                   value={roomForm.monthlyRent}
                   onChange={(e) => setRoomForm({ ...roomForm, monthlyRent: e.target.value })}
-                  className="w-full p-2.5 bg-[#F0FDFA] border border-[#CCFBF1] rounded-xl text-[#102A43] font-semibold focus:outline-none focus:ring-1 focus:ring-[#0D9488]"
+                  className="w-full p-2.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00]"
                 />
               </div>
 
               <div>
-                <label className="font-bold text-[#102A43] block mb-1">Amenities (Comma-separated)</label>
+                <label className="font-bold text-[#111827] block mb-1">Amenities (Comma-separated)</label>
                 <input
                   type="text"
                   value={roomForm.amenities}
                   onChange={(e) => setRoomForm({ ...roomForm, amenities: e.target.value })}
                   placeholder="e.g. Wi-Fi, Attached Bath, AC, Balcony"
-                  className="w-full p-2.5 bg-[#F0FDFA] border border-[#CCFBF1] rounded-xl text-[#102A43] font-semibold focus:outline-none focus:ring-1 focus:ring-[#0D9488]"
+                  className="w-full p-2.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00]"
                 />
               </div>
 
-              <div className="pt-3 border-t border-[#CCFBF1] flex items-center justify-end gap-2">
+              <div className="pt-3 border-t border-[#F1E7CF] flex items-center justify-end gap-2">
                 <Button variant="secondary" size="sm" onClick={() => setShowAddRoomModal(false)}>
                   Cancel
                 </Button>

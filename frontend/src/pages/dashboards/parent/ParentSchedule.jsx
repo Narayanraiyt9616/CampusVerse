@@ -95,81 +95,81 @@ export const ParentSchedule = ({ selectedStudentId }) => {
 
       {/* Top Banner KPI summary */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#CCFBF1] shadow-xs flex items-center justify-between">
+        <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#F1E7CF] shadow-xs flex items-center justify-between">
           <div>
-            <span className="text-xs font-bold text-[#102A43]/70 uppercase tracking-wider block">
+            <span className="text-xs font-bold text-[#4B5563] uppercase tracking-wider block">
               Active Assignments
             </span>
             <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-2xl font-bold text-[#0D9488] font-mono">
+              <span className="text-2xl font-bold text-[#D99A00] font-mono">
                 {pendingAssignments.length}
               </span>
-              <span className="text-xs text-[#102A43]/60">pending</span>
+              <span className="text-xs text-[#4B5563]">pending</span>
             </div>
-            <span className="text-xs text-[#102A43]/60 mt-1 block font-medium">
+            <span className="text-xs text-[#4B5563] mt-1 block font-medium">
               {assignments.length} total coursework tasks
             </span>
           </div>
-          <div className="p-3 rounded-xl bg-[#CCFBF1] text-[#0D9488]">
+          <div className="p-3 rounded-xl bg-[#FFF8E6] text-[#D99A00]">
             <FileText className="w-6 h-6" />
           </div>
         </div>
 
-        <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#CCFBF1] shadow-xs flex items-center justify-between">
+        <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#F1E7CF] shadow-xs flex items-center justify-between">
           <div>
-            <span className="text-xs font-bold text-[#102A43]/70 uppercase tracking-wider block">
+            <span className="text-xs font-bold text-[#4B5563] uppercase tracking-wider block">
               Weekly Lectures
             </span>
             <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-2xl font-bold text-[#102A43] font-mono">
+              <span className="text-2xl font-bold text-[#111827] font-mono">
                 {timetables.length}
               </span>
-              <span className="text-xs text-[#102A43]/60">periods/wk</span>
+              <span className="text-xs text-[#4B5563]">periods/wk</span>
             </div>
-            <span className="text-xs text-[#0D9488] mt-1 block font-bold">
+            <span className="text-xs text-[#D99A00] mt-1 block font-bold">
               Semester {student?.semester || 7} Timetable
             </span>
           </div>
-          <div className="p-3 rounded-xl bg-[#CCFBF1] text-[#0D9488]">
+          <div className="p-3 rounded-xl bg-[#FFF8E6] text-[#D99A00]">
             <Clock className="w-6 h-6" />
           </div>
         </div>
 
-        <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#CCFBF1] shadow-xs flex items-center justify-between">
+        <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#F1E7CF] shadow-xs flex items-center justify-between">
           <div>
-            <span className="text-xs font-bold text-[#102A43]/70 uppercase tracking-wider block">
+            <span className="text-xs font-bold text-[#4B5563] uppercase tracking-wider block">
               Scheduled Examinations
             </span>
             <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-2xl font-bold text-[#102A43] font-mono">
+              <span className="text-2xl font-bold text-[#111827] font-mono">
                 {exams.length}
               </span>
-              <span className="text-xs text-[#102A43]/60">papers</span>
+              <span className="text-xs text-[#4B5563]">papers</span>
             </div>
-            <span className="text-xs text-[#102A43]/60 mt-1 block font-medium">
+            <span className="text-xs text-[#4B5563] mt-1 block font-medium">
               End-Term & Unit Assessments
             </span>
           </div>
-          <div className="p-3 rounded-xl bg-[#CCFBF1] text-[#0D9488]">
+          <div className="p-3 rounded-xl bg-[#FFF8E6] text-[#D99A00]">
             <CalendarDays className="w-6 h-6" />
           </div>
         </div>
       </div>
 
       {/* Tab Switcher */}
-      <div className="flex items-center gap-2 border-b border-[#CCFBF1] pb-2">
+      <div className="flex items-center gap-2 border-b border-[#F1E7CF] pb-2">
         <button
           onClick={() => setActiveTab('assignments')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
             activeTab === 'assignments'
-              ? 'bg-[#0D9488] text-[#FFFFFF] shadow-sm'
-              : 'text-[#102A43] hover:text-[#102A43] hover:bg-[#CCFBF1]'
+              ? 'bg-[#D99A00] text-[#FFFFFF] shadow-sm'
+              : 'text-[#111827] hover:text-[#111827] hover:bg-[#FFF8E6]'
           }`}
         >
           <FileText className="w-4 h-4" />
           Assignments & Deadlines
           <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-            activeTab === 'assignments' ? 'bg-[#FFFFFF]/20 text-[#FFFFFF]' : 'bg-[#CCFBF1] text-[#102A43]'
+            activeTab === 'assignments' ? 'bg-[#FFFFFF]/20 text-[#FFFFFF]' : 'bg-[#FFF8E6] text-[#111827]'
           }`}>
             {assignments.length}
           </span>
@@ -179,14 +179,14 @@ export const ParentSchedule = ({ selectedStudentId }) => {
           onClick={() => setActiveTab('timetable')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
             activeTab === 'timetable'
-              ? 'bg-[#0D9488] text-[#FFFFFF] shadow-sm'
-              : 'text-[#102A43] hover:text-[#102A43] hover:bg-[#CCFBF1]'
+              ? 'bg-[#D99A00] text-[#FFFFFF] shadow-sm'
+              : 'text-[#111827] hover:text-[#111827] hover:bg-[#FFF8E6]'
           }`}
         >
           <Clock className="w-4 h-4" />
           Classroom Timetable
           <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-            activeTab === 'timetable' ? 'bg-[#FFFFFF]/20 text-[#FFFFFF]' : 'bg-[#CCFBF1] text-[#102A43]'
+            activeTab === 'timetable' ? 'bg-[#FFFFFF]/20 text-[#FFFFFF]' : 'bg-[#FFF8E6] text-[#111827]'
           }`}>
             Weekly
           </span>
@@ -196,14 +196,14 @@ export const ParentSchedule = ({ selectedStudentId }) => {
           onClick={() => setActiveTab('exams')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
             activeTab === 'exams'
-              ? 'bg-[#0D9488] text-[#FFFFFF] shadow-sm'
-              : 'text-[#102A43] hover:text-[#102A43] hover:bg-[#CCFBF1]'
+              ? 'bg-[#D99A00] text-[#FFFFFF] shadow-sm'
+              : 'text-[#111827] hover:text-[#111827] hover:bg-[#FFF8E6]'
           }`}
         >
           <CalendarDays className="w-4 h-4" />
           Examination Schedule
           <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-            activeTab === 'exams' ? 'bg-[#FFFFFF]/20 text-[#FFFFFF]' : 'bg-[#CCFBF1] text-[#102A43]'
+            activeTab === 'exams' ? 'bg-[#FFFFFF]/20 text-[#FFFFFF]' : 'bg-[#FFF8E6] text-[#111827]'
           }`}>
             {exams.length}
           </span>
@@ -250,12 +250,12 @@ export const ParentSchedule = ({ selectedStudentId }) => {
                             ? 'bg-slate-50/70 border-slate-200'
                             : diffDays <= 3
                             ? 'bg-amber-50/40 border-amber-200 shadow-xs'
-                            : 'bg-white border-slate-200 hover:border-teal-300 shadow-xs'
+                            : 'bg-white border-slate-200 hover:border-[#F1E7CF] shadow-xs'
                         }`}
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="space-y-1">
-                            <span className="text-[11px] font-mono font-bold text-teal-700 uppercase">
+                            <span className="text-[11px] font-mono font-bold text-[#D99A00] uppercase">
                               {item.course?.courseCode || 'COURSE'} • {item.course?.title}
                             </span>
                             <h4 className="text-sm font-bold text-slate-900 leading-snug">
@@ -334,14 +334,14 @@ export const ParentSchedule = ({ selectedStudentId }) => {
                     onClick={() => setSelectedDay(day)}
                     className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                       isSelected
-                        ? 'bg-[#0D9488] text-[#FFFFFF] shadow-sm'
-                        : 'bg-[#F0FDFA] hover:bg-[#CCFBF1] text-[#102A43] border border-[#CCFBF1]'
+                        ? 'bg-[#D99A00] text-[#FFFFFF] shadow-sm'
+                        : 'bg-[#FFFDF5] hover:bg-[#FFF8E6] text-[#111827] border border-[#F1E7CF]'
                     }`}
                   >
                     <span>{day}</span>
                     <span
                       className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
-                        isSelected ? 'bg-[#FFFFFF]/20 text-[#FFFFFF]' : 'bg-[#CCFBF1] text-[#102A43]'
+                        isSelected ? 'bg-[#FFFFFF]/20 text-[#FFFFFF]' : 'bg-[#FFF8E6] text-[#111827]'
                       }`}
                     >
                       {count}
@@ -364,12 +364,12 @@ export const ParentSchedule = ({ selectedStudentId }) => {
                   {dayClasses.map((item, idx) => (
                     <div
                       key={item._id || idx}
-                      className="p-4 rounded-xl border border-slate-200 bg-white hover:border-teal-300 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xs"
+                      className="p-4 rounded-xl border border-slate-200 bg-white hover:border-[#F1E7CF] transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xs"
                     >
                       <div className="flex items-start gap-4">
-                        <div className="p-3 rounded-xl bg-teal-50 border border-teal-200 text-teal-800 font-mono text-center shrink-0">
+                        <div className="p-3 rounded-xl bg-[#FFF8E6] border border-[#F1E7CF] text-[#111827] font-mono text-center shrink-0">
                           <span className="text-xs font-bold block">{item.startTime}</span>
-                          <span className="text-[10px] text-teal-600 block">to {item.endTime}</span>
+                          <span className="text-[10px] text-[#D99A00] block">to {item.endTime}</span>
                         </div>
 
                         <div className="space-y-1">
@@ -389,12 +389,12 @@ export const ParentSchedule = ({ selectedStudentId }) => {
 
                       <div className="flex items-center gap-6 text-xs text-slate-600">
                         <div className="flex items-center gap-1.5">
-                          <MapPin className="w-4 h-4 text-teal-600 shrink-0" />
+                          <MapPin className="w-4 h-4 text-[#D99A00] shrink-0" />
                           <span className="font-semibold text-slate-800">{item.classroom || 'Lecture Hall A'}</span>
                         </div>
 
                         <div className="flex items-center gap-1.5">
-                          <User className="w-4 h-4 text-teal-600 shrink-0" />
+                          <User className="w-4 h-4 text-[#D99A00] shrink-0" />
                           <span>{item.faculty?.name ? `Prof. ${item.faculty.name}` : 'Assigned Faculty'}</span>
                         </div>
                       </div>
@@ -428,7 +428,7 @@ export const ParentSchedule = ({ selectedStudentId }) => {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-[#F0FDFA] text-[#102A43] font-bold border-b border-[#CCFBF1]">
+                  <thead className="bg-[#FFFDF5] text-[#111827] font-bold border-b border-[#F1E7CF]">
                     <tr>
                       <th className="p-3.5">Subject & Title</th>
                       <th className="p-3.5">Assessment Type</th>
@@ -444,7 +444,7 @@ export const ParentSchedule = ({ selectedStudentId }) => {
                       <tr key={ex._id || idx} className="hover:bg-slate-50/80 transition-colors">
                         <td className="p-3.5">
                           <span className="font-bold text-slate-900 block">{ex.title}</span>
-                          <span className="text-[11px] font-mono text-teal-700 block">
+                          <span className="text-[11px] font-mono text-[#D99A00] block">
                             {ex.subject} ({ex.className})
                           </span>
                         </td>
@@ -462,7 +462,7 @@ export const ParentSchedule = ({ selectedStudentId }) => {
                         </td>
                         <td className="p-3.5">
                           <div className="flex items-center gap-1.5 font-semibold text-slate-800">
-                            <MapPin className="w-3.5 h-3.5 text-teal-600" />
+                            <MapPin className="w-3.5 h-3.5 text-[#D99A00]" />
                             <span>{ex.venue || 'Exam Hall 101'}</span>
                           </div>
                         </td>

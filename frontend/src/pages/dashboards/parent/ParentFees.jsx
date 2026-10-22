@@ -108,14 +108,14 @@ export const ParentFees = ({ selectedStudentId }) => {
 
       {/* Critical Overdue Warning Banner if any */}
       {summary.overdueCount > 0 && (
-        <div className="bg-[#CCFBF1] border border-[#0D9488]/40 p-4 rounded-xl shadow-xs">
+        <div className="bg-[#FFF8E6] border border-[#D99A00]/40 p-4 rounded-xl shadow-xs">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-[#0D9488] shrink-0 mt-0.5" />
+            <AlertTriangle className="w-5 h-5 text-[#D99A00] shrink-0 mt-0.5" />
             <div className="space-y-1">
-              <h4 className="text-base font-bold text-[#102A43]">
+              <h4 className="text-base font-bold text-[#111827]">
                 Institutional Fee Overdue: {summary.overdueCount} Invoice(s) Past Due Date
               </h4>
-              <p className="text-xs text-[#102A43]/80 leading-relaxed font-medium">
+              <p className="text-xs text-[#4B5563] leading-relaxed font-medium">
                 Outstanding dues of ₹{summary.pendingAmount.toLocaleString('en-IN')} are currently past due. Please clear pending balances via the university payment gateway or cashier desk to prevent examination hall-ticket blocks.
               </p>
             </div>
@@ -125,66 +125,66 @@ export const ParentFees = ({ selectedStudentId }) => {
 
       {/* Top Financial KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#CCFBF1] shadow-xs flex items-center justify-between">
+        <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#F1E7CF] shadow-xs flex items-center justify-between">
           <div>
-            <span className="text-xs font-bold text-[#102A43]/70 uppercase tracking-wider block">
+            <span className="text-xs font-bold text-[#4B5563] uppercase tracking-wider block">
               Total Billed
             </span>
             <div className="flex items-baseline gap-1 mt-1">
-              <span className="text-2xl font-bold text-[#102A43] font-mono">
+              <span className="text-2xl font-bold text-[#111827] font-mono">
                 ₹{summary.totalBilled.toLocaleString('en-IN')}
               </span>
             </div>
-            <span className="text-xs text-[#102A43]/60 mt-1 block font-medium">
+            <span className="text-xs text-[#4B5563] mt-1 block font-medium">
               {invoices.length} Invoices Issued
             </span>
           </div>
-          <div className="p-3 rounded-xl bg-[#CCFBF1] text-[#0D9488]">
+          <div className="p-3 rounded-xl bg-[#FFF8E6] text-[#D99A00]">
             <FileText className="w-6 h-6" />
           </div>
         </div>
 
-        <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#CCFBF1] shadow-xs flex items-center justify-between">
+        <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#F1E7CF] shadow-xs flex items-center justify-between">
           <div>
-            <span className="text-xs font-bold text-[#102A43]/70 uppercase tracking-wider block">
+            <span className="text-xs font-bold text-[#4B5563] uppercase tracking-wider block">
               Total Paid
             </span>
             <div className="flex items-baseline gap-1 mt-1">
-              <span className="text-2xl font-bold text-[#0D9488] font-mono">
+              <span className="text-2xl font-bold text-[#D99A00] font-mono">
                 ₹{summary.totalPaid.toLocaleString('en-IN')}
               </span>
             </div>
-            <span className="text-xs text-[#0D9488] mt-1 block font-bold">
+            <span className="text-xs text-[#D99A00] mt-1 block font-bold">
               Verified by Bursar Office
             </span>
           </div>
-          <div className="p-3 rounded-xl bg-[#CCFBF1] text-[#0D9488]">
+          <div className="p-3 rounded-xl bg-[#FFF8E6] text-[#D99A00]">
             <CheckCircle2 className="w-6 h-6" />
           </div>
         </div>
 
-        <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#CCFBF1] shadow-xs flex items-center justify-between">
+        <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#F1E7CF] shadow-xs flex items-center justify-between">
           <div>
-            <span className="text-xs font-bold text-[#102A43]/70 uppercase tracking-wider block">
+            <span className="text-xs font-bold text-[#4B5563] uppercase tracking-wider block">
               Outstanding Dues
             </span>
             <div className="flex items-baseline gap-1 mt-1">
-              <span className="text-2xl font-bold font-mono text-[#102A43]">
+              <span className="text-2xl font-bold font-mono text-[#111827]">
                 ₹{summary.pendingAmount.toLocaleString('en-IN')}
               </span>
             </div>
-            <span className="text-xs text-[#102A43]/60 mt-1 block font-medium">
+            <span className="text-xs text-[#4B5563] mt-1 block font-medium">
               {summary.overdueCount > 0 ? `${summary.overdueCount} Overdue` : 'No Overdue Bills'}
             </span>
           </div>
-          <div className="p-3 rounded-xl bg-[#CCFBF1] text-[#0D9488]">
+          <div className="p-3 rounded-xl bg-[#FFF8E6] text-[#D99A00]">
             <IndianRupee className="w-6 h-6" />
           </div>
         </div>
 
-        <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#CCFBF1] shadow-xs flex items-center justify-between">
+        <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#F1E7CF] shadow-xs flex items-center justify-between">
           <div>
-            <span className="text-xs font-bold text-[#102A43]/70 uppercase tracking-wider block">
+            <span className="text-xs font-bold text-[#4B5563] uppercase tracking-wider block">
               Account Clearance
             </span>
             <div className="mt-2">
@@ -200,30 +200,30 @@ export const ParentFees = ({ selectedStudentId }) => {
                   : 'Pending'}
               </Badge>
             </div>
-            <span className="text-xs text-[#102A43]/60 mt-1 block font-medium">
+            <span className="text-xs text-[#4B5563] mt-1 block font-medium">
               {summary.allDuesCleared ? 'Eligible for Convocation' : 'Action Required'}
             </span>
           </div>
-          <div className="p-3 rounded-xl bg-[#CCFBF1] text-[#0D9488]">
+          <div className="p-3 rounded-xl bg-[#FFF8E6] text-[#D99A00]">
             <ShieldCheck className="w-6 h-6" />
           </div>
         </div>
       </div>
 
       {/* Tabs & Search controls */}
-      <div className="flex items-center gap-2 border-b border-[#CCFBF1] pb-2">
+      <div className="flex items-center gap-2 border-b border-[#F1E7CF] pb-2">
         <button
           onClick={() => setActiveTab('invoices')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
             activeTab === 'invoices'
-              ? 'bg-[#0D9488] text-[#FFFFFF] shadow-sm'
-              : 'text-[#102A43] hover:text-[#102A43] hover:bg-[#CCFBF1]'
+              ? 'bg-[#D99A00] text-[#FFFFFF] shadow-sm'
+              : 'text-[#111827] hover:text-[#111827] hover:bg-[#FFF8E6]'
           }`}
         >
           <IndianRupee className="w-4 h-4" />
           Fee Invoices & Dues
           <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-            activeTab === 'invoices' ? 'bg-[#FFFFFF]/20 text-[#FFFFFF]' : 'bg-[#CCFBF1] text-[#102A43]'
+            activeTab === 'invoices' ? 'bg-[#FFFFFF]/20 text-[#FFFFFF]' : 'bg-[#FFF8E6] text-[#111827]'
           }`}>
             {invoices.length}
           </span>
@@ -233,14 +233,14 @@ export const ParentFees = ({ selectedStudentId }) => {
           onClick={() => setActiveTab('receipts')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
             activeTab === 'receipts'
-              ? 'bg-[#0D9488] text-[#FFFFFF] shadow-sm'
-              : 'text-[#102A43] hover:text-[#102A43] hover:bg-[#CCFBF1]'
+              ? 'bg-[#D99A00] text-[#FFFFFF] shadow-sm'
+              : 'text-[#111827] hover:text-[#111827] hover:bg-[#FFF8E6]'
           }`}
         >
           <Receipt className="w-4 h-4" />
           Verified Receipts Ledger
           <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-            activeTab === 'receipts' ? 'bg-[#FFFFFF]/20 text-[#FFFFFF]' : 'bg-[#CCFBF1] text-[#102A43]'
+            activeTab === 'receipts' ? 'bg-[#FFFFFF]/20 text-[#FFFFFF]' : 'bg-[#FFF8E6] text-[#111827]'
           }`}>
             {receipts.length}
           </span>
@@ -268,13 +268,13 @@ export const ParentFees = ({ selectedStudentId }) => {
                     placeholder="Search invoices..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-teal-500 w-44"
+                    className="pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-[#D99A00] w-44"
                   />
                 </div>
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-700 focus:outline-hidden focus:ring-1 focus:ring-teal-500"
+                  className="px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-700 focus:outline-hidden focus:ring-1 focus:ring-[#D99A00]"
                 >
                   <option value="ALL">All Invoices</option>
                   <option value="PENDING">Pending Dues</option>
@@ -291,7 +291,7 @@ export const ParentFees = ({ selectedStudentId }) => {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-[#F0FDFA] text-[#102A43] font-bold border-b border-[#CCFBF1]">
+                  <thead className="bg-[#FFFDF5] text-[#111827] font-bold border-b border-[#F1E7CF]">
                     <tr>
                       <th className="p-3.5">Invoice #</th>
                       <th className="p-3.5">Category & Description</th>
@@ -360,7 +360,7 @@ export const ParentFees = ({ selectedStudentId }) => {
                             {isPaid || (inv.paidAmount && inv.paidAmount > 0) ? (
                               <button
                                 onClick={() => setActiveReceipt(inv)}
-                                className="inline-flex items-center gap-1 text-teal-700 hover:text-teal-900 font-semibold underline text-xs"
+                                className="inline-flex items-center gap-1 text-[#D99A00] hover:text-[#111827] font-semibold underline text-xs"
                               >
                                 <Receipt className="w-3.5 h-3.5" />
                                 Receipt
@@ -396,7 +396,7 @@ export const ParentFees = ({ selectedStudentId }) => {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-[#F0FDFA] text-[#102A43] font-bold border-b border-[#CCFBF1]">
+                  <thead className="bg-[#FFFDF5] text-[#111827] font-bold border-b border-[#F1E7CF]">
                     <tr>
                       <th className="p-3.5">Receipt #</th>
                       <th className="p-3.5">Invoice Ref</th>
@@ -410,7 +410,7 @@ export const ParentFees = ({ selectedStudentId }) => {
                   <tbody className="divide-y divide-slate-100">
                     {receipts.map((rec) => (
                       <tr key={rec._id} className="hover:bg-slate-50/80 transition-colors">
-                        <td className="p-3.5 font-mono font-bold text-teal-800">
+                        <td className="p-3.5 font-mono font-bold text-[#111827]">
                           {rec.receiptNumber || `RCP-${rec.invoiceNumber || 'VERIFIED'}`}
                         </td>
                         <td className="p-3.5 font-mono text-slate-600">
@@ -475,7 +475,7 @@ export const ParentFees = ({ selectedStudentId }) => {
             <div id="printable-receipt" className="space-y-6 text-slate-800">
               {/* Header */}
               <div className="text-center border-b border-slate-200 pb-4 space-y-1">
-                <div className="w-12 h-12 rounded-2xl bg-teal-700 text-white font-bold text-xl flex items-center justify-center mx-auto shadow-xs">
+                <div className="w-12 h-12 rounded-2xl bg-[#D99A00] text-white font-bold text-xl flex items-center justify-center mx-auto shadow-xs">
                   CV
                 </div>
                 <h3 className="text-base font-bold text-slate-900 mt-2">
@@ -531,7 +531,7 @@ export const ParentFees = ({ selectedStudentId }) => {
                     ₹{(activeReceipt.paidAmount || activeReceipt.amount || 0).toLocaleString('en-IN')}
                   </span>
                 </div>
-                <div className="p-3 bg-teal-50/50 flex justify-between items-center font-bold text-sm text-teal-900">
+                <div className="p-3 bg-[#FFFDF5] flex justify-between items-center font-bold text-sm text-[#111827]">
                   <span>Total Amount Paid</span>
                   <span className="font-mono">
                     ₹{(activeReceipt.paidAmount || activeReceipt.amount || 0).toLocaleString('en-IN')}
