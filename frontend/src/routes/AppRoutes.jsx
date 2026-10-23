@@ -11,6 +11,11 @@ import LoginPage from '../pages/public/LoginPage';
 import PortalLoginPage from '../pages/public/PortalLoginPage';
 import UnauthorizedPage from '../pages/public/UnauthorizedPage';
 import NotFoundPage from '../pages/public/NotFoundPage';
+import AboutPage from '../pages/public/AboutPage';
+import ContactPage from '../pages/public/ContactPage';
+import PrivacyPolicyPage from '../pages/public/PrivacyPolicyPage';
+import TermsPage from '../pages/public/TermsPage';
+import HelpSupportPage from '../pages/public/HelpSupportPage';
 
 // Route Guard
 import ProtectedRoute from '../components/common/ProtectedRoute';
@@ -33,6 +38,13 @@ export const AppRoutes = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/login/:portalId" element={<PortalLoginPage />} />
         <Route path="/unauthorized" element={<UnauthorizedPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/privacy" element={<PrivacyPolicyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/support" element={<HelpSupportPage />} />
+        <Route path="/help" element={<HelpSupportPage />} />
+        <Route path="/faq" element={<HelpSupportPage />} />
       </Route>
 
       {/* Role Dashboards Protected by RBAC & JWT Session Verification */}

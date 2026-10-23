@@ -1,12 +1,30 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ShieldAlert, ArrowLeft, LogOut, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/common/Button';
 
+export const resolvePortalLoginPath = (candidate) => {
+  if (!candidate) return '';
+  const str = String(candidate).trim().toLowerCase();
+  if (str.startsWith('/login/')) {
+    const segment = str.split('?')[0].split('#')[0];
+    if (segment === '/login/staff' || segment === '/login/hostel') return '/login/hostel';
+    return segment;
+  }
+  if (str.includes('/faculty') || str === 'faculty') return '/login/faculty';
+  if (str.includes('/admin') || str === 'admin' || str === 'superadmin') return '/login/admin';
+  if (str.includes('/parent') || str === 'parent') return '/login/parent';
+  if (str.includes('/placement') || str === 'placement') return '/login/placement';
+  if (str.includes('/hostel') || str.includes('/staff') || str === 'hostel' || str === 'staff') return '/login/hostel';
+  if (str.includes('/student') || str === 'student') return '/login/student';
+  return '';
+};
+
 export const UnauthorizedPage = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const getDashboardPath = (role) => {
     switch (role) {
@@ -27,9 +45,32 @@ export const UnauthorizedPage = () => {
     }
   };
 
+  const getTargetLoginPath = () => {
+    // 1. Check navigation state from ProtectedRoute or Topbar
+    const fromState =
+      resolvePortalLoginPath(location.state?.portalLogin) ||
+      resolvePortalLoginPath(location.state?.targetPortal) ||
+      resolvePortalLoginPath(location.state?.attemptedPath);
+    if (fromState) return fromState;
+
+    // 2. Check sessionStorage
+    try {
+      const stored = sessionStorage.getItem('campusverse_selected_portal');
+      const fromStored = resolvePortalLoginPath(stored);
+      if (fromStored) return fromStored;
+    } catch (e) {}
+
+    // Fallback: Default directly to student portal login instead of directory
+    return '/login/student';
+  };
+
   const handleLogout = async () => {
+    const targetLogin = getTargetLoginPath();
     await logout();
-    navigate('/login');
+    try {
+      sessionStorage.removeItem('campusverse_selected_portal');
+    } catch (e) {}
+    navigate(targetLogin);
   };
 
   return (

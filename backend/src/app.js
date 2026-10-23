@@ -74,6 +74,9 @@ const createApp = () => {
   // Health endpoint (public)
   app.use('/api/health', healthRoutes);
 
+  // Newsletter endpoint (public)
+  app.use('/api/newsletter', require('./routes/newsletterRoutes'));
+
   // Protected academic routes
   app.use('/api/departments', authMiddleware, departmentRoutes);
   app.use('/api/courses', authMiddleware, courseRoutes);

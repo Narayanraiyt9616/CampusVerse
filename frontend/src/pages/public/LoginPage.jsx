@@ -78,10 +78,8 @@ export const LoginPage = () => {
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Header */}
         <div className="text-center space-y-3.5 max-w-2xl mx-auto">
-          <Link to="/" className="inline-flex items-center gap-2.5 p-1 rounded-xl">
-            <div className="w-14 h-14 rounded-2xl bg-[#111827] flex items-center justify-center text-[#FFC107] shadow-sm mx-auto border border-[#F1E7CF]">
-              <GraduationCap className="w-8 h-8 text-[#FFC107]" />
-            </div>
+          <Link to="/" className="inline-flex items-center gap-2.5 p-1 rounded-xl group hover:scale-105 transition-transform" aria-label="CampusVerse AI Homepage">
+            <img src="/campusverse-emblem.png" alt="CampusVerse AI Logo" className="w-16 h-16 object-contain drop-shadow-sm" />
           </Link>
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FFF8E6] border border-[#F1E7CF] text-xs font-semibold text-[#D99A00]">
             <ShieldCheck className="w-4 h-4 text-[#D99A00]" />

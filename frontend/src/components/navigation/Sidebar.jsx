@@ -44,9 +44,7 @@ export const Sidebar = ({
         <div>
           <div className="flex items-center justify-between h-16 px-4 border-b border-[#1F2937] bg-[#111827]">
             <Link to="/" className="flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-[#D99A00] rounded-xl p-1">
-              <div className="w-9 h-9 rounded-xl bg-[#D99A00] flex items-center justify-center text-white shadow-sm">
-                <GraduationCap className="w-5 h-5" />
-              </div>
+              <img src="/campusverse-emblem.png" alt="CampusVerse AI Logo" className="w-9 h-9 object-contain" />
               <div>
                 <span className="font-display font-bold text-lg text-white tracking-tight">
                   CampusVerse<span className="text-[#FFC107]">AI</span>

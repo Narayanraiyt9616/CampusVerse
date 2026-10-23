@@ -192,10 +192,8 @@ export const PortalLoginPage = () => {
   return (
     <div className="min-h-[calc(100vh-140px)] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-[#FFFEFA] text-[#111827]">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-3.5">
-        <Link to="/" className="inline-flex items-center gap-2.5 p-1 rounded-xl">
-          <div className="w-14 h-14 rounded-2xl bg-[#111827] flex items-center justify-center text-[#FFC107] shadow-md mx-auto border border-[#F1E7CF]">
-            <GraduationCap className="w-8 h-8 text-[#FFC107]" />
-          </div>
+        <Link to="/" className="inline-flex items-center gap-2.5 p-1 rounded-xl group hover:scale-105 transition-transform" aria-label="CampusVerse AI Homepage">
+          <img src="/campusverse-emblem.png" alt="CampusVerse AI Logo" className="w-16 h-16 object-contain drop-shadow-sm" />
         </Link>
         <div className="flex items-center justify-center gap-2">
           <Badge variant={portal.badgeVariant} size="sm">

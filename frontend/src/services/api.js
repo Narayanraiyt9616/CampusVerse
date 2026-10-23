@@ -482,4 +482,12 @@ export const searchService = {
   globalSearch: async (q) => apiClient.get('/search', { params: { q } }),
 };
 
+export const newsletterService = {
+  subscribe: async (email) => {
+    const res = await apiClient.post('/newsletter/subscribe', { email });
+    return res.data;
+  },
+};
+
 export default apiClient;
+

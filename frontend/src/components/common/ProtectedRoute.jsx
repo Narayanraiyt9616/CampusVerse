@@ -45,7 +45,24 @@ export const ProtectedRoute = ({ children, allowedRoles = [], portalLogin = '/lo
     const isAllowed = normalizedAllowed.includes(userRole);
 
     if (!isAllowed) {
-      return <Navigate to="/unauthorized" state={{ attemptedPath: location.pathname }} replace />;
+      const selectedLogin = portalLogin || location.state?.portalLogin;
+      if (selectedLogin && selectedLogin !== '/login') {
+        try {
+          sessionStorage.setItem('campusverse_selected_portal', selectedLogin);
+        } catch (e) {}
+      }
+      return (
+        <Navigate
+          to="/unauthorized"
+          state={{
+            attemptedPath: location.pathname,
+            portalLogin: selectedLogin,
+            targetPortal: location.state?.targetPortal || allowedRoles[0],
+            from: location,
+          }}
+          replace
+        />
+      );
     }
   }
 

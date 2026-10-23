@@ -492,36 +492,72 @@ export const Topbar = ({
               </div>
               <Link
                 to="/student"
+                state={{ targetPortal: 'student', portalLogin: '/login/student', attemptedPath: '/student' }}
+                onClick={() => {
+                  try {
+                    sessionStorage.setItem('campusverse_selected_portal', '/login/student');
+                  } catch (e) {}
+                }}
                 className={`block px-4 py-2.5 hover:bg-[#FFF8E6] transition-colors ${role === 'student' ? 'text-[#D99A00] font-bold bg-[#FFF8E6]' : 'text-[#111827] font-semibold'}`}
               >
                 1. Student Dashboard
               </Link>
               <Link
                 to="/faculty"
+                state={{ targetPortal: 'faculty', portalLogin: '/login/faculty', attemptedPath: '/faculty' }}
+                onClick={() => {
+                  try {
+                    sessionStorage.setItem('campusverse_selected_portal', '/login/faculty');
+                  } catch (e) {}
+                }}
                 className={`block px-4 py-2.5 hover:bg-[#FFF8E6] transition-colors ${role === 'faculty' ? 'text-[#D99A00] font-bold bg-[#FFF8E6]' : 'text-[#111827] font-semibold'}`}
               >
                 2. Faculty Dashboard
               </Link>
               <Link
                 to="/admin"
+                state={{ targetPortal: 'admin', portalLogin: '/login/admin', attemptedPath: '/admin' }}
+                onClick={() => {
+                  try {
+                    sessionStorage.setItem('campusverse_selected_portal', '/login/admin');
+                  } catch (e) {}
+                }}
                 className={`block px-4 py-2.5 hover:bg-[#FFF8E6] transition-colors ${role === 'admin' ? 'text-[#D99A00] font-bold bg-[#FFF8E6]' : 'text-[#111827] font-semibold'}`}
               >
                 3. Administrator Dashboard
               </Link>
               <Link
                 to="/parent"
+                state={{ targetPortal: 'parent', portalLogin: '/login/parent', attemptedPath: '/parent' }}
+                onClick={() => {
+                  try {
+                    sessionStorage.setItem('campusverse_selected_portal', '/login/parent');
+                  } catch (e) {}
+                }}
                 className={`block px-4 py-2.5 hover:bg-[#FFF8E6] transition-colors ${role === 'parent' ? 'text-[#D99A00] font-bold bg-[#FFF8E6]' : 'text-[#111827] font-semibold'}`}
               >
                 4. Parent / Guardian Portal
               </Link>
               <Link
                 to="/placement"
+                state={{ targetPortal: 'placement', portalLogin: '/login/placement', attemptedPath: '/placement' }}
+                onClick={() => {
+                  try {
+                    sessionStorage.setItem('campusverse_selected_portal', '/login/placement');
+                  } catch (e) {}
+                }}
                 className={`block px-4 py-2.5 hover:bg-[#FFF8E6] transition-colors ${role === 'placement' ? 'text-[#D99A00] font-bold bg-[#FFF8E6]' : 'text-[#111827] font-semibold'}`}
               >
                 5. Placement Cell Dashboard
               </Link>
               <Link
                 to="/hostel"
+                state={{ targetPortal: 'hostel', portalLogin: '/login/hostel', attemptedPath: '/hostel' }}
+                onClick={() => {
+                  try {
+                    sessionStorage.setItem('campusverse_selected_portal', '/login/hostel');
+                  } catch (e) {}
+                }}
                 className={`block px-4 py-2.5 hover:bg-[#FFF8E6] transition-colors ${role === 'staff' || role === 'hostel' ? 'text-[#D99A00] font-bold bg-[#FFF8E6]' : 'text-[#111827] font-semibold'}`}
               >
                 6. Hostel Portal

@@ -1,151 +1,256 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  GraduationCap, 
+  Home,
+  LayoutGrid,
+  Landmark,
+  Layers,
+  ArrowRight,
+  Bell,
   Menu, 
-  X, 
-  ChevronRight, 
-  Layers, 
-  Sparkles
+  X 
 } from 'lucide-react';
-import Button from '../common/Button';
 
 export const LandingNavbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('platform');
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPos = window.scrollY + 140;
+      const rolesEl = document.getElementById('roles');
+      const featuresEl = document.getElementById('features');
+      const overviewEl = document.getElementById('overview');
+
+      if (rolesEl && scrollPos >= rolesEl.offsetTop) {
+        setActiveSection('portals');
+      } else if (featuresEl && scrollPos >= featuresEl.offsetTop) {
+        setActiveSection('services');
+      } else {
+        setActiveSection('platform');
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-[#FFFEFA]/95 backdrop-blur-md border-b border-[#F1E7CF] shadow-xs">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-20">
-          {/* Logo & Brand */}
-          <Link to="/" className="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-[#FFC107] rounded-lg p-1">
-            <div className="w-10 h-10 rounded-xl bg-[#111827] flex items-center justify-center text-[#FFC107] shadow-xs group-hover:bg-[#1F2937] transition-colors">
-              <GraduationCap className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-display font-extrabold text-lg sm:text-xl text-[#111827] tracking-tight">
-                  CampusVerse<span className="text-[#D99A00]">AI</span>
-                </span>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-[#FFF8E6] text-[#D99A00] border border-[#F1E7CF] hidden sm:inline-block">
-                  Part 1
+    <header className="sticky top-0 z-50 w-full pt-2 sm:pt-3 pb-2 px-3 sm:px-5 lg:px-8 transition-all">
+      <div className="max-w-[1740px] 2xl:max-w-[1780px] w-full mx-auto bg-[#FFFDF7]/95 backdrop-blur-md rounded-2xl lg:rounded-full border border-[#EFE5C8] shadow-[0_4px_24px_rgba(0,0,0,0.03)] px-3.5 sm:px-6 lg:px-7 py-2 sm:py-2.5 transition-all">
+        <div className="flex items-center justify-between">
+          
+          {/* Left: Brand Logo */}
+          <div className="flex items-center shrink-0">
+            <Link
+              to="/"
+              className="flex items-center gap-2.5 group focus:outline-none rounded-xl transition-transform"
+              aria-label="CampusVerse AI Homepage"
+            >
+              {/* Full Official Logo for Desktop & Tablet */}
+              <img
+                src="/campusverse-logo-transparent.png"
+                alt="CampusVerse AI - Intelligent University Management Ecosystem"
+                className="hidden sm:block h-10 md:h-11 xl:h-12 w-auto object-contain transition-transform duration-200 group-hover:scale-[1.01]"
+              />
+              {/* Mobile Compact Emblem + Name */}
+              <div className="flex sm:hidden items-center gap-2">
+                <img
+                  src="/campusverse-emblem.png"
+                  alt="CampusVerse AI"
+                  className="h-9 w-auto object-contain"
+                />
+                <span className="font-display font-extrabold text-base text-[#0F172A] tracking-tight">
+                  CampusVerse<span className="text-[#D97706]">AI</span>
                 </span>
               </div>
-              <p className="text-[10px] text-[#64748B] font-medium tracking-tight hidden sm:block">
-                Intelligent University Management Ecosystem
-              </p>
-            </div>
-          </Link>
-
-          {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-[#4B5563]">
-            <a href="#overview" className="text-[#D99A00] font-semibold hover:text-[#B45309] transition-colors">
-              Platform
-            </a>
-            <a href="#features" className="hover:text-[#D99A00] transition-colors">
-              Campus Services
-            </a>
-            <a href="#ai-intelligence" className="hover:text-[#D99A00] transition-colors flex items-center gap-1.5 text-[#111827]">
-              <Sparkles className="w-3.5 h-3.5 text-[#D99A00]" />
-              <span>AI Roadmap</span>
-            </a>
-            <a href="#benefits" className="hover:text-[#D99A00] transition-colors">
-              Stakeholder Value
-            </a>
-            <a href="#roles" className="hover:text-[#D99A00] transition-colors">
-              University Portals
-            </a>
-          </nav>
-
-          {/* Action Buttons */}
-          <div className="hidden sm:flex items-center gap-3">
-            <Link to="/student">
-              <Button variant="secondary" size="sm" className="!bg-[#FFFFFF] hover:!bg-[#FFF8E6] !text-[#111827] !border-[#F1E7CF] shadow-xs font-semibold" leftIcon={<Layers className="w-3.5 h-3.5 text-[#64748B]" />}>
-                Demo Portals
-              </Button>
-            </Link>
-            <Link to="/login">
-              <Button variant="primary" size="sm" className="!bg-[#FFC107] hover:!bg-[#E5A900] !text-[#111827] !border-transparent font-bold shadow-[0_2px_10px_rgba(255,193,7,0.3)] transition-all" rightIcon={<ChevronRight className="w-3.5 h-3.5 text-[#111827]" />}>
-                Portal Sign In
-              </Button>
             </Link>
           </div>
 
-          {/* Mobile Menu Hamburger */}
-          <div className="flex md:hidden items-center gap-2">
-            <Link to="/login">
-              <Button variant="primary" size="sm" className="!bg-[#FFC107] hover:!bg-[#E5A900] !text-[#111827] !border-transparent font-bold">
-                Sign In
-              </Button>
+          {/* Center: Desktop Navigation Links */}
+          <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
+            {/* Platform */}
+            <a
+              href="#overview"
+              onClick={() => setActiveSection('platform')}
+              className={`relative inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs xl:text-sm font-semibold transition-all duration-200 ${
+                activeSection === 'platform'
+                  ? 'bg-[#FFFBEB] text-[#B45309] font-bold shadow-2xs border border-[#FDE68A]'
+                  : 'text-[#475569] hover:text-[#0F172A] hover:bg-[#FFFBEB]/70'
+              }`}
+            >
+              <Home className={`w-4 h-4 ${activeSection === 'platform' ? 'text-[#D97706]' : 'text-[#64748B]'}`} />
+              <span>Platform</span>
+              {activeSection === 'platform' && (
+                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#D97706]" />
+              )}
+            </a>
+
+            {/* Campus Services */}
+            <a
+              href="#features"
+              onClick={() => setActiveSection('services')}
+              className={`relative inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs xl:text-sm font-semibold transition-all duration-200 ${
+                activeSection === 'services'
+                  ? 'bg-[#FFFBEB] text-[#B45309] font-bold shadow-2xs border border-[#FDE68A]'
+                  : 'text-[#475569] hover:text-[#0F172A] hover:bg-[#FFFBEB]/70'
+              }`}
+            >
+              <LayoutGrid className={`w-4 h-4 ${activeSection === 'services' ? 'text-[#D97706]' : 'text-[#64748B]'}`} />
+              <span>Campus Services</span>
+              {activeSection === 'services' && (
+                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#D97706]" />
+              )}
+            </a>
+
+            {/* University Portals */}
+            <a
+              href="#roles"
+              onClick={() => setActiveSection('portals')}
+              className={`relative inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs xl:text-sm font-semibold transition-all duration-200 ${
+                activeSection === 'portals'
+                  ? 'bg-[#FFFBEB] text-[#B45309] font-bold shadow-2xs border border-[#FDE68A]'
+                  : 'text-[#475569] hover:text-[#0F172A] hover:bg-[#FFFBEB]/70'
+              }`}
+            >
+              <Landmark className={`w-4 h-4 ${activeSection === 'portals' ? 'text-[#D97706]' : 'text-[#64748B]'}`} />
+              <span>University Portals</span>
+              {activeSection === 'portals' && (
+                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#D97706]" />
+              )}
+            </a>
+          </nav>
+
+          {/* Right: Action Buttons & Notification */}
+          <div className="hidden sm:flex items-center gap-2.5 xl:gap-3 shrink-0">
+            {/* Subtle Vertical Divider */}
+            <div className="hidden xl:block h-6 w-px bg-[#E2E8F0]" />
+
+            {/* Demo Portals Button */}
+            <Link
+              to="/student"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white hover:bg-[#FAF9F5] text-[#0F172A] text-xs xl:text-sm font-bold border border-[#FDE68A] hover:border-[#F59E0B] shadow-2xs hover:shadow-xs transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
+            >
+              <Layers className="w-4 h-4 text-[#0F172A]" />
+              <span>Demo Portals</span>
+            </Link>
+
+            {/* Portal Sign In Button */}
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#FACC15] hover:bg-[#EAB308] text-[#0F172A] text-xs xl:text-sm font-extrabold shadow-[0_4px_16px_rgba(250,204,21,0.4)] hover:shadow-[0_6px_22px_rgba(250,204,21,0.55)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+            >
+              <span>Portal Sign In</span>
+              <ArrowRight className="w-4 h-4 text-[#0F172A]" />
+            </Link>
+
+            {/* Notification Bell Button */}
+            <div className="relative">
+              <button
+                type="button"
+                aria-label="Campus Alerts & Notifications"
+                className="w-9 h-9 xl:w-10 xl:h-10 rounded-full bg-white border border-[#E5E7EB] hover:border-[#D1D5DB] flex items-center justify-center text-[#475569] hover:text-[#0F172A] shadow-2xs hover:bg-[#FAF9F5] transition-all hover:scale-105 active:scale-95 cursor-pointer"
+              >
+                <Bell className="w-4 h-4" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[#EAB308] border-2 border-white absolute top-2 right-2" />
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile / Tablet Actions & Hamburger */}
+          <div className="flex lg:hidden items-center gap-2">
+            <Link
+              to="/login"
+              className="sm:hidden inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FACC15] text-[#0F172A] text-xs font-extrabold shadow-xs"
+            >
+              <span>Sign In</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg text-[#4B5563] hover:text-[#111827] hover:bg-[#FFF8E6] focus:outline-none focus:ring-2 focus:ring-[#FFC107]"
+              className="p-2 rounded-full text-[#475569] hover:text-[#0F172A] hover:bg-[#FFF8E6] border border-[#EFE5C8] focus:outline-none transition-colors"
               aria-expanded={mobileMenuOpen}
               aria-label="Toggle navigation menu"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
-        </div>
-      </div>
 
-      {/* Mobile Drawer */}
-      {mobileMenuOpen && (
-        <div className="md:hidden border-b border-[#F1E7CF] bg-[#FFFEFA] px-4 pt-3 pb-6 space-y-3">
-          <nav className="flex flex-col space-y-2.5 text-sm font-medium text-[#4B5563]">
-            <a
-              href="#overview"
-              onClick={() => setMobileMenuOpen(false)}
-              className="p-2 rounded-lg hover:bg-[#FFF8E6] hover:text-[#D99A00]"
-            >
-              Platform Overview
-            </a>
-            <a
-              href="#features"
-              onClick={() => setMobileMenuOpen(false)}
-              className="p-2 rounded-lg hover:bg-[#FFF8E6] hover:text-[#D99A00]"
-            >
-              Campus Services
-            </a>
-            <a
-              href="#ai-intelligence"
-              onClick={() => setMobileMenuOpen(false)}
-              className="p-2 rounded-lg hover:bg-[#FFF8E6] hover:text-[#D99A00] flex items-center gap-2"
-            >
-              <Sparkles className="w-4 h-4 text-[#D99A00]" />
-              AI Intelligence Architecture
-            </a>
-            <a
-              href="#benefits"
-              onClick={() => setMobileMenuOpen(false)}
-              className="p-2 rounded-lg hover:bg-[#FFF8E6] hover:text-[#D99A00]"
-            >
-              Stakeholder Benefits
-            </a>
-            <a
-              href="#roles"
-              onClick={() => setMobileMenuOpen(false)}
-              className="p-2 rounded-lg hover:bg-[#FFF8E6] hover:text-[#D99A00]"
-            >
-              Explore University Portals
-            </a>
-          </nav>
-          <div className="pt-3 border-t border-[#F1E7CF] flex flex-col gap-2">
-            <Link to="/student" onClick={() => setMobileMenuOpen(false)}>
-              <Button variant="secondary" size="md" className="w-full justify-center !bg-[#FFFFFF] hover:!bg-[#FFF8E6] !text-[#111827] !border-[#F1E7CF]">
-                Explore Demo Portals
-              </Button>
-            </Link>
-            <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
-              <Button variant="primary" size="md" className="w-full justify-center !bg-[#FFC107] hover:!bg-[#E5A900] !text-[#111827] !border-transparent font-bold">
-                Portal Sign In
-              </Button>
-            </Link>
-          </div>
         </div>
-      )}
+
+        {/* Mobile Drawer */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden mt-3 pt-3 border-t border-[#F1E7CF] space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+            <nav className="flex flex-col space-y-1">
+              <a
+                href="#overview"
+                onClick={() => {
+                  setActiveSection('platform');
+                  setMobileMenuOpen(false);
+                }}
+                className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                  activeSection === 'platform'
+                    ? 'bg-[#FFFBEB] text-[#B45309] font-bold border border-[#FDE68A]'
+                    : 'text-[#475569] hover:bg-[#FFF8E6]'
+                }`}
+              >
+                <Home className="w-4 h-4 text-[#D97706]" />
+                <span>Platform</span>
+              </a>
+              <a
+                href="#features"
+                onClick={() => {
+                  setActiveSection('services');
+                  setMobileMenuOpen(false);
+                }}
+                className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                  activeSection === 'services'
+                    ? 'bg-[#FFFBEB] text-[#B45309] font-bold border border-[#FDE68A]'
+                    : 'text-[#475569] hover:bg-[#FFF8E6]'
+                }`}
+              >
+                <LayoutGrid className="w-4 h-4 text-[#64748B]" />
+                <span>Campus Services</span>
+              </a>
+              <a
+                href="#roles"
+                onClick={() => {
+                  setActiveSection('portals');
+                  setMobileMenuOpen(false);
+                }}
+                className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                  activeSection === 'portals'
+                    ? 'bg-[#FFFBEB] text-[#B45309] font-bold border border-[#FDE68A]'
+                    : 'text-[#475569] hover:bg-[#FFF8E6]'
+                }`}
+              >
+                <Landmark className="w-4 h-4 text-[#64748B]" />
+                <span>University Portals</span>
+              </a>
+            </nav>
+
+            <div className="pt-2 border-t border-[#F1E7CF] flex flex-col sm:hidden gap-2">
+              <Link
+                to="/student"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full bg-white text-[#0F172A] font-bold text-xs border border-[#FDE68A] shadow-2xs"
+              >
+                <Layers className="w-4 h-4 text-[#0F172A]" />
+                <span>Demo Portals</span>
+              </Link>
+              <Link
+                to="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full bg-[#FACC15] hover:bg-[#EAB308] text-[#0F172A] font-extrabold text-xs shadow-md"
+              >
+                <span>Portal Sign In</span>
+                <ArrowRight className="w-4 h-4 text-[#0F172A]" />
+              </Link>
+            </div>
+          </div>
+        )}
+      </div>
     </header>
   );
 };

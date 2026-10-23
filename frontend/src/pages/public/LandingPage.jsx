@@ -9,7 +9,6 @@ import {
   Briefcase,
   Home,
   Bus,
-  Cpu,
   ArrowRight,
   CheckCircle2,
   ChevronRight,
@@ -23,7 +22,9 @@ import {
   Bot,
   BarChart3,
   Zap,
-  Layers
+  Layers,
+  Landmark,
+  UserCheck
 } from 'lucide-react';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
@@ -82,124 +83,337 @@ export const LandingPage = () => {
     },
   ];
 
-  const aiCapabilities = [
-    {
-      title: 'Predictive Academic Early Warning',
-      description: 'Detects student distress trends by correlating attendance dropouts with assignment submission gaps, enabling proactive faculty intervention.',
-      status: 'FastAPI Spec Ready (Part 3)',
-    },
-    {
-      title: 'Smart Constraint-Satisfaction Timetabling',
-      description: 'Eliminates room collisions and faculty overload using heuristic optimization algorithms tailored to institutional room capacities.',
-      status: 'FastAPI Spec Ready (Part 3)',
-    },
-    {
-      title: 'Placement Resume & Role Matcher',
-      description: 'Evaluates student project portfolios against corporate job descriptions (JDs) to provide targeted skill improvement guidance.',
-      status: 'FastAPI Spec Ready (Part 3)',
-    },
-    {
-      title: 'Continuous Formative Rubric Evaluator',
-      description: 'Assists teaching faculty with automated similarity analysis, grading rubric alignment, and syntax validation for technical coursework.',
-      status: 'FastAPI Spec Ready (Part 3)',
-    },
-  ];
+
+  // 3D Visual Illustrations matching Reference Image
+  const StudentIllustration = () => (
+    <svg viewBox="0 0 200 125" className="w-full h-20 sm:h-24 object-contain pointer-events-none select-none drop-shadow-sm" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="studShadow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.25" />
+          <stop offset="100%" stopColor="#F59E0B" stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id="bookBottomGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#F59E0B" />
+          <stop offset="100%" stopColor="#D97706" />
+        </linearGradient>
+        <linearGradient id="bookMidGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FBBF24" />
+          <stop offset="100%" stopColor="#F59E0B" />
+        </linearGradient>
+        <linearGradient id="capGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#1E293B" />
+          <stop offset="100%" stopColor="#0F172A" />
+        </linearGradient>
+      </defs>
+      <ellipse cx="100" cy="112" rx="72" ry="9" fill="url(#studShadow)" />
+      <g transform="translate(28, 72)">
+        <path d="M10 22 C 40 30, 110 30, 140 22 L 140 34 C 110 42, 40 42, 10 34 Z" fill="#B45309" />
+        <path d="M10 22 L 12 10 C 42 18, 112 18, 142 10 L 140 22 C 110 30, 40 30, 10 22 Z" fill="#FFFBEB" />
+        <path d="M12 10 C 42 18, 112 18, 142 10 L 138 0 C 108 8, 38 8, 8 0 Z" fill="url(#bookBottomGrad)" />
+        <path d="M8 0 L 10 34 C 9 34, 7 32, 6 26 L 4 0 Z" fill="#92400E" />
+      </g>
+      <g transform="translate(34, 52) rotate(-2 70 20)">
+        <path d="M8 20 C 38 28, 108 28, 138 20 L 138 30 C 108 38, 38 38, 8 30 Z" fill="#D97706" />
+        <path d="M8 20 L 10 9 C 40 17, 110 17, 140 9 L 138 20 C 108 28, 38 28, 8 20 Z" fill="#FEF3C7" />
+        <path d="M10 9 C 40 17, 110 17, 140 9 L 136 0 C 106 8, 36 8, 6 0 Z" fill="url(#bookMidGrad)" />
+        <path d="M6 0 L 8 30 C 7 30, 5 28, 4 22 L 2 0 Z" fill="#B45309" />
+      </g>
+      <g transform="translate(64, 12)">
+        <path d="M22 28 C 22 28, 38 38, 54 28 L 54 36 C 38 46, 22 36, 22 36 Z" fill="#0F172A" opacity="0.95" />
+        <path d="M38 6 L 74 22 L 38 36 L 2 22 Z" fill="url(#capGrad)" stroke="#334155" strokeWidth="1" />
+        <ellipse cx="38" cy="21" rx="4" ry="2.5" fill="#F59E0B" />
+        <path d="M38 22 C 48 24, 64 28, 66 38" stroke="#F59E0B" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+        <circle cx="66" cy="40" r="3.5" fill="#D97706" />
+        <path d="M64 42 L 68 50 L 64 50 Z" fill="#F59E0B" />
+      </g>
+    </svg>
+  );
+
+  const FacultyIllustration = () => (
+    <svg viewBox="0 0 200 125" className="w-full h-20 sm:h-24 object-contain pointer-events-none select-none drop-shadow-sm" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="facShadow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.22" />
+          <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id="lapScreenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FAF5FF" />
+          <stop offset="100%" stopColor="#EDE9FE" />
+        </linearGradient>
+        <linearGradient id="lapBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#DDD6FE" />
+          <stop offset="100%" stopColor="#C4B5FD" />
+        </linearGradient>
+      </defs>
+      <ellipse cx="95" cy="112" rx="72" ry="9" fill="url(#facShadow)" />
+      <g transform="translate(32, 26)">
+        <rect x="22" y="6" width="86" height="58" rx="7" fill="#8B5CF6" stroke="#7C3AED" strokeWidth="1.5" />
+        <rect x="27" y="11" width="76" height="48" rx="4" fill="url(#lapScreenGrad)" />
+        <circle cx="44" cy="28" r="9" fill="#C4B5FD" />
+        <circle cx="44" cy="26" r="4.5" fill="#8B5CF6" />
+        <path d="M37 34 C 37 31, 51 31, 51 34" stroke="#8B5CF6" strokeWidth="2" strokeLinecap="round" />
+        <rect x="58" y="22" width="38" height="4" rx="2" fill="#8B5CF6" opacity="0.8" />
+        <rect x="58" y="30" width="30" height="3" rx="1.5" fill="#A78BFA" opacity="0.7" />
+        <rect x="34" y="44" width="62" height="6" rx="2" fill="#DDD6FE" />
+        <path d="M10 64 L 120 64 L 132 84 L -2 84 Z" fill="url(#lapBodyGrad)" stroke="#8B5CF6" strokeWidth="1" />
+        <rect x="52" y="72" width="26" height="9" rx="2" fill="#EDE9FE" stroke="#A78BFA" strokeWidth="0.8" />
+        <path d="M18 67 L 112 67" stroke="#A78BFA" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
+      </g>
+      <g transform="translate(144, 62)">
+        <path d="M8 24 L 28 24 L 24 44 L 12 44 Z" fill="#8B5CF6" />
+        <ellipse cx="18" cy="24" rx="10" ry="3" fill="#A78BFA" />
+        <path d="M18 22 Q 10 8 4 14 Q 10 22 18 22" fill="#10B981" />
+        <path d="M18 22 Q 22 2 30 6 Q 26 18 18 22" fill="#34D399" />
+        <path d="M18 22 Q 16 0 18 -2 Q 22 10 18 22" fill="#059669" />
+      </g>
+    </svg>
+  );
+
+  const AdminIllustration = () => (
+    <svg viewBox="0 0 200 125" className="w-full h-20 sm:h-24 object-contain pointer-events-none select-none drop-shadow-sm" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="admShadow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#F43F5E" stopOpacity="0.22" />
+          <stop offset="100%" stopColor="#F43F5E" stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id="gearGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FB7185" />
+          <stop offset="100%" stopColor="#F43F5E" />
+        </linearGradient>
+        <linearGradient id="podiumGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FFE4E6" />
+          <stop offset="100%" stopColor="#FECDD3" />
+        </linearGradient>
+      </defs>
+      <ellipse cx="100" cy="112" rx="72" ry="9" fill="url(#admShadow)" />
+      <g transform="translate(64, 70)">
+        <path d="M10 24 L 90 24 L 105 40 L -5 40 Z" fill="url(#podiumGrad)" stroke="#FDA4AF" strokeWidth="1" />
+        <g transform="translate(66, -10)">
+          <rect x="0" y="20" width="10" height="24" rx="2" fill="#F43F5E" opacity="0.6" />
+          <rect x="14" y="10" width="10" height="34" rx="2" fill="#FB7185" />
+          <rect x="28" y="0" width="10" height="44" rx="2" fill="#F43F5E" />
+        </g>
+      </g>
+      <g transform="translate(48, 28)">
+        <circle cx="36" cy="38" r="28" fill="#E11D48" />
+        <circle cx="34" cy="36" r="28" fill="url(#gearGrad)" />
+        {[0, 45, 90, 135, 180, 225, 270, 315].map((angle, i) => (
+          <rect
+            key={i}
+            x="30"
+            y="4"
+            width="8"
+            height="10"
+            rx="2"
+            fill="#FB7185"
+            transform={`rotate(${angle} 34 36)`}
+          />
+        ))}
+        <circle cx="34" cy="36" r="11" fill="#FFF1F2" stroke="#FDA4AF" strokeWidth="2" />
+      </g>
+    </svg>
+  );
+
+  const ParentIllustration = () => (
+    <svg viewBox="0 0 200 125" className="w-full h-20 sm:h-24 object-contain pointer-events-none select-none drop-shadow-sm" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="parShadow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#10B981" stopOpacity="0.22" />
+          <stop offset="100%" stopColor="#10B981" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <ellipse cx="100" cy="112" rx="72" ry="9" fill="url(#parShadow)" />
+      <g transform="translate(38, 46)">
+        <path d="M10 44 Q 64 34 64 48 Q 64 34 118 44 L 124 50 Q 64 40 64 54 Q 64 40 4 50 Z" fill="#047857" />
+        <path d="M12 42 Q 64 32 64 46 L 64 12 Q 64 0 12 8 Z" fill="#F0FDF4" stroke="#BBF7D0" strokeWidth="1" />
+        <path d="M116 42 Q 64 32 64 46 L 64 12 Q 64 0 116 8 Z" fill="#FFFFFF" stroke="#BBF7D0" strokeWidth="1" />
+        <line x1="22" y1="18" x2="54" y2="18" stroke="#A7F3D0" strokeWidth="2.5" strokeLinecap="round" />
+        <line x1="22" y1="26" x2="50" y2="26" stroke="#A7F3D0" strokeWidth="2.5" strokeLinecap="round" />
+        <line x1="22" y1="34" x2="44" y2="34" stroke="#A7F3D0" strokeWidth="2.5" strokeLinecap="round" />
+        <line x1="74" y1="18" x2="106" y2="18" stroke="#A7F3D0" strokeWidth="2.5" strokeLinecap="round" />
+        <line x1="74" y1="26" x2="102" y2="26" stroke="#A7F3D0" strokeWidth="2.5" strokeLinecap="round" />
+        <line x1="74" y1="34" x2="94" y2="34" stroke="#A7F3D0" strokeWidth="2.5" strokeLinecap="round" />
+        <path d="M64 12 Q 62 30 60 56 L 65 52 L 70 56 Q 66 30 64 12" fill="#F43F5E" />
+      </g>
+      <g transform="translate(98, 26)">
+        <circle cx="16" cy="16" r="15" fill="#FBBF24" stroke="#F59E0B" strokeWidth="2" />
+        <circle cx="16" cy="12" r="5" fill="#FFFFFF" />
+        <path d="M8 24 C 8 19 24 19 24 24" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" />
+      </g>
+      <g transform="translate(148, 56)">
+        <path d="M4 36 Q 16 16 32 18 Q 24 34 4 36 Z" fill="#10B981" />
+        <path d="M6 34 Q 28 32 30 46 Q 14 46 6 34 Z" fill="#34D399" />
+      </g>
+    </svg>
+  );
+
+  const PlacementIllustration = () => (
+    <svg viewBox="0 0 200 125" className="w-full h-20 sm:h-24 object-contain pointer-events-none select-none drop-shadow-sm" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="plcShadow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.22" />
+          <stop offset="100%" stopColor="#3B82F6" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <ellipse cx="100" cy="112" rx="72" ry="9" fill="url(#plcShadow)" />
+      <g transform="translate(50, 22)">
+        <g transform="translate(10, 42)">
+          <rect x="0" y="8" width="18" height="38" fill="#60A5FA" />
+          <polygon points="18,8 28,0 28,38 18,46" fill="#3B82F6" />
+          <polygon points="0,8 10,0 28,0 18,8" fill="#93C5FD" />
+        </g>
+        <g transform="translate(36, 22)">
+          <rect x="0" y="8" width="18" height="58" fill="#3B82F6" />
+          <polygon points="18,8 28,0 28,58 18,66" fill="#2563EB" />
+          <polygon points="0,8 10,0 28,0 18,8" fill="#60A5FA" />
+        </g>
+        <g transform="translate(62, 0)">
+          <rect x="0" y="8" width="18" height="80" fill="#2563EB" />
+          <polygon points="18,8 28,0 28,80 18,88" fill="#1D4ED8" />
+          <polygon points="0,8 10,0 28,0 18,8" fill="#3B82F6" />
+        </g>
+      </g>
+      <g transform="translate(132, 66)">
+        <circle cx="16" cy="16" r="15" fill="#FBBF24" stroke="#F59E0B" strokeWidth="2" />
+        <circle cx="16" cy="12" r="5" fill="#FFFFFF" />
+        <path d="M8 24 C 8 19 24 19 24 24" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" />
+      </g>
+    </svg>
+  );
+
+  const HostelIllustration = () => (
+    <svg viewBox="0 0 200 125" className="w-full h-20 sm:h-24 object-contain pointer-events-none select-none drop-shadow-sm" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="hosShadow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.22" />
+          <stop offset="100%" stopColor="#F59E0B" stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id="busBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FBBF24" />
+          <stop offset="100%" stopColor="#D97706" />
+        </linearGradient>
+      </defs>
+      <ellipse cx="100" cy="112" rx="72" ry="9" fill="url(#hosShadow)" />
+      <path d="M10 106 Q 90 92 190 96 L 195 108 Q 95 104 5 118 Z" fill="#F3E8C8" opacity="0.8" />
+      <path d="M30 103 Q 95 96 175 99" stroke="#FFFFFF" strokeWidth="2" strokeDasharray="6 6" fill="none" />
+      <g transform="translate(172, 70)">
+        <line x1="6" y1="16" x2="6" y2="28" stroke="#B45309" strokeWidth="2" />
+        <ellipse cx="6" cy="14" rx="7" ry="10" fill="#10B981" />
+      </g>
+      <g transform="translate(182, 74)">
+        <line x1="5" y1="14" x2="5" y2="24" stroke="#B45309" strokeWidth="1.5" />
+        <ellipse cx="5" cy="12" rx="5" ry="8" fill="#34D399" />
+      </g>
+      <g transform="translate(54, 46)">
+        <ellipse cx="50" cy="54" rx="42" ry="6" fill="#78350F" opacity="0.25" />
+        <path d="M10 8 C 10 4 16 0 24 0 L 78 0 C 86 0 90 4 90 12 L 90 44 C 90 46 88 48 86 48 L 10 48 C 8 48 6 46 6 40 L 6 16 C 6 10 8 8 10 8 Z" fill="url(#busBodyGrad)" stroke="#B45309" strokeWidth="1.2" />
+        <path d="M12 6 C 14 4 18 3 24 3 L 38 3 L 38 22 L 10 22 C 10 14 10 9 12 6 Z" fill="#1E293B" />
+        <rect x="42" y="4" width="13" height="18" rx="2" fill="#1E293B" />
+        <rect x="58" y="4" width="13" height="18" rx="2" fill="#1E293B" />
+        <rect x="74" y="4" width="12" height="18" rx="2" fill="#1E293B" />
+        <line x1="44" y1="6" x2="52" y2="20" stroke="#64748B" strokeWidth="1" opacity="0.6" />
+        <line x1="60" y1="6" x2="68" y2="20" stroke="#64748B" strokeWidth="1" opacity="0.6" />
+        <line x1="76" y1="6" x2="84" y2="20" stroke="#64748B" strokeWidth="1" opacity="0.6" />
+        <ellipse cx="8" cy="30" rx="3" ry="4" fill="#FEF08A" stroke="#CA8A04" strokeWidth="0.8" />
+        <rect x="5" y="38" width="5" height="7" rx="1" fill="#475569" />
+        <rect x="8" y="46" width="80" height="4" rx="2" fill="#334155" />
+        <g transform="translate(18, 42)">
+          <circle cx="6" cy="6" r="8" fill="#0F172A" />
+          <circle cx="6" cy="6" r="4" fill="#64748B" />
+        </g>
+        <g transform="translate(68, 42)">
+          <circle cx="6" cy="6" r="8" fill="#0F172A" />
+          <circle cx="6" cy="6" r="4" fill="#64748B" />
+        </g>
+      </g>
+    </svg>
+  );
 
   const roleCards = [
     {
       role: 'Student',
-      path: '/student',
       loginPath: '/login/student',
       title: 'Student Portal',
-      description: 'Track attendance, weekly timetables, active assignments, exam marks, and pending fee invoices.',
-      badgeVariant: 'teal',
-      accentColor: '#D99A00',
-      bgCard: 'bg-[#FFFDF5]',
-      borderCard: 'border-[#F1E7CF] hover:border-[#FFC107]',
-      iconBg: 'bg-[#FFF8E6] text-[#D99A00]',
-      btnBg: 'bg-[#FFF8E6] hover:bg-[#FFC107] text-[#D99A00] hover:text-[#111827]',
-      icon: <GraduationCap className="w-6 h-6" />,
+      description: 'Track academics, view timetables, submit assignments and more.',
+      bgGradient: 'from-[#FFFDF7] via-white to-[#FEF9EE]',
+      borderColor: 'border-[#FDE68A]/80 hover:border-[#F59E0B]',
+      iconBg: 'bg-[#F59E0B]',
+      arrowBg: 'bg-[#FEF3C7] text-[#D97706] group-hover:bg-[#F59E0B] group-hover:text-white',
+      btnBg: 'bg-[#D97706] hover:bg-[#B45309]',
+      icon: <GraduationCap className="w-6 h-6 text-white" />,
+      illustration: <StudentIllustration />,
     },
     {
       role: 'Faculty',
-      path: '/faculty',
       loginPath: '/login/faculty',
       title: 'Faculty Portal',
-      description: 'Review assigned courses, record class attendance, evaluate student submissions, and submit marks.',
-      badgeVariant: 'teal',
-      accentColor: '#7C3AED',
-      bgCard: 'bg-[#FAF8FF]',
-      borderCard: 'border-[#E9E4F5] hover:border-[#7C3AED]',
-      iconBg: 'bg-[#F0EBFA] text-[#7C3AED]',
-      btnBg: 'bg-[#F0EBFA] hover:bg-[#7C3AED] text-[#7C3AED] hover:text-white',
-      icon: <Users className="w-6 h-6" />,
+      description: 'Manage subjects, upload resources, record attendance and evaluate students.',
+      bgGradient: 'from-[#FAF7FF] via-white to-[#F5F0FF]',
+      borderColor: 'border-[#E9D5FF]/80 hover:border-[#8B5CF6]',
+      iconBg: 'bg-[#8B5CF6]',
+      arrowBg: 'bg-[#F3E8FF] text-[#8B5CF6] group-hover:bg-[#8B5CF6] group-hover:text-white',
+      btnBg: 'bg-[#8B5CF6] hover:bg-[#7C3AED]',
+      icon: <Users className="w-6 h-6 text-white" />,
+      illustration: <FacultyIllustration />,
     },
     {
       role: 'Administrator',
-      path: '/admin',
       loginPath: '/login/admin',
       title: 'Admin Portal',
-      fullTitle: 'Administrator Console',
-      description: 'Manage campus departments, academic programs, pending administrative approvals, and student grievances.',
-      badgeVariant: 'navy',
-      accentColor: '#EF4444',
-      bgCard: 'bg-[#FFF8F8]',
-      borderCard: 'border-[#FCE6E6] hover:border-[#EF4444]',
-      iconBg: 'bg-[#FDE8E8] text-[#EF4444]',
-      btnBg: 'bg-[#FDE8E8] hover:bg-[#EF4444] text-[#EF4444] hover:text-white',
-      icon: <Shield className="w-6 h-6" />,
+      description: 'Manage campus operations, departments, programs and system settings.',
+      bgGradient: 'from-[#FFF7F7] via-white to-[#FFF0F0]',
+      borderColor: 'border-[#FECDD3]/80 hover:border-[#F43F5E]',
+      iconBg: 'bg-[#F43F5E]',
+      arrowBg: 'bg-[#FFE4E6] text-[#F43F5E] group-hover:bg-[#F43F5E] group-hover:text-white',
+      btnBg: 'bg-[#F43F5E] hover:bg-[#E11D48]',
+      icon: <Shield className="w-6 h-6 text-white" />,
+      illustration: <AdminIllustration />,
     },
     {
       role: 'Parent',
-      path: '/parent',
       loginPath: '/login/parent',
       title: 'Parent Portal',
-      fullTitle: 'Parent / Guardian Portal',
-      description: 'Transparent visibility into ward academic progress, attendance percentage, and fee receipts.',
-      badgeVariant: 'teal',
-      accentColor: '#16A34A',
-      bgCard: 'bg-[#F6FDF9]',
-      borderCard: 'border-[#DEF7EC] hover:border-[#16A34A]',
-      iconBg: 'bg-[#DEF7EC] text-[#16A34A]',
-      btnBg: 'bg-[#DEF7EC] hover:bg-[#16A34A] text-[#16A34A] hover:text-white',
-      icon: <User className="w-6 h-6" />,
+      description: "Track your child's academic progress, attendance and important updates.",
+      bgGradient: 'from-[#F2FBF6] via-white to-[#ECFDF5]',
+      borderColor: 'border-[#BBF7D0]/80 hover:border-[#10B981]',
+      iconBg: 'bg-[#10B981]',
+      arrowBg: 'bg-[#DCFCE7] text-[#10B981] group-hover:bg-[#10B981] group-hover:text-white',
+      btnBg: 'bg-[#10B981] hover:bg-[#059669]',
+      icon: <UserCheck className="w-6 h-6 text-white" />,
+      illustration: <ParentIllustration />,
     },
     {
       role: 'Placement',
-      path: '/placement',
       loginPath: '/login/placement',
       title: 'Placement Cell',
-      fullTitle: 'Placement Cell',
-      description: 'Coordinate campus recruitment drives, verify student eligibility criteria, and track recruitment metrics.',
-      badgeVariant: 'teal',
-      accentColor: '#2563EB',
-      bgCard: 'bg-[#F4F9FF]',
-      borderCard: 'border-[#E1EFFE] hover:border-[#2563EB]',
-      iconBg: 'bg-[#E1EFFE] text-[#2563EB]',
-      btnBg: 'bg-[#E1EFFE] hover:bg-[#2563EB] text-[#2563EB] hover:text-white',
-      icon: <Briefcase className="w-6 h-6" />,
+      description: 'Explore job opportunities, view drives, apply online and track your progress.',
+      bgGradient: 'from-[#F2F8FE] via-white to-[#EBF5FF]',
+      borderColor: 'border-[#BAE6FD]/80 hover:border-[#3B82F6]',
+      iconBg: 'bg-[#3B82F6]',
+      arrowBg: 'bg-[#E0F2FE] text-[#2563EB] group-hover:bg-[#2563EB] group-hover:text-white',
+      btnBg: 'bg-[#2563EB] hover:bg-[#1D4ED8]',
+      icon: <Briefcase className="w-6 h-6 text-white" />,
+      illustration: <PlacementIllustration />,
     },
     {
       role: 'Hostel Staff',
-      path: '/hostel',
       loginPath: '/login/hostel',
       title: 'Hostel & Transport',
-      fullTitle: 'Hostel Portal',
-      description: 'Manage residential room allotments, maintenance dispatch tickets, and campus transport fleet rosters.',
-      badgeVariant: 'teal',
-      accentColor: '#D99A00',
-      bgCard: 'bg-[#FFF9F3]',
-      borderCard: 'border-[#FCE8D5] hover:border-[#FFC107]',
-      iconBg: 'bg-[#FCE8D5] text-[#D99A00]',
-      btnBg: 'bg-[#FCE8D5] hover:bg-[#FFC107] text-[#D99A00] hover:text-[#111827]',
-      icon: <Bus className="w-6 h-6" />,
+      description: 'Manage hostel allotment, transport routes, leave requests and travel information.',
+      bgGradient: 'from-[#FFFDF7] via-white to-[#FEF9EE]',
+      borderColor: 'border-[#FDE68A]/80 hover:border-[#F59E0B]',
+      iconBg: 'bg-[#F59E0B]',
+      arrowBg: 'bg-[#FEF3C7] text-[#D97706] group-hover:bg-[#F59E0B] group-hover:text-white',
+      btnBg: 'bg-[#D97706] hover:bg-[#B45309]',
+      icon: <Bus className="w-6 h-6 text-white" />,
+      illustration: <HostelIllustration />,
     },
   ];
 
   return (
     <div className="space-y-16 lg:space-y-24 pb-20 bg-[#FFFEFA] text-[#111827]">
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-8 pb-16 lg:pt-14 lg:pb-24 border-b border-[#F1E7CF]">
+      <section id="overview" className="relative overflow-hidden pt-8 pb-16 lg:pt-14 lg:pb-24 border-b border-[#F1E7CF]">
         {/* Ambient Warm Golden Glows */}
         <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-gradient-to-br from-[#FFC107]/20 via-[#FFF8E6]/60 to-transparent rounded-full blur-3xl pointer-events-none -translate-x-1/3 -translate-y-1/4" />
         <div className="absolute top-1/3 right-0 w-[600px] h-[600px] bg-gradient-to-bl from-[#FFF8E6]/80 via-[#FFFDF5] to-transparent rounded-full blur-3xl pointer-events-none translate-x-1/4" />
@@ -270,25 +484,6 @@ export const LandingPage = () => {
                 </p>
               </div>
 
-              {/* Technical Readiness Indicators */}
-              <div className="pt-4 grid grid-cols-2 sm:grid-cols-4 gap-2.5 border-t border-[#F1E7CF] text-left">
-                <div className="p-3 rounded-xl bg-white border border-[#F1E7CF] shadow-xs">
-                  <div className="text-base sm:text-lg font-black text-[#111827]">15 Modules</div>
-                  <div className="text-[10px] sm:text-[11px] text-[#64748B] font-medium mt-0.5">Planned Ecosystem</div>
-                </div>
-                <div className="p-3 rounded-xl bg-[#FFFDF5] border border-[#F1E7CF] shadow-xs">
-                  <div className="text-base sm:text-lg font-black text-[#D99A00]">7 Unified Roles</div>
-                  <div className="text-[10px] sm:text-[11px] text-[#64748B] font-medium mt-0.5">Role-Based Access</div>
-                </div>
-                <div className="p-3 rounded-xl bg-white border border-[#F1E7CF] shadow-xs">
-                  <div className="text-base sm:text-lg font-black text-[#111827]">Production Stack</div>
-                  <div className="text-[10px] sm:text-[11px] text-[#64748B] font-medium mt-0.5">UI & Components</div>
-                </div>
-                <div className="p-3 rounded-xl bg-[#FFFDF5] border border-[#F1E7CF] shadow-xs">
-                  <div className="text-base sm:text-lg font-black text-[#D99A00]">MongoDB Active</div>
-                  <div className="text-[10px] sm:text-[11px] text-[#64748B] font-medium mt-0.5">Node/Express</div>
-                </div>
-              </div>
             </div>
 
             {/* Right Column: Campus Image & Interactive Dashboard Preview Mockup */}
@@ -486,53 +681,112 @@ export const LandingPage = () => {
         </div>
       </section>
 
-      {/* Choose Your Portal Section (Matching Reference Image) */}
-      <section id="roles" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-24">
-        <div className="bg-white rounded-3xl border border-[#F1E7CF] p-6 sm:p-10 shadow-[0_10px_30px_rgba(180,130,20,0.06)] space-y-8">
-          <div className="text-center max-w-2xl mx-auto space-y-2">
-            <h2 className="text-2xl sm:text-3xl font-black text-[#111827] tracking-tight">
-              Choose Your Portal
-            </h2>
-            <p className="text-xs sm:text-sm text-[#64748B] font-normal">
-              Access your role-based portal and explore a personalized experience.
+      {/* Choose Your Portal Section (Redesigned matching reference image) */}
+      <section id="roles" className="relative w-full max-w-[97vw] 2xl:max-w-[1740px] mx-auto px-3 sm:px-6 lg:px-8 xl:px-10 scroll-mt-24">
+        {/* Subtle Ambient Decorative Golden Arcs */}
+        <div className="absolute -top-10 left-1/4 w-80 h-80 bg-gradient-to-br from-[#FEF08A]/20 to-transparent rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-10 right-1/4 w-80 h-80 bg-gradient-to-bl from-[#FEF08A]/20 to-transparent rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative space-y-8 sm:space-y-10">
+          {/* Header Row with Badge, Main Title, Decorative Dots & Paper Airplane */}
+          <div className="relative text-center max-w-3xl mx-auto space-y-3 pt-2">
+            {/* Left Decorative Dots Grid */}
+            <div className="hidden md:block absolute -left-10 lg:-left-20 top-1/2 -translate-y-1/2 opacity-70 pointer-events-none">
+              <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+                {[6, 22, 38, 54].map((x) =>
+                  [6, 22, 38, 54].map((y) => (
+                    <circle key={`${x}-${y}`} cx={x} cy={y} r="2.5" fill="#FDE047" opacity="0.85" />
+                  ))
+                )}
+              </svg>
+            </div>
+
+            {/* Right Decorative Paper Airplane with Trail */}
+            <div className="hidden md:block absolute -right-10 lg:-right-20 top-1/2 -translate-y-1/2 pointer-events-none">
+              <svg width="76" height="54" viewBox="0 0 76 54" fill="none">
+                <path
+                  d="M6 42 C 20 42, 28 32, 46 24"
+                  stroke="#FDE047"
+                  strokeWidth="2.5"
+                  strokeDasharray="4 4"
+                  strokeLinecap="round"
+                  opacity="0.85"
+                />
+                <g transform="translate(44, 4) rotate(18)">
+                  <path d="M0 18 L32 0 L18 32 L13 20 Z" fill="#F59E0B" />
+                  <path d="M13 20 L32 0 L18 32 Z" fill="#FBBF24" />
+                  <path d="M13 20 L18 32 L15 20 Z" fill="#D97706" />
+                </g>
+              </svg>
+            </div>
+
+            {/* Top Golden Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FFFBEB] border border-[#FDE68A] text-xs font-semibold text-[#B45309] shadow-2xs">
+              <Landmark className="w-4 h-4 text-[#D97706]" />
+              <span>Welcome to CampusVerse</span>
+            </div>
+
+            {/* Main Heading */}
+            <div className="space-y-2">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#0F172A] tracking-tight">
+                Choose Your <span className="text-[#D97706]">Portal</span>
+              </h2>
+              {/* Subtle Decorative Golden Underline Bar */}
+              <div className="w-14 h-1.5 bg-[#D97706] rounded-full mx-auto mt-2" />
+            </div>
+
+            {/* Subtitle */}
+            <p className="text-sm sm:text-base text-[#64748B] font-normal leading-relaxed max-w-xl mx-auto pt-1">
+              Access your role-based portal and explore a personalized campus experience.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+          {/* 6 Portal Cards in Single Row on Large Desktop */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3.5 sm:gap-4 xl:gap-4 2xl:gap-5">
             {roleCards.map((rc) => (
               <div
                 key={rc.role}
-                className={`flex flex-col justify-between ${rc.bgCard} rounded-2xl border ${rc.borderCard} p-5 hover:shadow-md transition-all duration-200 group`}
+                className={`relative flex flex-col justify-between bg-gradient-to-b ${rc.bgGradient} rounded-3xl border ${rc.borderColor} p-5 xl:p-4.5 2xl:p-5 shadow-[0_4px_24px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-2 group overflow-hidden min-h-[380px] xl:min-h-[390px]`}
               >
-                <div className="space-y-3.5">
+                {/* Upper Content */}
+                <div>
+                  {/* Top Icon & Circular Arrow */}
                   <div className="flex items-center justify-between">
-                    <div className={`p-3 rounded-xl ${rc.iconBg}`}>
+                    <div className={`w-12 h-12 rounded-2xl ${rc.iconBg} flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform duration-200`}>
                       {rc.icon}
                     </div>
                     <Link
                       to={rc.loginPath}
                       aria-label={`Open ${rc.title}`}
-                      className={`w-8 h-8 rounded-full ${rc.btnBg} flex items-center justify-center transition-colors shadow-xs`}
+                      className={`w-8 h-8 rounded-full ${rc.arrowBg} flex items-center justify-center transition-all duration-200 shadow-2xs group-hover:scale-110`}
                     >
                       <ArrowRight className="w-4 h-4" />
                     </Link>
                   </div>
-                  <div>
-                    <h3 className="font-bold text-[#111827] text-base group-hover:text-[#D99A00] transition-colors">
-                      {rc.title}
-                    </h3>
-                    <p className="text-xs text-[#64748B] mt-1.5 leading-relaxed line-clamp-3">
-                      {rc.description}
-                    </p>
+
+                  {/* Title & Description */}
+                  <h3 className="font-extrabold text-[#0F172A] text-lg mt-4 tracking-tight">
+                    {rc.title}
+                  </h3>
+                  <p className="text-xs sm:text-[13px] text-[#64748B] mt-2 leading-relaxed font-normal min-h-[50px]">
+                    {rc.description}
+                  </p>
+
+                  {/* Sign In Button */}
+                  <div className="mt-4">
+                    <Link
+                      to={rc.loginPath}
+                      className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full ${rc.btnBg} text-white text-xs font-bold shadow-xs hover:shadow-md transition-all duration-200 group-hover:translate-x-0.5`}
+                    >
+                      <span>Sign In</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-white" />
+                    </Link>
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-[#F1E7CF]/80">
-                  <Link to={rc.loginPath} className="block w-full">
-                    <span className="text-[11px] font-bold text-[#D99A00] group-hover:underline flex items-center gap-1">
-                      Sign In &rarr;
-                    </span>
-                  </Link>
+                {/* Bottom 3D Graphic Illustration */}
+                <div className="pt-2 flex items-end justify-center w-full transition-transform duration-300 group-hover:scale-105">
+                  {rc.illustration}
                 </div>
               </div>
             ))}
@@ -585,90 +839,6 @@ export const LandingPage = () => {
         </div>
       </section>
 
-      {/* Platform Overview */}
-      <section id="overview" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-24">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-5">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-[#FFF8E6] text-[#D99A00] border border-[#F1E7CF] uppercase tracking-wider">
-              Unified Campus Ecosystem
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111827] tracking-tight leading-snug">
-              Eliminating Silos with an All-In-One Higher Education Platform
-            </h2>
-            <p className="text-sm sm:text-base text-[#4B5563] leading-relaxed font-normal">
-              Traditional university campuses operate with fragmented point solutions: disconnected attendance sheets, isolated fee desks, independent placement portals, and paper grievances.
-            </p>
-            <p className="text-sm sm:text-base text-[#4B5563] leading-relaxed font-normal">
-              CampusVerse AI bridges this gap through a unified data schema and common component design system, ensuring every student, faculty member, administrator, and guardian accesses synchronized information in real time.
-            </p>
-
-            <ul className="space-y-3 pt-2 text-sm text-[#111827] font-semibold">
-              <li className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-[#D99A00] shrink-0 mt-0.5" />
-                <span>Single Source of Truth across academic, administrative, and facility records.</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-[#D99A00] shrink-0 mt-0.5" />
-                <span>Strict separation of concerns prepared for scalable microservices.</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-[#D99A00] shrink-0 mt-0.5" />
-                <span>Enterprise design system ensuring high contrast, readability, and responsiveness.</span>
-              </li>
-            </ul>
-          </div>
-
-          {/* Architecture Card Preview */}
-          <div className="bg-white rounded-3xl border border-[#F1E7CF] p-6 sm:p-8 shadow-[0_10px_30px_rgba(180,130,20,0.06)] space-y-4">
-            <div className="flex items-center justify-between border-b border-[#F1E7CF] pb-4">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-[#111827]">
-                  CampusVerse AI Architecture Blueprint
-                </span>
-              </div>
-              <Badge variant="teal" size="sm" className="!bg-[#FFF8E6] !text-[#D99A00] !border-[#F1E7CF] font-bold">
-                Multi-Tier Enterprise
-              </Badge>
-            </div>
-
-            <div className="space-y-3.5 text-xs">
-              <div className="p-4 rounded-xl bg-[#FFFDF5] border border-[#F1E7CF]">
-                <div className="flex items-center justify-between font-bold text-[#111827] mb-1">
-                  <span>Frontend Client Layer</span>
-                  <Badge variant="teal" size="sm" className="!bg-[#FFF8E6] !text-[#D99A00] !border-[#F1E7CF]">Active</Badge>
-                </div>
-                <p className="text-[#4B5563] font-normal leading-relaxed">
-                  React 19, Vite 6, Tailwind CSS, React Router, Lucide Icons, and accessible 5-color design system components.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-xl bg-[#FFFDF5] border border-[#F1E7CF]">
-                <div className="flex items-center justify-between font-bold text-[#111827] mb-1">
-                  <span>Backend REST & Auth Gateway</span>
-                  <Badge variant="teal" size="sm" className="!bg-[#FFF8E6] !text-[#D99A00] !border-[#F1E7CF]">Operational</Badge>
-                </div>
-                <p className="text-[#4B5563] font-normal leading-relaxed">
-                  Node.js, Express.js, MongoDB, Mongoose ORM, JWT security tokens, and Role-Based Access Control (RBAC).
-                </p>
-              </div>
-
-              <div className="p-4 rounded-xl bg-[#FFFDF5] border border-[#F1E7CF]">
-                <div className="flex items-center justify-between font-bold text-[#111827] mb-1">
-                  <span>AI Reasoning & Optimization Service</span>
-                  <Badge variant="warning" size="sm" className="!bg-[#FFF8E6] !text-[#D99A00] !border-[#F1E7CF]">Roadmap</Badge>
-                </div>
-                <p className="text-[#4B5563] font-normal leading-relaxed">
-                  Python, FastAPI, Scikit-learn/PyTorch for predictive student risk alerts and timetable solver.
-                </p>
-              </div>
-            </div>
-
-            <div className="pt-2 text-xs font-semibold text-[#64748B] text-center border-t border-[#F1E7CF]">
-              Clean modular boundaries prevent circular dependencies across project phases.
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Feature Cards: Major Campus Services */}
       <section id="features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-24">
@@ -800,47 +970,6 @@ export const LandingPage = () => {
         </div>
       </section>
 
-      {/* AI Capabilities Section */}
-      <section id="ai-intelligence" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-24">
-        <div className="bg-[#111827] rounded-3xl border border-[#F1E7CF]/30 p-8 sm:p-12 text-white relative overflow-hidden shadow-2xl">
-          {/* Subtle Golden Glow Accent */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-b from-[#FFC107]/20 to-transparent rounded-full blur-3xl pointer-events-none" />
-
-          <div className="max-w-2xl space-y-4 relative z-10">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FFC107] text-[#111827] text-xs font-bold">
-              <Cpu className="w-4 h-4 text-[#111827]" />
-              <span>Artificial Intelligence Roadmap (Part 3)</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-              Intelligent Capabilities Built on Python & FastAPI
-            </h2>
-            <p className="text-sm sm:text-base text-[#D1D5DB] leading-relaxed font-normal">
-              In Part 3, CampusVerse AI introduces specialized machine learning services designed to automate cognitive workflows across the university ecosystem.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 relative z-10">
-            {aiCapabilities.map((ai) => (
-              <div key={ai.title} className="p-6 rounded-2xl bg-[#1F2937] border border-[#374151] hover:border-[#FFC107]/60 transition-all space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-bold text-base text-[#FFC107]">{ai.title}</h4>
-                  <span className="text-[11px] font-mono px-2.5 py-0.5 rounded bg-[#FFF8E6] text-[#111827] font-bold">
-                    {ai.status}
-                  </span>
-                </div>
-                <p className="text-xs sm:text-sm text-[#D1D5DB] leading-relaxed font-normal">
-                  {ai.description}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-8 pt-4 border-t border-[#374151] text-xs sm:text-sm text-[#9CA3AF] flex items-center justify-between flex-wrap gap-2 font-medium">
-            <span>Note: Full AI model deployment occurs after backend database integration.</span>
-            <span className="text-[#FFC107] font-mono font-bold">FastAPI + Scikit-Learn / PyTorch</span>
-          </div>
-        </div>
-      </section>
     </div>
   );
 };
