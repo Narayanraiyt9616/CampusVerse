@@ -57,12 +57,14 @@ export const StaffHostel = () => {
   const [allocateForm, setAllocateForm] = useState({
     studentId: '',
     roomId: '',
-    bedNumber: 'Bed 1',
+    bedNumber: '',
     emergencyContactName: '',
     emergencyContactPhone: '',
     emergencyContactRelation: 'Parent',
     remarks: '',
   });
+
+  const [allocateErrors, setAllocateErrors] = useState({});
 
   const [roomForm, setRoomForm] = useState({
     roomNumber: '',
@@ -73,6 +75,8 @@ export const StaffHostel = () => {
     monthlyRent: 4800,
     amenities: 'Wi-Fi, Attached Bath, Study Desk',
   });
+
+  const [roomErrors, setRoomErrors] = useState({});
 
   const fetchData = async () => {
     setLoading(true);
@@ -105,6 +109,61 @@ export const StaffHostel = () => {
     fetchData();
   }, []);
 
+  // Compute active allocations by student ID for duplicate prevention
+  const activeAllocatedStudentIds = new Set(
+    allocations
+      .filter((a) => a.status === 'Active')
+      .map((a) => String(a.student?._id || a.student))
+  );
+
+  // Compute selected room details and unallocated beds
+  const selectedRoomForAllocation = rooms.find((r) => String(r._id) === String(allocateForm.roomId));
+  const activeAllocationsForSelectedRoom = allocations.filter(
+    (a) =>
+      a.status === 'Active' &&
+      String(a.room?._id || a.room) === String(allocateForm.roomId)
+  );
+  const occupiedBedSet = new Set(
+    activeAllocationsForSelectedRoom.map((a) => (a.bedNumber || '').trim())
+  );
+
+  const availableBedsForSelectedRoom = [];
+  if (selectedRoomForAllocation) {
+    const totalCap = selectedRoomForAllocation.capacity || 2;
+    for (let i = 1; i <= totalCap; i++) {
+      const bLabel = `Bed ${i}`;
+      if (!occupiedBedSet.has(bLabel)) {
+        availableBedsForSelectedRoom.push(bLabel);
+      }
+    }
+  }
+
+  // When room is selected in modal, sync bed number to first free bed if current choice is invalid
+  const handleRoomSelectChange = (roomId) => {
+    const roomObj = rooms.find((r) => String(r._id) === String(roomId));
+    const activeInRoom = allocations.filter(
+      (a) => a.status === 'Active' && String(a.room?._id || a.room) === String(roomId)
+    );
+    const occBeds = new Set(activeInRoom.map((a) => (a.bedNumber || '').trim()));
+    const freeBeds = [];
+    if (roomObj) {
+      for (let i = 1; i <= (roomObj.capacity || 2); i++) {
+        const b = `Bed ${i}`;
+        if (!occBeds.has(b)) freeBeds.push(b);
+      }
+    }
+
+    setAllocateForm((prev) => ({
+      ...prev,
+      roomId,
+      bedNumber: freeBeds.length > 0 ? freeBeds[0] : '',
+    }));
+
+    if (allocateErrors.roomId || allocateErrors.bedNumber) {
+      setAllocateErrors((prev) => ({ ...prev, roomId: '', bedNumber: '' }));
+    }
+  };
+
   // Filtered rooms
   const filteredRooms = rooms.filter((r) => {
     const matchesBlock =
@@ -135,46 +194,132 @@ export const StaffHostel = () => {
     );
   });
 
+  // Validate Allocation Form
+  const validateAllocateForm = () => {
+    const errs = {};
+    if (!allocateForm.studentId) {
+      errs.studentId = 'Please select a student for hostel allocation.';
+    } else if (activeAllocatedStudentIds.has(String(allocateForm.studentId))) {
+      errs.studentId = 'Selected student already has an active bed allocation. Duplicate allocation is not allowed.';
+    }
+
+    if (!allocateForm.roomId) {
+      errs.roomId = 'Please select an available hostel room.';
+    }
+
+    if (!allocateForm.bedNumber || !allocateForm.bedNumber.trim()) {
+      errs.bedNumber = 'Please select an available bed.';
+    } else if (occupiedBedSet.has(allocateForm.bedNumber.trim())) {
+      errs.bedNumber = `${allocateForm.bedNumber} is already occupied. Each bed can be assigned to only one student at a time.`;
+    }
+
+    if (!allocateForm.emergencyContactName.trim()) {
+      errs.emergencyContactName = 'Emergency contact person name is required.';
+    } else if (allocateForm.emergencyContactName.trim().length < 2) {
+      errs.emergencyContactName = 'Name must be at least 2 characters.';
+    }
+
+    const cleanPhone = allocateForm.emergencyContactPhone.replace(/[^0-9+]/g, '');
+    if (!allocateForm.emergencyContactPhone.trim()) {
+      errs.emergencyContactPhone = 'Emergency contact phone number is required.';
+    } else if (cleanPhone.length < 7) {
+      errs.emergencyContactPhone = 'Please provide a valid contact phone number (min 7 digits).';
+    }
+
+    if (!allocateForm.emergencyContactRelation.trim()) {
+      errs.emergencyContactRelation = 'Emergency contact relation is required.';
+    }
+
+    setAllocateErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
   // Handle Allocate Bed
   const handleAllocateSubmit = async (e) => {
     e.preventDefault();
-    if (!allocateForm.studentId || !allocateForm.roomId) {
-      alert('Please select both a student and a hostel room.');
+    if (!validateAllocateForm()) {
       return;
     }
+
     setSubmitting(true);
     try {
       const res = await staffService.allocateHostelBed({
         studentId: allocateForm.studentId,
         roomId: allocateForm.roomId,
-        bedNumber: allocateForm.bedNumber,
+        bedNumber: allocateForm.bedNumber.trim(),
         emergencyContact: {
-          name: allocateForm.emergencyContactName,
-          phone: allocateForm.emergencyContactPhone,
-          relation: allocateForm.emergencyContactRelation,
+          name: allocateForm.emergencyContactName.trim(),
+          phone: allocateForm.emergencyContactPhone.trim(),
+          relation: allocateForm.emergencyContactRelation.trim(),
         },
-        remarks: allocateForm.remarks,
+        remarks: allocateForm.remarks ? allocateForm.remarks.trim() : '',
       });
 
       if (res && res.success) {
-        setSuccessMsg('Hostel bed successfully allocated to student.');
+        setSuccessMsg(`Bed ${allocateForm.bedNumber} successfully allocated and marked Occupied.`);
         setShowAllocateModal(false);
         setAllocateForm({
           studentId: '',
           roomId: '',
-          bedNumber: 'Bed 1',
+          bedNumber: '',
           emergencyContactName: '',
           emergencyContactPhone: '',
           emergencyContactRelation: 'Parent',
           remarks: '',
         });
+        setAllocateErrors({});
         fetchData();
       }
     } catch (err) {
-      alert(err.message || 'Failed to allocate hostel bed.');
+      const msg = err.response?.data?.error || err.message || 'Failed to allocate hostel bed.';
+      setAllocateErrors((prev) => ({ ...prev, form: msg }));
+      alert(msg);
     } finally {
       setSubmitting(false);
     }
+  };
+
+  // Validate Room Form
+  const validateRoomForm = () => {
+    const errs = {};
+    const trimmedNum = (roomForm.roomNumber || '').trim();
+    const trimmedBlock = (roomForm.block || '').trim();
+
+    if (!trimmedNum) {
+      errs.roomNumber = 'Room number is required.';
+    } else {
+      // Check for duplicate room number in the same block (case-insensitive)
+      const isDuplicate = rooms.some(
+        (r) =>
+          String(r.block || '').trim().toLowerCase() === trimmedBlock.toLowerCase() &&
+          String(r.roomNumber || '').trim().toLowerCase() === trimmedNum.toLowerCase()
+      );
+      if (isDuplicate) {
+        errs.roomNumber = `Room ${trimmedNum} already exists in ${trimmedBlock}. Duplicate room records are not permitted.`;
+      }
+    }
+
+    if (!trimmedBlock) {
+      errs.block = 'Hostel block is required.';
+    }
+
+    const floorNum = Number(roomForm.floor);
+    if (isNaN(floorNum) || floorNum < 0 || floorNum > 10) {
+      errs.floor = 'Floor must be a number between 0 and 10.';
+    }
+
+    const capNum = Number(roomForm.capacity);
+    if (isNaN(capNum) || capNum < 1 || capNum > 6) {
+      errs.capacity = 'Bed capacity must be between 1 and 6.';
+    }
+
+    const rentNum = Number(roomForm.monthlyRent);
+    if (isNaN(rentNum) || rentNum <= 0) {
+      errs.monthlyRent = 'Monthly rent must be a positive number.';
+    }
+
+    setRoomErrors(errs);
+    return Object.keys(errs).length === 0;
   };
 
   // Handle Vacate Bed
@@ -194,16 +339,16 @@ export const StaffHostel = () => {
   // Handle Create Room
   const handleCreateRoom = async (e) => {
     e.preventDefault();
-    if (!roomForm.roomNumber) {
-      alert('Room number is required.');
+    if (!validateRoomForm()) {
       return;
     }
+
     setSubmitting(true);
     try {
       const amenitiesArr = roomForm.amenities.split(',').map((s) => s.trim()).filter(Boolean);
       const res = await staffService.createHostelRoom({
-        roomNumber: roomForm.roomNumber,
-        block: roomForm.block,
+        roomNumber: roomForm.roomNumber.trim(),
+        block: roomForm.block.trim(),
         floor: Number(roomForm.floor),
         roomType: roomForm.roomType,
         capacity: Number(roomForm.capacity),
@@ -212,7 +357,7 @@ export const StaffHostel = () => {
       });
 
       if (res && res.success) {
-        setSuccessMsg(`Room ${roomForm.roomNumber} registered in inventory.`);
+        setSuccessMsg(`Room ${roomForm.roomNumber.trim()} registered in inventory.`);
         setShowAddRoomModal(false);
         setRoomForm({
           roomNumber: '',
@@ -223,10 +368,13 @@ export const StaffHostel = () => {
           monthlyRent: 4800,
           amenities: 'Wi-Fi, Attached Bath, Study Desk',
         });
+        setRoomErrors({});
         fetchData();
       }
     } catch (err) {
-      alert(err.message || 'Failed to register room.');
+      const msg = err.response?.data?.error || err.message || 'Failed to register room.';
+      setRoomErrors((prev) => ({ ...prev, roomNumber: msg }));
+      alert(msg);
     } finally {
       setSubmitting(false);
     }
@@ -408,6 +556,7 @@ export const StaffHostel = () => {
                 >
                   <option value="ALL">All Statuses</option>
                   <option value="Available">Available Beds</option>
+                  <option value="Occupied">Occupied (Partial)</option>
                   <option value="Fully Occupied">Fully Occupied</option>
                   <option value="Maintenance">Maintenance</option>
                 </select>
@@ -478,8 +627,12 @@ export const StaffHostel = () => {
                               variant={
                                 r.status === 'Available'
                                   ? 'teal'
-                                  : r.status === 'Maintenance'
+                                  : r.status === 'Occupied'
                                   ? 'warning'
+                                  : r.status === 'Fully Occupied'
+                                  ? 'neutral'
+                                  : r.status === 'Maintenance'
+                                  ? 'danger'
                                   : 'neutral'
                               }
                               size="sm"
@@ -682,87 +835,171 @@ export const StaffHostel = () => {
             <p className="text-xs text-[#4B5563] font-medium mt-1">Assign an available hostel bed to a registered university student.</p>
 
             <form onSubmit={handleAllocateSubmit} className="mt-4 space-y-3 text-xs">
+              {allocateErrors.form && (
+                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 font-semibold text-xs">
+                  {allocateErrors.form}
+                </div>
+              )}
+
               <div>
                 <label className="font-bold text-[#111827] block mb-1">Select Student *</label>
                 <select
-                  required
                   value={allocateForm.studentId}
-                  onChange={(e) => setAllocateForm({ ...allocateForm, studentId: e.target.value })}
-                  className="w-full p-2.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00]"
+                  onChange={(e) => {
+                    setAllocateForm({ ...allocateForm, studentId: e.target.value });
+                    if (allocateErrors.studentId) setAllocateErrors({ ...allocateErrors, studentId: '' });
+                  }}
+                  className={`w-full p-2.5 bg-[#FFFDF5] border rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 ${
+                    allocateErrors.studentId ? 'border-red-400 focus:ring-red-500' : 'border-[#F1E7CF] focus:ring-[#D99A00]'
+                  }`}
                 >
                   <option value="">-- Choose Student --</option>
-                  {allStudents.map((s) => (
-                    <option key={s._id} value={s._id}>
-                      {s.name} ({s.studentId}) — {s.department?.name || 'Department'}
-                    </option>
-                  ))}
+                  {allStudents.map((s) => {
+                    const isAllocated = activeAllocatedStudentIds.has(String(s._id));
+                    return (
+                      <option key={s._id} value={s._id} disabled={isAllocated}>
+                        {s.name} ({s.studentId}) — {s.department?.name || s.department || 'Student'}{' '}
+                        {isAllocated ? '— [Already Allocated]' : ''}
+                      </option>
+                    );
+                  })}
                 </select>
+                {allocateErrors.studentId && (
+                  <span className="text-[11px] text-red-600 font-semibold block mt-1">
+                    {allocateErrors.studentId}
+                  </span>
+                )}
               </div>
 
               <div>
                 <label className="font-bold text-[#111827] block mb-1">Select Available Room *</label>
                 <select
-                  required
                   value={allocateForm.roomId}
-                  onChange={(e) => setAllocateForm({ ...allocateForm, roomId: e.target.value })}
-                  className="w-full p-2.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00]"
+                  onChange={(e) => handleRoomSelectChange(e.target.value)}
+                  className={`w-full p-2.5 bg-[#FFFDF5] border rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 ${
+                    allocateErrors.roomId ? 'border-red-400 focus:ring-red-500' : 'border-[#F1E7CF] focus:ring-[#D99A00]'
+                  }`}
                 >
                   <option value="">-- Choose Room with Available Bed --</option>
                   {rooms
-                    .filter((r) => r.status === 'Available' && r.occupiedBeds < r.capacity)
+                    .filter(
+                      (r) =>
+                        (r.status === 'Available' || r.status === 'Occupied') &&
+                        (r.occupiedBeds || 0) < (r.capacity || 2)
+                    )
                     .map((r) => (
                       <option key={r._id} value={r._id}>
-                        {r.block} • Room {r.roomNumber} ({r.roomType}) — {r.capacity - r.occupiedBeds} beds free
+                        {r.block} • Room {r.roomNumber} ({r.roomType}) — {r.capacity - (r.occupiedBeds || 0)} bed(s) free
                       </option>
                     ))}
                 </select>
+                {allocateErrors.roomId && (
+                  <span className="text-[11px] text-red-600 font-semibold block mt-1">
+                    {allocateErrors.roomId}
+                  </span>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-[#111827] block mb-1">Bed Number</label>
-                  <input
-                    type="text"
+                  <label className="font-bold text-[#111827] block mb-1">Select Bed Number *</label>
+                  <select
                     value={allocateForm.bedNumber}
-                    onChange={(e) => setAllocateForm({ ...allocateForm, bedNumber: e.target.value })}
-                    placeholder="e.g. Bed 1 (Window Side)"
-                    className="w-full p-2.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00]"
-                  />
+                    disabled={!allocateForm.roomId || availableBedsForSelectedRoom.length === 0}
+                    onChange={(e) => {
+                      setAllocateForm({ ...allocateForm, bedNumber: e.target.value });
+                      if (allocateErrors.bedNumber) setAllocateErrors({ ...allocateErrors, bedNumber: '' });
+                    }}
+                    className={`w-full p-2.5 bg-[#FFFDF5] border rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 ${
+                      allocateErrors.bedNumber ? 'border-red-400 focus:ring-red-500' : 'border-[#F1E7CF] focus:ring-[#D99A00]'
+                    } ${!allocateForm.roomId ? 'opacity-60 cursor-not-allowed' : ''}`}
+                  >
+                    {!allocateForm.roomId ? (
+                      <option value="">First select a room</option>
+                    ) : availableBedsForSelectedRoom.length === 0 ? (
+                      <option value="">No beds available in room</option>
+                    ) : (
+                      <>
+                        <option value="">-- Choose Bed --</option>
+                        {availableBedsForSelectedRoom.map((b) => (
+                          <option key={b} value={b}>
+                            {b} (Available)
+                          </option>
+                        ))}
+                      </>
+                    )}
+                  </select>
+                  {allocateErrors.bedNumber && (
+                    <span className="text-[11px] text-red-600 font-semibold block mt-1">
+                      {allocateErrors.bedNumber}
+                    </span>
+                  )}
                 </div>
                 <div>
-                  <label className="font-bold text-[#111827] block mb-1">Relation</label>
+                  <label className="font-bold text-[#111827] block mb-1">Emergency Relation *</label>
                   <select
                     value={allocateForm.emergencyContactRelation}
-                    onChange={(e) => setAllocateForm({ ...allocateForm, emergencyContactRelation: e.target.value })}
-                    className="w-full p-2.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00]"
+                    onChange={(e) => {
+                      setAllocateForm({ ...allocateForm, emergencyContactRelation: e.target.value });
+                      if (allocateErrors.emergencyContactRelation) setAllocateErrors({ ...allocateErrors, emergencyContactRelation: '' });
+                    }}
+                    className={`w-full p-2.5 bg-[#FFFDF5] border rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 ${
+                      allocateErrors.emergencyContactRelation ? 'border-red-400 focus:ring-red-500' : 'border-[#F1E7CF] focus:ring-[#D99A00]'
+                    }`}
                   >
                     <option value="Parent">Parent</option>
                     <option value="Guardian">Guardian</option>
                     <option value="Sibling">Sibling</option>
+                    <option value="Relative">Relative</option>
                   </select>
+                  {allocateErrors.emergencyContactRelation && (
+                    <span className="text-[11px] text-red-600 font-semibold block mt-1">
+                      {allocateErrors.emergencyContactRelation}
+                    </span>
+                  )}
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-[#111827] block mb-1">Emergency Contact Name</label>
+                  <label className="font-bold text-[#111827] block mb-1">Emergency Contact Name *</label>
                   <input
                     type="text"
                     value={allocateForm.emergencyContactName}
-                    onChange={(e) => setAllocateForm({ ...allocateForm, emergencyContactName: e.target.value })}
-                    placeholder="Name"
-                    className="w-full p-2.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00]"
+                    onChange={(e) => {
+                      setAllocateForm({ ...allocateForm, emergencyContactName: e.target.value });
+                      if (allocateErrors.emergencyContactName) setAllocateErrors({ ...allocateErrors, emergencyContactName: '' });
+                    }}
+                    placeholder="Parent / Guardian Name"
+                    className={`w-full p-2.5 bg-[#FFFDF5] border rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 ${
+                      allocateErrors.emergencyContactName ? 'border-red-400 focus:ring-red-500' : 'border-[#F1E7CF] focus:ring-[#D99A00]'
+                    }`}
                   />
+                  {allocateErrors.emergencyContactName && (
+                    <span className="text-[11px] text-red-600 font-semibold block mt-1">
+                      {allocateErrors.emergencyContactName}
+                    </span>
+                  )}
                 </div>
                 <div>
-                  <label className="font-bold text-[#111827] block mb-1">Emergency Phone</label>
+                  <label className="font-bold text-[#111827] block mb-1">Emergency Phone *</label>
                   <input
                     type="text"
                     value={allocateForm.emergencyContactPhone}
-                    onChange={(e) => setAllocateForm({ ...allocateForm, emergencyContactPhone: e.target.value })}
+                    onChange={(e) => {
+                      setAllocateForm({ ...allocateForm, emergencyContactPhone: e.target.value });
+                      if (allocateErrors.emergencyContactPhone) setAllocateErrors({ ...allocateErrors, emergencyContactPhone: '' });
+                    }}
                     placeholder="+91 XXXXX XXXXX"
-                    className="w-full p-2.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00]"
+                    className={`w-full p-2.5 bg-[#FFFDF5] border rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 ${
+                      allocateErrors.emergencyContactPhone ? 'border-red-400 focus:ring-red-500' : 'border-[#F1E7CF] focus:ring-[#D99A00]'
+                    }`}
                   />
+                  {allocateErrors.emergencyContactPhone && (
+                    <span className="text-[11px] text-red-600 font-semibold block mt-1">
+                      {allocateErrors.emergencyContactPhone}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -778,7 +1015,7 @@ export const StaffHostel = () => {
               </div>
 
               <div className="pt-3 border-t border-[#F1E7CF] flex items-center justify-end gap-2">
-                <Button variant="secondary" size="sm" onClick={() => setShowAllocateModal(false)}>
+                <Button variant="secondary" size="sm" onClick={() => { setShowAllocateModal(false); setAllocateErrors({}); }}>
                   Cancel
                 </Button>
                 <Button variant="primary" size="sm" type="submit" disabled={submitting}>
@@ -795,7 +1032,7 @@ export const StaffHostel = () => {
         <div className="fixed inset-0 z-50 bg-[#111827]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#F1E7CF] relative animate-in fade-in zoom-in-95 duration-200">
             <button
-              onClick={() => setShowAddRoomModal(false)}
+              onClick={() => { setShowAddRoomModal(false); setRoomErrors({}); }}
               className="absolute top-4 right-4 p-2 rounded-xl text-[#4B5563] hover:text-[#111827] hover:bg-[#FFF8E6] transition-colors"
             >
               <X className="w-5 h-5" />
@@ -812,20 +1049,34 @@ export const StaffHostel = () => {
                 <div>
                   <label className="font-bold text-[#111827] block mb-1">Room Number *</label>
                   <input
-                    required
                     type="text"
                     value={roomForm.roomNumber}
-                    onChange={(e) => setRoomForm({ ...roomForm, roomNumber: e.target.value })}
+                    onChange={(e) => {
+                      setRoomForm({ ...roomForm, roomNumber: e.target.value });
+                      if (roomErrors.roomNumber) setRoomErrors({ ...roomErrors, roomNumber: '' });
+                    }}
                     placeholder="e.g. B-301"
-                    className="w-full p-2.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00]"
+                    className={`w-full p-2.5 bg-[#FFFDF5] border rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 ${
+                      roomErrors.roomNumber ? 'border-red-400 focus:ring-red-500' : 'border-[#F1E7CF] focus:ring-[#D99A00]'
+                    }`}
                   />
+                  {roomErrors.roomNumber && (
+                    <span className="text-[11px] text-red-600 font-semibold block mt-1">
+                      {roomErrors.roomNumber}
+                    </span>
+                  )}
                 </div>
                 <div>
                   <label className="font-bold text-[#111827] block mb-1">Hostel Block *</label>
                   <select
                     value={roomForm.block}
-                    onChange={(e) => setRoomForm({ ...roomForm, block: e.target.value })}
-                    className="w-full p-2.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00]"
+                    onChange={(e) => {
+                      setRoomForm({ ...roomForm, block: e.target.value });
+                      if (roomErrors.block) setRoomErrors({ ...roomErrors, block: '' });
+                    }}
+                    className={`w-full p-2.5 bg-[#FFFDF5] border rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 ${
+                      roomErrors.block ? 'border-red-400 focus:ring-red-500' : 'border-[#F1E7CF] focus:ring-[#D99A00]'
+                    }`}
                   >
                     <option value="Block A (Boys)">Block A (Boys)</option>
                     <option value="Block B (Boys)">Block B (Boys)</option>
@@ -833,20 +1084,35 @@ export const StaffHostel = () => {
                     <option value="Block D (Girls)">Block D (Girls)</option>
                     <option value="Block E (PG Wings)">Block E (PG Wings)</option>
                   </select>
+                  {roomErrors.block && (
+                    <span className="text-[11px] text-red-600 font-semibold block mt-1">
+                      {roomErrors.block}
+                    </span>
+                  )}
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="font-bold text-[#111827] block mb-1">Floor</label>
+                  <label className="font-bold text-[#111827] block mb-1">Floor *</label>
                   <input
                     type="number"
                     min="0"
                     max="10"
                     value={roomForm.floor}
-                    onChange={(e) => setRoomForm({ ...roomForm, floor: e.target.value })}
-                    className="w-full p-2.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00]"
+                    onChange={(e) => {
+                      setRoomForm({ ...roomForm, floor: e.target.value });
+                      if (roomErrors.floor) setRoomErrors({ ...roomErrors, floor: '' });
+                    }}
+                    className={`w-full p-2.5 bg-[#FFFDF5] border rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 ${
+                      roomErrors.floor ? 'border-red-400 focus:ring-red-500' : 'border-[#F1E7CF] focus:ring-[#D99A00]'
+                    }`}
                   />
+                  {roomErrors.floor && (
+                    <span className="text-[11px] text-red-600 font-semibold block mt-1">
+                      {roomErrors.floor}
+                    </span>
+                  )}
                 </div>
                 <div>
                   <label className="font-bold text-[#111827] block mb-1">Room Type</label>
@@ -862,26 +1128,46 @@ export const StaffHostel = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="font-bold text-[#111827] block mb-1">Bed Capacity</label>
+                  <label className="font-bold text-[#111827] block mb-1">Bed Capacity *</label>
                   <input
                     type="number"
                     min="1"
                     max="6"
                     value={roomForm.capacity}
-                    onChange={(e) => setRoomForm({ ...roomForm, capacity: e.target.value })}
-                    className="w-full p-2.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00]"
+                    onChange={(e) => {
+                      setRoomForm({ ...roomForm, capacity: e.target.value });
+                      if (roomErrors.capacity) setRoomErrors({ ...roomErrors, capacity: '' });
+                    }}
+                    className={`w-full p-2.5 bg-[#FFFDF5] border rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 ${
+                      roomErrors.capacity ? 'border-red-400 focus:ring-red-500' : 'border-[#F1E7CF] focus:ring-[#D99A00]'
+                    }`}
                   />
+                  {roomErrors.capacity && (
+                    <span className="text-[11px] text-red-600 font-semibold block mt-1">
+                      {roomErrors.capacity}
+                    </span>
+                  )}
                 </div>
               </div>
 
               <div>
-                <label className="font-bold text-[#111827] block mb-1">Monthly Rent (INR)</label>
+                <label className="font-bold text-[#111827] block mb-1">Monthly Rent (INR) *</label>
                 <input
                   type="number"
                   value={roomForm.monthlyRent}
-                  onChange={(e) => setRoomForm({ ...roomForm, monthlyRent: e.target.value })}
-                  className="w-full p-2.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 focus:ring-[#D99A00]"
+                  onChange={(e) => {
+                    setRoomForm({ ...roomForm, monthlyRent: e.target.value });
+                    if (roomErrors.monthlyRent) setRoomErrors({ ...roomErrors, monthlyRent: '' });
+                  }}
+                  className={`w-full p-2.5 bg-[#FFFDF5] border rounded-xl text-[#111827] font-semibold focus:outline-none focus:ring-1 ${
+                    roomErrors.monthlyRent ? 'border-red-400 focus:ring-red-500' : 'border-[#F1E7CF] focus:ring-[#D99A00]'
+                  }`}
                 />
+                {roomErrors.monthlyRent && (
+                  <span className="text-[11px] text-red-600 font-semibold block mt-1">
+                    {roomErrors.monthlyRent}
+                  </span>
+                )}
               </div>
 
               <div>
@@ -896,7 +1182,7 @@ export const StaffHostel = () => {
               </div>
 
               <div className="pt-3 border-t border-[#F1E7CF] flex items-center justify-end gap-2">
-                <Button variant="secondary" size="sm" onClick={() => setShowAddRoomModal(false)}>
+                <Button variant="secondary" size="sm" onClick={() => { setShowAddRoomModal(false); setRoomErrors({}); }}>
                   Cancel
                 </Button>
                 <Button variant="primary" size="sm" type="submit" disabled={submitting}>

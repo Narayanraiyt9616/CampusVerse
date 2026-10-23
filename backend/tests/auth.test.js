@@ -74,7 +74,7 @@ describe('CampusVerse AI - Multi-Role Authentication & Authorization Suite', () 
         .post('/api/auth/login')
         .send({
           email: 'admin@campusverse.edu',
-          password: 'CampusAdmin@2026',
+          password: process.env.ADMIN_PASSWORD || '321456',
           portalRole: 'admin',
         });
 
@@ -184,7 +184,7 @@ describe('CampusVerse AI - Multi-Role Authentication & Authorization Suite', () 
         .post('/api/auth/login')
         .send({
           email: 'admin@campusverse.edu',
-          password: 'CampusAdmin@2026',
+          password: process.env.ADMIN_PASSWORD || '321456',
           portalRole: 'student',
         });
 
@@ -220,7 +220,7 @@ describe('CampusVerse AI - Multi-Role Authentication & Authorization Suite', () 
         .post('/api/auth/login')
         .send({
           email: 'admin@campusverse.edu',
-          password: 'CampusAdmin@2026',
+          password: process.env.ADMIN_PASSWORD || '321456',
           portalRole: 'superadmin',
         });
 
@@ -243,7 +243,7 @@ describe('CampusVerse AI - Multi-Role Authentication & Authorization Suite', () 
       const sLogin = await request(app).post('/api/auth/login').send({ email: 'student@campusverse.edu', password: 'Student@2026' });
       studentToken = sLogin.body.token;
 
-      const aLogin = await request(app).post('/api/auth/login').send({ email: 'admin@campusverse.edu', password: 'CampusAdmin@2026' });
+      const aLogin = await request(app).post('/api/auth/login').send({ email: 'admin@campusverse.edu', password: process.env.ADMIN_PASSWORD || '321456' });
       adminToken = aLogin.body.token;
 
       const saLogin = await request(app).post('/api/auth/login').send({ email: 'superadmin@campusverse.edu', password: 'SuperAdmin@2026' });
@@ -299,7 +299,9 @@ describe('CampusVerse AI - Multi-Role Authentication & Authorization Suite', () 
     });
 
     it('POST /api/auth/logout should clear session', async () => {
-      const res = await request(app).post('/api/auth/logout');
+      const res = await request(app)
+        .post('/api/auth/logout')
+        .set('Authorization', `Bearer ${adminToken}`);
       assert.equal(res.status, 200);
       assert.equal(res.body.success, true);
     });

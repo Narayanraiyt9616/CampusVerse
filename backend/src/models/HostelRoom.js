@@ -44,7 +44,7 @@ const hostelRoomSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['Available', 'Fully Occupied', 'Maintenance', 'Reserved'],
+      enum: ['Available', 'Occupied', 'Fully Occupied', 'Maintenance', 'Reserved'],
       default: 'Available',
     },
     amenities: {

@@ -6,6 +6,7 @@ const TransportAllocation = require('../models/TransportAllocation');
 const StaffComplaint = require('../models/StaffComplaint');
 const Student = require('../models/Student');
 const Notice = require('../models/Notice');
+const { generateBusPassPdfBuffer } = require('../utils/busPassPdfGenerator');
 
 /**
  * 1. GET /api/staff/dashboard
@@ -64,22 +65,9 @@ exports.getStaffDashboard = async (req, res) => {
     const openComplaints = complaints.filter((c) => c.status === 'Open' || c.status === 'In Progress').length;
     const highPriorityComplaints = complaints.filter((c) => (c.priority === 'High' || c.priority === 'Emergency') && c.status !== 'Resolved').length;
 
-    // Operational alerts
+    // Operational alerts (Transit route delay and maintenance ticket pending alerts removed as required)
     const alerts = [];
-    if (delayedRoutes > 0) {
-      alerts.push({
-        type: 'warning',
-        title: `${delayedRoutes} Transit Route(s) Reporting Delay`,
-        message: 'Morning commuter bus schedule impacted by arterial traffic or road diversions.',
-      });
-    }
-    if (highPriorityComplaints > 0) {
-      alerts.push({
-        type: 'danger',
-        title: `${highPriorityComplaints} High Priority Maintenance Ticket(s) Pending`,
-        message: 'Immediate electrical or HVAC dispatch required in resident blocks.',
-      });
-    }
+
     if (totalBeds - occupiedBeds <= 5) {
       alerts.push({
         type: 'warning',
@@ -144,22 +132,59 @@ exports.getHostelRooms = async (req, res) => {
 exports.createHostelRoom = async (req, res) => {
   try {
     const { roomNumber, block, floor, roomType, capacity, monthlyRent, amenities } = req.body;
-    if (!roomNumber || !block) {
-      return res.status(400).json({ success: false, error: 'Room number and block are required.' });
+    if (!roomNumber || !String(roomNumber).trim()) {
+      return res.status(400).json({ success: false, error: 'Room number is required.' });
+    }
+    if (!block || !String(block).trim()) {
+      return res.status(400).json({ success: false, error: 'Hostel block is required.' });
+    }
+    if (floor === undefined || floor === null || isNaN(floor) || Number(floor) < 0 || Number(floor) > 10) {
+      return res.status(400).json({ success: false, error: 'Valid floor number (0 to 10) is required.' });
+    }
+    if (!capacity || isNaN(capacity) || Number(capacity) < 1 || Number(capacity) > 6) {
+      return res.status(400).json({ success: false, error: 'Valid room bed capacity (1 to 6) is required.' });
+    }
+    if (!monthlyRent || isNaN(monthlyRent) || Number(monthlyRent) <= 0) {
+      return res.status(400).json({ success: false, error: 'Valid positive monthly rent is required.' });
+    }
+
+    const trimmedRoomNumber = String(roomNumber).trim();
+    const trimmedBlock = String(block).trim();
+
+    // Check duplicate room number within the same hostel block (case-insensitive)
+    const existingRoom = await HostelRoom.findOne({
+      block: trimmedBlock,
+      roomNumber: { $regex: new RegExp(`^${trimmedRoomNumber.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') },
+    });
+    if (existingRoom) {
+      return res.status(400).json({
+        success: false,
+        error: `Room ${trimmedRoomNumber} already exists in ${trimmedBlock}. Duplicate room records are not allowed.`,
+      });
     }
 
     const room = await HostelRoom.create({
-      roomNumber,
-      block,
-      floor: Number(floor) || 1,
+      roomNumber: trimmedRoomNumber,
+      block: trimmedBlock,
+      floor: Number(floor),
       roomType: roomType || 'Double',
-      capacity: Number(capacity) || 2,
-      monthlyRent: Number(monthlyRent) || 4500,
-      amenities: amenities || ['Wi-Fi', 'Attached Bath'],
+      capacity: Number(capacity),
+      monthlyRent: Number(monthlyRent),
+      amenities: Array.isArray(amenities)
+        ? amenities
+        : typeof amenities === 'string'
+        ? amenities.split(',').map((s) => s.trim()).filter(Boolean)
+        : ['Wi-Fi', 'Attached Bath', 'Study Desk'],
     });
 
     return res.status(201).json({ success: true, room });
   } catch (err) {
+    if (err.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        error: `Room ${req.body.roomNumber} already exists in ${req.body.block}. Duplicate records are prohibited.`,
+      });
+    }
     return res.status(500).json({ success: false, error: err.message });
   }
 };
@@ -193,37 +218,81 @@ exports.getHostelAllocations = async (req, res) => {
 exports.allocateHostelBed = async (req, res) => {
   try {
     const { studentId, roomId, bedNumber, emergencyContact, remarks } = req.body;
-    if (!studentId || !roomId) {
-      return res.status(400).json({ success: false, error: 'Student and Room are required.' });
+    if (!studentId) {
+      return res.status(400).json({ success: false, error: 'Student selection is required.' });
+    }
+    if (!roomId) {
+      return res.status(400).json({ success: false, error: 'Hostel room selection is required.' });
+    }
+    if (!bedNumber || !String(bedNumber).trim()) {
+      return res.status(400).json({ success: false, error: 'Bed number is required.' });
+    }
+    if (
+      !emergencyContact ||
+      !emergencyContact.name ||
+      !String(emergencyContact.name).trim() ||
+      !emergencyContact.phone ||
+      !String(emergencyContact.phone).trim() ||
+      !emergencyContact.relation ||
+      !String(emergencyContact.relation).trim()
+    ) {
+      return res.status(400).json({
+        success: false,
+        error: 'Complete emergency contact details (Name, Phone number, and Relation) are required.',
+      });
     }
 
+    const trimmedBed = String(bedNumber).trim();
+
     const room = await HostelRoom.findById(roomId);
-    if (!room) return res.status(404).json({ success: false, error: 'Room not found.' });
+    if (!room) return res.status(404).json({ success: false, error: 'Hostel room not found.' });
 
     if (room.occupiedBeds >= room.capacity) {
       return res.status(400).json({ success: false, error: 'Selected room is already fully occupied.' });
     }
 
     // Check if student already has active allocation
-    const existing = await HostelAllocation.findOne({ student: studentId, status: 'Active' });
-    if (existing) {
-      return res.status(400).json({ success: false, error: 'Student already has an active room allocation.' });
+    const existingStudentAlloc = await HostelAllocation.findOne({ student: studentId, status: 'Active' });
+    if (existingStudentAlloc) {
+      return res.status(400).json({
+        success: false,
+        error: 'This student already has an active room allocation. Duplicate bed allocations are prevented.',
+      });
+    }
+
+    // Check if requested bed is already occupied in this room
+    const existingBedAlloc = await HostelAllocation.findOne({
+      room: roomId,
+      bedNumber: trimmedBed,
+      status: 'Active',
+    });
+    if (existingBedAlloc) {
+      return res.status(400).json({
+        success: false,
+        error: `${trimmedBed} in room ${room.roomNumber} is already occupied. Each bed can be assigned to only one student at a time.`,
+      });
     }
 
     const allocation = await HostelAllocation.create({
       student: studentId,
       room: roomId,
-      bedNumber: bedNumber || `Bed ${room.occupiedBeds + 1}`,
+      bedNumber: trimmedBed,
       checkInDate: new Date(),
       status: 'Active',
-      emergencyContact,
-      remarks,
+      emergencyContact: {
+        name: String(emergencyContact.name).trim(),
+        phone: String(emergencyContact.phone).trim(),
+        relation: String(emergencyContact.relation).trim(),
+      },
+      remarks: remarks ? String(remarks).trim() : '',
     });
 
-    // Update room occupied beds and status
+    // Update room occupied beds and automatically set status to 'Occupied' or 'Fully Occupied'
     room.occupiedBeds += 1;
     if (room.occupiedBeds >= room.capacity) {
       room.status = 'Fully Occupied';
+    } else {
+      room.status = 'Occupied';
     }
     await room.save();
 
@@ -233,6 +302,7 @@ exports.allocateHostelBed = async (req, res) => {
 
     return res.status(201).json({ success: true, allocation: populated });
   } catch (err) {
+    console.error('allocateHostelBed error:', err);
     return res.status(500).json({ success: false, error: err.message });
   }
 };
@@ -251,12 +321,14 @@ exports.vacateHostelBed = async (req, res) => {
     allocation.vacateDate = new Date();
     await allocation.save();
 
-    // Decrement occupiedBeds
+    // Decrement occupiedBeds and update room status
     const room = await HostelRoom.findById(allocation.room);
     if (room) {
       room.occupiedBeds = Math.max(0, room.occupiedBeds - 1);
-      if (room.status === 'Fully Occupied' && room.occupiedBeds < room.capacity) {
+      if (room.occupiedBeds === 0) {
         room.status = 'Available';
+      } else if (room.occupiedBeds < room.capacity) {
+        room.status = 'Occupied';
       }
       await room.save();
     }
@@ -630,6 +702,116 @@ exports.createStaffNotice = async (req, res) => {
 
     return res.status(201).json({ success: true, notice });
   } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+/**
+ * 6. BUS PASS PDF GENERATION & DOWNLOAD
+ */
+
+// GET /api/staff/transport/passes/:id/pdf
+exports.downloadBusPassPdf = async (req, res) => {
+  try {
+    const { id } = req.params;
+    let pass = null;
+
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+      pass = await TransportAllocation.findById(id)
+        .populate('student', 'name studentId email department semester')
+        .populate('route', 'routeNumber routeName startPoint destination')
+        .populate('vehicle', 'vehicleNumber model');
+    }
+
+    if (!pass) {
+      pass = await TransportAllocation.findOne({
+        $or: [{ passNumber: id }, { student: id }],
+      })
+        .populate('student', 'name studentId email department semester')
+        .populate('route', 'routeNumber routeName startPoint destination')
+        .populate('vehicle', 'vehicleNumber model');
+    }
+
+    if (!pass) {
+      return res.status(404).json({ success: false, error: 'Transport bus pass record not found.' });
+    }
+
+    const pdfBuffer = generateBusPassPdfBuffer({
+      passNumber: pass.passNumber,
+      studentId: pass.student?.studentId || 'CS-2026',
+      studentName: pass.student?.name || 'Student Commuter',
+      departmentName: pass.student?.department?.name || pass.student?.department || 'University Scholar',
+      semester: pass.student?.semester || 7,
+      routeNumber: pass.route?.routeNumber || 'Transit Corridor',
+      routeName: pass.route?.routeName || 'Suburban Transit Corridor',
+      pickupStop: pass.pickupStop,
+      dropStop: pass.dropStop || 'Campus Main Gate Terminal',
+      vehicleNumber: pass.vehicle?.vehicleNumber || 'KA-05-EX-4412',
+      validFrom: pass.validFrom || pass.createdAt,
+      validTill: pass.validTill || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+      status: pass.status || 'Active',
+      feeStatus: 'PAID - FULL SEMESTER',
+    });
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="BusPass_${pass.passNumber}.pdf"`);
+    res.setHeader('Content-Length', pdfBuffer.length);
+    return res.end(pdfBuffer);
+  } catch (err) {
+    console.error('downloadBusPassPdf error:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+// GET /api/staff/transport/passes/:id/preview
+exports.previewBusPassPdf = async (req, res) => {
+  try {
+    const { id } = req.params;
+    let pass = null;
+
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+      pass = await TransportAllocation.findById(id)
+        .populate('student', 'name studentId email department semester')
+        .populate('route', 'routeNumber routeName startPoint destination')
+        .populate('vehicle', 'vehicleNumber model');
+    }
+
+    if (!pass) {
+      pass = await TransportAllocation.findOne({
+        $or: [{ passNumber: id }, { student: id }],
+      })
+        .populate('student', 'name studentId email department semester')
+        .populate('route', 'routeNumber routeName startPoint destination')
+        .populate('vehicle', 'vehicleNumber model');
+    }
+
+    if (!pass) {
+      return res.status(404).json({ success: false, error: 'Transport bus pass record not found.' });
+    }
+
+    const pdfBuffer = generateBusPassPdfBuffer({
+      passNumber: pass.passNumber,
+      studentId: pass.student?.studentId || 'CS-2026',
+      studentName: pass.student?.name || 'Student Commuter',
+      departmentName: pass.student?.department?.name || pass.student?.department || 'University Scholar',
+      semester: pass.student?.semester || 7,
+      routeNumber: pass.route?.routeNumber || 'Transit Corridor',
+      routeName: pass.route?.routeName || 'Suburban Transit Corridor',
+      pickupStop: pass.pickupStop,
+      dropStop: pass.dropStop || 'Campus Main Gate Terminal',
+      vehicleNumber: pass.vehicle?.vehicleNumber || 'KA-05-EX-4412',
+      validFrom: pass.validFrom || pass.createdAt,
+      validTill: pass.validTill || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+      status: pass.status || 'Active',
+      feeStatus: 'PAID - FULL SEMESTER',
+    });
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="BusPass_${pass.passNumber}.pdf"`);
+    res.setHeader('Content-Length', pdfBuffer.length);
+    return res.end(pdfBuffer);
+  } catch (err) {
+    console.error('previewBusPassPdf error:', err);
     return res.status(500).json({ success: false, error: err.message });
   }
 };

@@ -278,9 +278,9 @@ export const ParentOverview = ({ selectedStudentId, onSelectStudent }) => {
             )}
 
             <div className="pt-3 border-t border-[#F1E7CF] flex items-center justify-between text-xs">
-              <span className="text-[#4B5563] font-semibold">Full Timetable Available</span>
-              <Link to="/parent/schedule" className="text-[#D99A00] hover:underline font-bold flex items-center gap-1">
-                <span>View Schedule</span>
+              <span className="text-[#4B5563] font-semibold">Official Academic Records</span>
+              <Link to="/parent/academics" className="text-[#D99A00] hover:underline font-bold flex items-center gap-1">
+                <span>View Attendance & Results</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>

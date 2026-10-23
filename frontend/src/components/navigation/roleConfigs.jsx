@@ -23,6 +23,8 @@ import {
   GraduationCap,
   ClipboardList,
   IndianRupee,
+  Code,
+  TrendingUp,
 } from 'lucide-react';
 
 export const ROLE_CONFIGS = {
@@ -35,10 +37,13 @@ export const ROLE_CONFIGS = {
     menuItems: [
       { label: 'Overview', to: '/student', icon: <LayoutDashboard className="w-4 h-4" /> },
       { label: 'My Profile', to: '/student/profile', icon: <User className="w-4 h-4" /> },
-      { label: 'Academic History', to: '/student/academics', icon: <GraduationCap className="w-4 h-4" /> },
-      { label: 'Attendance', to: '/student/attendance', icon: <CalendarCheck className="w-4 h-4" /> },
+      { label: 'Attendance Report', to: '/student/attendance', icon: <CalendarCheck className="w-4 h-4" /> },
+      { label: 'Progress Report', to: '/student/progress-report', icon: <TrendingUp className="w-4 h-4" /> },
       { label: 'Assignments & Exams', to: '/student/assignments', icon: <ClipboardList className="w-4 h-4" /> },
+      { label: 'Live Projects', to: '/student/projects', icon: <Code className="w-4 h-4" /> },
+      { label: 'Admit Card', to: '/student/admit-card', icon: <FileCheck2 className="w-4 h-4" /> },
       { label: 'Fees', to: '/student/fees', icon: <IndianRupee className="w-4 h-4" /> },
+      { label: 'Placement Drives', to: '/student/placement', icon: <Briefcase className="w-4 h-4" /> },
     ],
   },
   faculty: {
@@ -73,6 +78,7 @@ export const ROLE_CONFIGS = {
       { label: 'Academic Structure', to: '/admin/academics', icon: <Building2 className="w-4 h-4" /> },
       { label: 'Attendance & Shortages', to: '/admin/attendance', icon: <CalendarCheck className="w-4 h-4" /> },
       { label: 'Exams & Results', to: '/admin/examinations', icon: <Award className="w-4 h-4" /> },
+      { label: 'Admit Cards', to: '/admin/admit-cards', icon: <FileCheck2 className="w-4 h-4" /> },
       { label: 'Fee Management', to: '/admin/fees', icon: <IndianRupee className="w-4 h-4" /> },
       { label: 'Timetable & Notices', to: '/admin/schedule', icon: <Clock className="w-4 h-4" /> },
       { label: 'Approvals & Leaves', to: '/admin/approvals', icon: <FileCheck2 className="w-4 h-4" /> },
@@ -90,7 +96,6 @@ export const ROLE_CONFIGS = {
       { label: 'Ward Dashboard', to: '/parent', icon: <LayoutDashboard className="w-4 h-4" /> },
       { label: 'Student Information', to: '/parent/student', icon: <User className="w-4 h-4" /> },
       { label: 'Attendance & Results', to: '/parent/academics', icon: <CalendarCheck className="w-4 h-4" /> },
-      { label: 'Assignments & Timetable', to: '/parent/schedule', icon: <Clock className="w-4 h-4" /> },
       { label: 'Fees & Invoices', to: '/parent/fees', icon: <IndianRupee className="w-4 h-4" /> },
       { label: 'Notices & Alerts', to: '/parent/notices', icon: <FileCheck2 className="w-4 h-4" /> },
     ],

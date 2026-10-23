@@ -56,4 +56,8 @@ const hostelAllocationSchema = new mongoose.Schema(
   }
 );
 
+// Performance and uniqueness support indexes
+hostelAllocationSchema.index({ room: 1, bedNumber: 1, status: 1 });
+hostelAllocationSchema.index({ student: 1, status: 1 });
+
 module.exports = mongoose.model('HostelAllocation', hostelAllocationSchema);

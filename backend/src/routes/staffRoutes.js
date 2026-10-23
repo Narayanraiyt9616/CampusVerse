@@ -29,6 +29,8 @@ router.put('/transport/routes/:id', requireStaff, staffController.updateTranspor
 
 router.get('/transport/allocations', requireStaff, staffController.getTransportAllocations);
 router.post('/transport/allocate', requireStaff, staffController.allocateTransportPass);
+router.get('/transport/passes/:id/pdf', requireStaff, staffController.downloadBusPassPdf);
+router.get('/transport/passes/:id/preview', requireStaff, staffController.previewBusPassPdf);
 
 // 4. Student Records
 router.get('/students', requireStaff, staffController.getStaffStudentRecords);

@@ -65,6 +65,24 @@ export const AdminFees = () => {
   });
   const [paymentLoading, setPaymentLoading] = useState(false);
 
+  // Edit Fee Modal
+  const [editModalFee, setEditModalFee] = useState(null);
+  const [editForm, setEditForm] = useState({
+    category: 'Tuition Fee',
+    amount: 0,
+    paidAmount: 0,
+    status: 'Pending',
+    dueDate: '',
+    semester: 7,
+    academicYear: '2025-2026',
+    paymentMode: 'Online',
+    receiptNumber: '',
+    description: '',
+    remarks: '',
+  });
+  const [editLoading, setEditLoading] = useState(false);
+  const [editError, setEditError] = useState('');
+
   // Delete modal
   const [deleteTarget, setDeleteTarget] = useState(null);
 
@@ -154,6 +172,76 @@ export const AdminFees = () => {
     }
   };
 
+  const handleOpenEdit = (fee) => {
+    setEditModalFee(fee);
+    setEditError('');
+    setEditForm({
+      category: fee.category || 'Tuition Fee',
+      amount: fee.amount || 0,
+      paidAmount: fee.paidAmount || 0,
+      status: fee.status || 'Pending',
+      dueDate: fee.dueDate ? new Date(fee.dueDate).toISOString().slice(0, 10) : '',
+      semester: fee.semester || 7,
+      academicYear: fee.academicYear || '2025-2026',
+      paymentMode: fee.paymentMode || 'Online',
+      receiptNumber: fee.receiptNumber || '',
+      description: fee.description || '',
+      remarks: fee.remarks || '',
+    });
+  };
+
+  const handleEditSubmit = async (e) => {
+    if (e) e.preventDefault();
+    if (!editModalFee) return;
+
+    setEditError('');
+    const amt = Number(editForm.amount);
+    const paid = Number(editForm.paidAmount);
+
+    if (isNaN(amt) || amt < 0) {
+      setEditError('Total invoiced amount must be a positive number or zero.');
+      return;
+    }
+    if (isNaN(paid) || paid < 0) {
+      setEditError('Paid amount cannot be negative.');
+      return;
+    }
+    if (!editForm.dueDate) {
+      setEditError('Due date is required.');
+      return;
+    }
+
+    setEditLoading(true);
+    try {
+      const res = await adminService.updateFee(editModalFee._id, {
+        category: editForm.category,
+        amount: amt,
+        paidAmount: paid,
+        status: editForm.status,
+        dueDate: editForm.dueDate,
+        semester: Number(editForm.semester),
+        academicYear: editForm.academicYear,
+        paymentMode: editForm.paymentMode,
+        receiptNumber: editForm.receiptNumber,
+        description: editForm.description,
+        remarks: editForm.remarks,
+        paymentDate: paid > 0 ? (editModalFee.paymentDate || new Date()) : null,
+      });
+
+      if (res && res.success) {
+        setSuccess(`Fee Invoice ${editModalFee.invoiceNumber} updated successfully in database!`);
+        setEditModalFee(null);
+        loadFeeData();
+      } else {
+        setEditError(res?.error?.message || 'Failed to update fee record.');
+      }
+    } catch (err) {
+      setEditError(err.message || 'Error occurred while saving fee changes to database.');
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
     try {
@@ -226,22 +314,35 @@ export const AdminFees = () => {
       align: 'right',
       render: (_, r) => (
         <div className="flex items-center justify-end gap-1.5">
+          <Button
+            variant="secondary"
+            size="sm"
+            className="text-xs h-8 px-2.5"
+            leftIcon={<Edit2 className="w-3 h-3 text-[#D99A00]" />}
+            onClick={() => handleOpenEdit(r)}
+            title="Edit Fee Details"
+          >
+            Edit
+          </Button>
+
           {r.status !== 'Paid' && (
             <Button
               variant="primary"
               size="sm"
-              className="text-xs"
+              className="text-xs h-8 px-2.5"
               onClick={() => handleOpenPayment(r)}
             >
               Verify Payment
             </Button>
           )}
+
           <Button
             variant="danger"
             size="sm"
-            className="text-xs"
+            className="text-xs h-8 px-2"
             leftIcon={<Trash2 className="w-3 h-3" />}
             onClick={() => setDeleteTarget(r)}
+            title="Delete Invoice"
           >
             Delete
           </Button>
@@ -554,6 +655,206 @@ export const AdminFees = () => {
                 value={paymentForm.receiptNumber}
                 onChange={(e) => setPaymentForm((p) => ({ ...p, receiptNumber: e.target.value }))}
                 required
+              />
+            </div>
+          </form>
+        )}
+      </Modal>
+
+      {/* Edit Fee Invoice Modal */}
+      <Modal
+        isOpen={Boolean(editModalFee)}
+        onClose={() => setEditModalFee(null)}
+        title={`Edit Fee Invoice — ${editModalFee?.invoiceNumber || ''}`}
+        description={`Modify fee amount, category, payment status, and due dates for ${editModalFee?.student?.name || 'student'} (${editModalFee?.student?.studentId || '—'}). All updates persist directly to MongoDB.`}
+        footer={
+          <div className="flex items-center gap-2">
+            <Button variant="secondary" size="sm" onClick={() => setEditModalFee(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              isLoading={editLoading}
+              disabled={editLoading}
+              onClick={handleEditSubmit}
+              leftIcon={<CheckCircle2 className="w-3.5 h-3.5" />}
+            >
+              {editLoading ? 'Saving Changes...' : 'Save & Update Database'}
+            </Button>
+          </div>
+        }
+      >
+        {editModalFee && (
+          <form onSubmit={handleEditSubmit} className="space-y-4">
+            {editError && (
+              <AlertBanner
+                variant="danger"
+                title="Validation Error"
+                message={editError}
+                dismissible
+                onDismiss={() => setEditError('')}
+              />
+            )}
+
+            <div className="p-3 rounded-xl bg-[#FFF8E6]/40 border border-[#F1E7CF] flex items-center justify-between text-xs">
+              <div>
+                <span className="text-[#4B5563] font-semibold">Student Candidate:</span>
+                <p className="font-extrabold text-[#111827] mt-0.5">
+                  {editModalFee.student?.name} ({editModalFee.student?.studentId})
+                </p>
+              </div>
+              <div className="text-right">
+                <span className="text-[#4B5563] font-semibold">Invoice ID:</span>
+                <p className="font-mono font-bold text-[#D99A00] mt-0.5">
+                  {editModalFee.invoiceNumber}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <div>
+                <label className="block text-xs font-bold text-[#111827] mb-1">Fee Category</label>
+                <select
+                  value={editForm.category}
+                  onChange={(e) => setEditForm((f) => ({ ...f, category: e.target.value }))}
+                  className="w-full h-10 px-3 text-xs rounded-lg border border-[#F1E7CF] bg-white text-[#111827] focus:outline-none focus:border-[#D99A00] focus:ring-1 focus:ring-[#D99A00] font-medium"
+                >
+                  {FEE_CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#111827] mb-1">Payment Status</label>
+                <select
+                  value={editForm.status}
+                  onChange={(e) => setEditForm((f) => ({ ...f, status: e.target.value }))}
+                  className="w-full h-10 px-3 text-xs rounded-lg border border-[#F1E7CF] bg-white text-[#111827] focus:outline-none focus:border-[#D99A00] focus:ring-1 focus:ring-[#D99A00] font-medium"
+                >
+                  <option value="Pending">Pending (Unpaid / Partial)</option>
+                  <option value="Paid">Paid (Full Settlement)</option>
+                  <option value="Overdue">Overdue (Past Deadline)</option>
+                  <option value="Waived">Waived (Scholarship / Exemption)</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <div>
+                <Input
+                  label="Total Invoiced Amount (₹)"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={editForm.amount}
+                  onChange={(e) => setEditForm((f) => ({ ...f, amount: e.target.value }))}
+                  required
+                />
+              </div>
+
+              <div>
+                <Input
+                  label="Paid Amount (₹)"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={editForm.paidAmount}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    setEditForm((f) => ({
+                      ...f,
+                      paidAmount: e.target.value,
+                      status: val >= Number(f.amount) && Number(f.amount) > 0 ? 'Paid' : f.status,
+                    }));
+                  }}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+              <div>
+                <Input
+                  label="Due Date"
+                  type="date"
+                  value={editForm.dueDate}
+                  onChange={(e) => setEditForm((f) => ({ ...f, dueDate: e.target.value }))}
+                  required
+                />
+              </div>
+
+              <div>
+                <Input
+                  label="Semester"
+                  type="number"
+                  min="1"
+                  max="12"
+                  value={editForm.semester}
+                  onChange={(e) => setEditForm((f) => ({ ...f, semester: e.target.value }))}
+                  required
+                />
+              </div>
+
+              <div>
+                <Input
+                  label="Academic Year"
+                  type="text"
+                  value={editForm.academicYear}
+                  onChange={(e) => setEditForm((f) => ({ ...f, academicYear: e.target.value }))}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <div>
+                <label className="block text-xs font-bold text-[#111827] mb-1">Payment Mode</label>
+                <select
+                  value={editForm.paymentMode}
+                  onChange={(e) => setEditForm((f) => ({ ...f, paymentMode: e.target.value }))}
+                  className="w-full h-10 px-3 text-xs rounded-lg border border-[#F1E7CF] bg-white text-[#111827] focus:outline-none focus:border-[#D99A00] focus:ring-1 focus:ring-[#D99A00] font-medium"
+                >
+                  <option value="Online">Online Gateway / NetBanking</option>
+                  <option value="Cash">Cash at University Cashier</option>
+                  <option value="DD">Demand Draft (DD)</option>
+                  <option value="Cheque">Bank Cheque</option>
+                  <option value="Waived">Waived / Direct Credit</option>
+                </select>
+              </div>
+
+              <div>
+                <Input
+                  label="Receipt / Transaction Reference"
+                  type="text"
+                  placeholder="e.g. REC-984321"
+                  value={editForm.receiptNumber}
+                  onChange={(e) => setEditForm((f) => ({ ...f, receiptNumber: e.target.value }))}
+                />
+              </div>
+            </div>
+
+            <div>
+              <Input
+                label="Invoice Description"
+                type="text"
+                placeholder="e.g. 7th Semester Tuition Fee & Laboratory Access Charges"
+                value={editForm.description}
+                onChange={(e) => setEditForm((f) => ({ ...f, description: e.target.value }))}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[#111827] mb-1">Administrative Remarks</label>
+              <textarea
+                rows={2}
+                value={editForm.remarks}
+                onChange={(e) => setEditForm((f) => ({ ...f, remarks: e.target.value }))}
+                placeholder="Optional internal remarks or verification notes..."
+                className="w-full p-2.5 text-xs rounded-lg border border-[#F1E7CF] bg-white text-[#111827] focus:outline-none focus:border-[#D99A00] focus:ring-1 focus:ring-[#D99A00] font-medium"
               />
             </div>
           </form>

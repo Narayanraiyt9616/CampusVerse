@@ -17,6 +17,11 @@ const placementDriveSchema = new mongoose.Schema(
       required: [true, 'Job title is required'],
       trim: true,
     },
+    jobField: {
+      type: String,
+      trim: true,
+      default: 'Software Development',
+    },
     jobType: {
       type: String,
       enum: ['Full-Time', 'Internship + PPO', 'Internship (6 Months)', 'Contractual'],
@@ -36,9 +41,17 @@ const placementDriveSchema = new mongoose.Schema(
       type: [String],
       default: ['Data Structures & Algorithms', 'Problem Solving'],
     },
+    eligibleCourses: {
+      type: [String],
+      default: ['Computer Science & Engineering', 'Information Technology'],
+    },
     eligibilityCriteria: {
       minCgpa: { type: Number, default: 7.0, min: 0, max: 10 },
       maxBacklogs: { type: Number, default: 0 },
+      eligibleCourses: {
+        type: [String],
+        default: ['Computer Science & Engineering', 'Information Technology'],
+      },
       eligibleDepartments: {
         type: [String],
         default: ['Computer Science & Engineering', 'Electronics & Communication', 'Mechanical Engineering'],

@@ -108,6 +108,28 @@ export const studentService = {
   updateMyProfile: async (data) => {
     return apiClient.patch('/students/me', data);
   },
+  // Student: get targeted notifications
+  getMyNotifications: async (params = {}) => {
+    return apiClient.get('/students/notifications', { params });
+  },
+  markNotificationRead: async (id) => {
+    return apiClient.patch(`/students/notifications/${id}/read`);
+  },
+  markAllNotificationsRead: async () => {
+    return apiClient.patch('/students/notifications/read-all');
+  },
+  // Student: examination schedule
+  getExams: async (params = {}) => {
+    return apiClient.get('/students/exams', { params });
+  },
+  // Student: real database attendance report
+  getAttendanceReport: async () => {
+    return apiClient.get('/students/attendance-report');
+  },
+  // Student: complete academic progress report
+  getAcademicProgress: async () => {
+    return apiClient.get('/students/academic-progress');
+  },
   // Legacy helper stubs (not backed by routes yet, return null gracefully)
   getAttendance: async (studentId) => {
     return apiClient.get(`/students/${studentId}/attendance`).catch(() => null);
@@ -124,6 +146,32 @@ export const studentService = {
   getFees: async (studentId) => {
     return apiClient.get(`/students/${studentId}/fees`).catch(() => null);
   },
+};
+
+export const assignmentService = {
+  getMyAssignments: async () => apiClient.get('/assignments/my-assignments'),
+  getDetail: async (id) => apiClient.get(`/assignments/${id}`),
+  submitAssignment: async (id, formDataOrData) => {
+    if (formDataOrData instanceof FormData) {
+      return apiClient.post(`/assignments/${id}/submit`, formDataOrData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    }
+    return apiClient.post(`/assignments/${id}/submit`, formDataOrData);
+  },
+  list: async (params = {}) => apiClient.get('/assignments', { params }),
+  create: async (data) => apiClient.post('/assignments', data),
+  gradeSubmission: async (id, data) => apiClient.put(`/assignments/submissions/${id}/grade`, data),
+  getSubmissionDetail: async (id) => apiClient.get(`/assignments/submissions/${id}`),
+};
+
+export const projectService = {
+  getMyProjects: async () => apiClient.get('/projects/my-projects'),
+  createProject: async (data) => apiClient.post('/projects', data),
+  updateProject: async (id, data) => apiClient.put(`/projects/${id}`, data),
+  deleteProject: async (id) => apiClient.delete(`/projects/${id}`),
+  getFacultyProjects: async (params = {}) => apiClient.get('/projects', { params }),
+  reviewProject: async (id, data) => apiClient.put(`/projects/${id}/review`, data),
 };
 
 export const resultService = {
@@ -280,6 +328,19 @@ export const adminService = {
 
   // Reports & Settings
   getReportData: async (type) => apiClient.get('/admin/reports', { params: { type } }),
+  exportReport: async (type, format = 'csv') =>
+    apiClient.get('/admin/reports/export', {
+      params: { type, format },
+      responseType: format === 'json' ? 'json' : 'blob',
+    }),
+  getReportExportUrl: (type, format = 'csv') => {
+    try {
+      const token = localStorage.getItem('token');
+      return `${API_BASE_URL}/admin/reports/export?type=${encodeURIComponent(type)}&format=${encodeURIComponent(format)}${token ? `&token=${encodeURIComponent(token)}` : ''}`;
+    } catch {
+      return `${API_BASE_URL}/admin/reports/export?type=${encodeURIComponent(type)}&format=${encodeURIComponent(format)}`;
+    }
+  },
   getSettings: async () => apiClient.get('/admin/settings'),
 };
 
@@ -324,6 +385,18 @@ export const staffService = {
   updateTransportRoute: async (id, data) => apiClient.put(`/staff/transport/routes/${id}`, data),
   getTransportAllocations: async () => apiClient.get('/staff/transport/allocations'),
   allocateTransportPass: async (data) => apiClient.post('/staff/transport/allocate', data),
+  downloadBusPassPdfBlob: async (id) =>
+    apiClient.get(`/staff/transport/passes/${id}/pdf`, { responseType: 'blob' }),
+  previewBusPassPdfBlob: async (id) =>
+    apiClient.get(`/staff/transport/passes/${id}/preview`, { responseType: 'blob' }),
+  getBusPassPdfUrl: (id) => {
+    try {
+      const token = localStorage.getItem('token');
+      return `${API_BASE_URL}/staff/transport/passes/${id}/pdf${token ? `?token=${encodeURIComponent(token)}` : ''}`;
+    } catch {
+      return `${API_BASE_URL}/staff/transport/passes/${id}/pdf`;
+    }
+  },
   getStudentRecords: async (params = {}) => apiClient.get('/staff/students', { params }),
   getComplaints: async (params = {}) => apiClient.get('/staff/complaints', { params }),
   createComplaint: async (data) => apiClient.post('/staff/complaints', data),
@@ -338,15 +411,75 @@ export const placementService = {
   createCompany: async (data) => apiClient.post('/placement/companies', data),
   updateCompany: async (id, data) => apiClient.put(`/placement/companies/${id}`, data),
   getDrives: async (params = {}) => apiClient.get('/placement/drives', { params }),
+  getEligibleDrives: async () => apiClient.get('/placement/eligible-drives'),
+  getMyApplications: async () => apiClient.get('/placement/my-applications'),
+  getDrive: async (id) => apiClient.get(`/placement/drives/${id}`),
   createDrive: async (data) => apiClient.post('/placement/drives', data),
   updateDrive: async (id, data) => apiClient.put(`/placement/drives/${id}`, data),
   getStudents: async (params = {}) => apiClient.get('/placement/students', { params }),
   updateStudentProfile: async (id, data) => apiClient.put(`/placement/students/${id}`, data),
   getApplications: async (params = {}) => apiClient.get('/placement/applications', { params }),
-  createApplication: async (data) => apiClient.post('/placement/applications', data),
+  createApplication: async (data) => {
+    if (data instanceof FormData) {
+      return apiClient.post('/placement/applications', data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    }
+    return apiClient.post('/placement/applications', data);
+  },
   updateApplication: async (id, data) => apiClient.put(`/placement/applications/${id}`, data),
   getNotices: async (params = {}) => apiClient.get('/placement/notices', { params }),
   createNotice: async (data) => apiClient.post('/placement/notices', data),
+};
+
+export const admitCardService = {
+  getAdmitCards: async (params = {}) => apiClient.get('/admit-cards', { params }),
+  getMyAdmitCards: async () => apiClient.get('/admit-cards/my-admit-cards'),
+  getAdmitCard: async (id) => apiClient.get(`/admit-cards/${id}`),
+  getOptions: async () => apiClient.get('/admit-cards/meta/options'),
+  issueAdmitCard: async (formData) => {
+    if (formData instanceof FormData) {
+      return apiClient.post('/admit-cards/issue', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    }
+    return apiClient.post('/admit-cards/issue', formData);
+  },
+  reissueAdmitCard: async (id, formData) => {
+    if (formData instanceof FormData) {
+      return apiClient.put(`/admit-cards/${id}/reissue`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    }
+    return apiClient.put(`/admit-cards/${id}/reissue`, formData);
+  },
+  deleteAdmitCard: async (id) => apiClient.delete(`/admit-cards/${id}`),
+  getPreviewUrl: (id) => {
+    try {
+      const token = localStorage.getItem('token');
+      return `${API_BASE_URL}/admit-cards/${id}/preview${token ? `?token=${encodeURIComponent(token)}` : ''}`;
+    } catch {
+      return `${API_BASE_URL}/admit-cards/${id}/preview`;
+    }
+  },
+  getDownloadUrl: (id) => {
+    try {
+      const token = localStorage.getItem('token');
+      return `${API_BASE_URL}/admit-cards/${id}/download${token ? `?token=${encodeURIComponent(token)}` : ''}`;
+    } catch {
+      return `${API_BASE_URL}/admit-cards/${id}/download`;
+    }
+  },
+  downloadPdfBlob: async (id) => {
+    return apiClient.get(`/admit-cards/${id}/download`, { responseType: 'blob' });
+  },
+  previewPdfBlob: async (id) => {
+    return apiClient.get(`/admit-cards/${id}/preview`, { responseType: 'blob' });
+  },
+};
+
+export const searchService = {
+  globalSearch: async (q) => apiClient.get('/search', { params: { q } }),
 };
 
 export default apiClient;

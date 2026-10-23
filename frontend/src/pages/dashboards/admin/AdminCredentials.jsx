@@ -42,6 +42,7 @@ export const AdminCredentials = () => {
     username: '',
     password: '',
     name: '',
+    studentId: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [createLoading, setCreateLoading] = useState(false);
@@ -120,6 +121,7 @@ export const AdminCredentials = () => {
         username: credForm.username.trim(),
         password: credForm.password,
         name: credForm.name.trim() || undefined,
+        studentId: credForm.section === 'parent' && credForm.studentId ? credForm.studentId.trim().toUpperCase() : undefined,
       });
 
       if (res && res.success) {
@@ -133,6 +135,7 @@ export const AdminCredentials = () => {
           username: credForm.username.trim(),
           password: credForm.password,
           name: res.user?.name || credForm.username.trim(),
+          studentId: credForm.section === 'parent' && credForm.studentId ? credForm.studentId.trim().toUpperCase() : undefined,
           createdAt: new Date().toLocaleTimeString(),
         });
         setCredForm((prev) => ({
@@ -140,6 +143,7 @@ export const AdminCredentials = () => {
           username: '',
           password: '',
           name: '',
+          studentId: '',
         }));
         fetchUsers();
       }
@@ -152,7 +156,8 @@ export const AdminCredentials = () => {
 
   const handleCopyCredentials = () => {
     if (!lastCreated) return;
-    const text = `Section: ${lastCreated.sectionLabel}\nUsername: ${lastCreated.username}\nPassword: ${lastCreated.password}\nLogin Portal: ${window.location.origin}${lastCreated.portal}`;
+    const studentText = lastCreated.studentId ? `\nLinked Ward: ${lastCreated.studentId}` : '';
+    const text = `Section: ${lastCreated.sectionLabel}\nUsername: ${lastCreated.username}\nPassword: ${lastCreated.password}${studentText}\nLogin Portal: ${window.location.origin}${lastCreated.portal}`;
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
@@ -408,15 +413,29 @@ export const AdminCredentials = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-              <div className="w-full sm:w-auto">
-                <Input
-                  label="Full Name (Optional)"
-                  id="cred-name"
-                  type="text"
-                  placeholder="e.g. Rahul Sharma"
-                  value={credForm.name}
-                  onChange={(e) => setCredForm((prev) => ({ ...prev, name: e.target.value }))}
-                />
+              <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto flex-1">
+                <div className="w-full sm:w-auto flex-1 max-w-xs">
+                  <Input
+                    label="Full Name (Optional)"
+                    id="cred-name"
+                    type="text"
+                    placeholder="e.g. Rahul Sharma"
+                    value={credForm.name}
+                    onChange={(e) => setCredForm((prev) => ({ ...prev, name: e.target.value }))}
+                  />
+                </div>
+                {credForm.section === 'parent' && (
+                  <div className="w-full sm:w-auto flex-1 max-w-xs">
+                    <Input
+                      label="Linked Student (Roll No / ID)"
+                      id="cred-studentId"
+                      type="text"
+                      placeholder="e.g. CS21B1042 or CS21B1001"
+                      value={credForm.studentId}
+                      onChange={(e) => setCredForm((prev) => ({ ...prev, studentId: e.target.value }))}
+                    />
+                  </div>
+                )}
               </div>
               <div className="w-full sm:w-auto sm:self-end">
                 <Button

@@ -16,6 +16,11 @@ import {
   Award,
   CheckCircle2,
   TrendingUp,
+  GraduationCap,
+  Edit,
+  Check,
+  AlertCircle,
+  Layers,
 } from 'lucide-react';
 import Card from '../../../components/common/Card';
 import Badge from '../../../components/common/Badge';
@@ -23,6 +28,47 @@ import Button from '../../../components/common/Button';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import AlertBanner from '../../../components/common/AlertBanner';
 import { placementService } from '../../../services/api';
+
+export const AVAILABLE_COURSES = [
+  'Computer Science & Engineering',
+  'Information Technology',
+  'Electronics & Communication Engineering',
+  'Mechanical Engineering',
+  'Electrical & Electronics Engineering',
+  'Civil Engineering',
+  'Artificial Intelligence & Data Science',
+  'School of Management Studies (MBA)',
+];
+
+export const JOB_FIELDS = [
+  'Software Development',
+  'Web Development',
+  'Data Analytics & BI',
+  'Artificial Intelligence & Machine Learning',
+  'Cloud Computing & DevOps',
+  'Cybersecurity & Network Engineering',
+  'Mobile Application Development',
+  'Core Engineering & Embedded Systems',
+  'Product Management & Consulting',
+  'Quality Assurance & Test Automation',
+];
+
+const DEFAULT_DRIVE_FORM = {
+  companyName: '',
+  jobTitle: '',
+  jobField: 'Software Development',
+  jobType: 'Full-Time',
+  description: '',
+  displayPackage: '₹ 24.0 LPA (CTC)',
+  minCgpa: 7.5,
+  maxBacklogs: 0,
+  requiredSkills: 'Data Structures, C++, Python, System Design',
+  eligibleCourses: ['Computer Science & Engineering', 'Information Technology'],
+  driveDate: '',
+  applicationDeadline: '',
+  venue: 'Auditorium 2 & Online HackerEarth Labs',
+  evaluationRounds: 'Online Coding Test, Technical Interview 1, HR Discussion',
+};
 
 export const PlacementDrives = () => {
   const [activeTab, setActiveTab] = useState('drives'); // 'drives' | 'companies'
@@ -37,24 +83,12 @@ export const PlacementDrives = () => {
   // Modals
   const [showAddDriveModal, setShowAddDriveModal] = useState(false);
   const [showAddCompanyModal, setShowAddCompanyModal] = useState(false);
+  const [editingDriveId, setEditingDriveId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [customCourseInput, setCustomCourseInput] = useState('');
 
   // Forms
-  const [driveForm, setDriveForm] = useState({
-    companyName: '',
-    jobTitle: '',
-    jobType: 'Full-Time',
-    description: '',
-    displayPackage: '₹ 24.0 LPA (CTC)',
-    minCgpa: 7.5,
-    maxBacklogs: 0,
-    requiredSkills: 'Data Structures, C++, Python, System Design',
-    eligibleDepartments: 'Computer Science & Engineering, Electronics & Communication',
-    driveDate: '',
-    applicationDeadline: '',
-    venue: 'Auditorium 2 & Online HackerEarth Labs',
-    evaluationRounds: 'Online Coding Test, Technical Interview 1, HR Discussion',
-  });
+  const [driveForm, setDriveForm] = useState(DEFAULT_DRIVE_FORM);
 
   const [companyForm, setCompanyForm] = useState({
     name: '',
@@ -97,7 +131,9 @@ export const PlacementDrives = () => {
     const matchesSearch =
       (d.companyName || '').toLowerCase().includes(q) ||
       (d.jobTitle || '').toLowerCase().includes(q) ||
-      (d.venue || '').toLowerCase().includes(q);
+      (d.jobField || '').toLowerCase().includes(q) ||
+      (d.venue || '').toLowerCase().includes(q) ||
+      (d.eligibleCourses || []).some((c) => c.toLowerCase().includes(q));
     return matchesStatus && matchesSearch;
   });
 
@@ -111,42 +147,124 @@ export const PlacementDrives = () => {
     );
   });
 
-  // Handle Create Drive
-  const handleCreateDrive = async (e) => {
+  // Course Multi-select Handlers
+  const handleToggleCourse = (course) => {
+    setDriveForm((prev) => {
+      const exists = prev.eligibleCourses.includes(course);
+      const updated = exists
+        ? prev.eligibleCourses.filter((c) => c !== course)
+        : [...prev.eligibleCourses, course];
+      return { ...prev, eligibleCourses: updated };
+    });
+  };
+
+  const handleSelectAllCourses = () => {
+    setDriveForm((prev) => ({
+      ...prev,
+      eligibleCourses: [...AVAILABLE_COURSES],
+    }));
+  };
+
+  const handleClearAllCourses = () => {
+    setDriveForm((prev) => ({
+      ...prev,
+      eligibleCourses: [],
+    }));
+  };
+
+  const handleAddCustomCourse = () => {
+    const trimmed = customCourseInput.trim();
+    if (!trimmed) return;
+    setDriveForm((prev) => {
+      if (prev.eligibleCourses.includes(trimmed)) return prev;
+      return { ...prev, eligibleCourses: [...prev.eligibleCourses, trimmed] };
+    });
+    setCustomCourseInput('');
+  };
+
+  const handleOpenAddModal = () => {
+    setEditingDriveId(null);
+    setDriveForm(DEFAULT_DRIVE_FORM);
+    setShowAddDriveModal(true);
+  };
+
+  const handleOpenEditModal = (drive) => {
+    setEditingDriveId(drive._id);
+    const existingCourses = drive.eligibleCourses?.length > 0
+      ? drive.eligibleCourses
+      : drive.eligibilityCriteria?.eligibleCourses || ['Computer Science & Engineering', 'Information Technology'];
+
+    setDriveForm({
+      companyName: drive.companyName || '',
+      jobTitle: drive.jobTitle || '',
+      jobField: drive.jobField || 'Software Development',
+      jobType: drive.jobType || 'Full-Time',
+      description: drive.description || '',
+      displayPackage: drive.salaryPackage?.displayPackage || '₹ 24.0 LPA (CTC)',
+      minCgpa: drive.eligibilityCriteria?.minCgpa ?? 7.5,
+      maxBacklogs: drive.eligibilityCriteria?.maxBacklogs ?? 0,
+      requiredSkills: (drive.requiredSkills || []).join(', '),
+      eligibleCourses: existingCourses,
+      driveDate: drive.driveDate ? new Date(drive.driveDate).toISOString().slice(0, 10) : '',
+      applicationDeadline: drive.applicationDeadline ? new Date(drive.applicationDeadline).toISOString().slice(0, 10) : '',
+      venue: drive.venue || 'Auditorium 2 & Online HackerEarth Labs',
+      evaluationRounds: (drive.evaluationRounds || []).join(', '),
+    });
+    setShowAddDriveModal(true);
+  };
+
+  // Handle Save Drive (Create or Edit)
+  const handleSaveDrive = async (e) => {
     e.preventDefault();
     if (!driveForm.companyName || !driveForm.jobTitle || !driveForm.driveDate || !driveForm.applicationDeadline) {
       alert('Company, Job Title, Drive Date, and Deadline are required.');
       return;
     }
+    if (driveForm.eligibleCourses.length === 0) {
+      alert('Please select at least one eligible course for this recruitment drive.');
+      return;
+    }
+
     setSubmitting(true);
     try {
       const skillsArr = driveForm.requiredSkills.split(',').map((s) => s.trim()).filter(Boolean);
       const roundsArr = driveForm.evaluationRounds.split(',').map((r) => r.trim()).filter(Boolean);
-      const deptsArr = driveForm.eligibleDepartments.split(',').map((d) => d.trim()).filter(Boolean);
 
-      const res = await placementService.createDrive({
+      const payload = {
         companyName: driveForm.companyName,
         jobTitle: driveForm.jobTitle,
+        jobField: driveForm.jobField || 'Software Development',
         jobType: driveForm.jobType,
         description: driveForm.description,
         displayPackage: driveForm.displayPackage,
         minCgpa: Number(driveForm.minCgpa),
         maxBacklogs: Number(driveForm.maxBacklogs),
         requiredSkills: skillsArr,
-        eligibleDepartments: deptsArr,
+        eligibleCourses: driveForm.eligibleCourses,
+        eligibleDepartments: driveForm.eligibleCourses,
         driveDate: driveForm.driveDate,
         applicationDeadline: driveForm.applicationDeadline,
         venue: driveForm.venue,
         evaluationRounds: roundsArr,
-      });
+      };
 
-      if (res && res.success) {
-        setSuccessMsg(`Placement drive for ${driveForm.companyName} scheduled successfully.`);
-        setShowAddDriveModal(false);
-        fetchData();
+      if (editingDriveId) {
+        const res = await placementService.updateDrive(editingDriveId, payload);
+        if (res && res.success) {
+          setSuccessMsg(`Placement drive for ${driveForm.companyName} updated. Targeted student notifications synchronized!`);
+          setShowAddDriveModal(false);
+          fetchData();
+        }
+      } else {
+        const res = await placementService.createDrive(payload);
+        if (res && res.success) {
+          setSuccessMsg(`Placement drive for ${driveForm.companyName} scheduled successfully. Automatic targeted notifications dispatched to eligible students!`);
+          setShowAddDriveModal(false);
+          fetchData();
+        }
       }
     } catch (err) {
-      alert(err.message || 'Failed to schedule drive.');
+      alert(err.message || 'Failed to save drive.');
     } finally {
       setSubmitting(false);
     }
@@ -259,7 +377,7 @@ export const PlacementDrives = () => {
               variant="primary"
               size="sm"
               leftIcon={<Plus className="w-3.5 h-3.5" />}
-              onClick={() => setShowAddDriveModal(true)}
+              onClick={handleOpenAddModal}
             >
               Schedule Drive
             </Button>
@@ -280,17 +398,17 @@ export const PlacementDrives = () => {
       {activeTab === 'drives' && (
         <Card
           title="Placement Drives & Corporate Openings"
-          subtitle="Salary packages, minimum CGPA requirements, required technical competencies, and drive timelines"
+          subtitle="Salary packages, job field domains, course eligibility mandates, and drive timelines"
           headerAction={
             <div className="flex flex-wrap items-center gap-2">
               <div className="relative">
                 <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
                 <input
                   type="text"
-                  placeholder="Search drive or company..."
+                  placeholder="Search drive, course, field..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-[#D99A00] w-44"
+                  className="pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-hidden focus:ring-1 focus:ring-[#D99A00] w-48"
                 />
               </div>
 
@@ -325,19 +443,27 @@ export const PlacementDrives = () => {
                         {d.companyName.charAt(0)}
                       </div>
                       <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <h4 className="text-sm font-bold text-slate-900">{d.companyName}</h4>
                           <Badge variant="teal" size="sm">{d.jobType}</Badge>
+                          {d.jobField && (
+                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1">
+                              <Briefcase className="w-2.5 h-2.5" />
+                              {d.jobField}
+                            </span>
+                          )}
                         </div>
                         <span className="text-xs font-semibold text-[#D99A00] block mt-0.5">{d.jobTitle}</span>
                         <p className="text-[11px] text-slate-500 mt-1 line-clamp-1 leading-relaxed">{d.description}</p>
                       </div>
                     </div>
 
-                    <div className="text-left sm:text-right shrink-0">
-                      <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Compensation</span>
-                      <span className="text-base font-bold font-mono text-slate-900">{d.salaryPackage?.displayPackage}</span>
-                      <div className="mt-1">
+                    <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 shrink-0">
+                      <div className="text-left sm:text-right">
+                        <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Compensation</span>
+                        <span className="text-base font-bold font-mono text-slate-900">{d.salaryPackage?.displayPackage}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
                         <Badge
                           variant={d.status === 'Registration Open' ? 'success' : 'neutral'}
                           size="sm"
@@ -345,19 +471,59 @@ export const PlacementDrives = () => {
                         >
                           {d.status}
                         </Badge>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          leftIcon={<Edit className="w-3 h-3 text-[#D99A00]" />}
+                          onClick={() => handleOpenEditModal(d)}
+                          className="!py-1 !px-2.5 !text-xs font-medium border-slate-200 text-slate-700 hover:bg-slate-50"
+                        >
+                          Edit
+                        </Button>
                       </div>
                     </div>
                   </div>
 
-                  {/* Skills & Eligibility Grid */}
+                  {/* Course Eligibility & Academic Criteria */}
+                  <div className="p-3 rounded-xl bg-amber-50/40 border border-amber-100/80">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-[10px] font-bold text-amber-900 uppercase tracking-wider flex items-center gap-1">
+                        <GraduationCap className="w-3.5 h-3.5 text-[#D99A00]" />
+                        Eligible Degree Courses ({d.eligibleCourses?.length || (d.eligibilityCriteria?.eligibleCourses || []).length || 'All'})
+                      </span>
+                      <span className="text-[10px] font-mono font-medium text-slate-500">
+                        Targeted student notifications dispatched
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {(d.eligibleCourses && d.eligibleCourses.length > 0
+                        ? d.eligibleCourses
+                        : (d.eligibilityCriteria?.eligibleCourses || [])
+                      ).map((crs, idx) => (
+                        <span
+                          key={idx}
+                          className="text-[11px] px-2 py-0.5 rounded-lg bg-white border border-amber-200 text-slate-800 font-medium flex items-center gap-1 shadow-2xs"
+                        >
+                          <CheckCircle2 className="w-3 h-3 text-[#D99A00]" />
+                          {crs}
+                        </span>
+                      ))}
+                      {(!d.eligibleCourses || d.eligibleCourses.length === 0) &&
+                        (!d.eligibilityCriteria?.eligibleCourses || d.eligibilityCriteria.eligibleCourses.length === 0) && (
+                          <span className="text-[11px] text-slate-500 italic">Open to all university courses</span>
+                        )}
+                    </div>
+                  </div>
+
+                  {/* Skills & Schedule Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs bg-slate-50/70 p-3 rounded-xl border border-slate-200/60">
                     <div>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Eligibility Mandate</span>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Academic Cutoff</span>
                       <div className="font-semibold text-slate-800 mt-0.5">
-                        Min CGPA: <span className="font-mono text-[#D99A00]">{d.eligibilityCriteria?.minCgpa || 7.0}</span> • Max {d.eligibilityCriteria?.maxBacklogs || 0} Backlog
+                        Min CGPA: <span className="font-mono text-[#D99A00]">{d.eligibilityCriteria?.minCgpa ?? 7.0}</span> • Max {d.eligibilityCriteria?.maxBacklogs ?? 0} Backlog
                       </div>
                       <span className="text-[10px] text-slate-500 block truncate">
-                        {(d.eligibilityCriteria?.eligibleDepartments || []).join(', ')}
+                        Domain: {d.jobField || 'General'}
                       </span>
                     </div>
 
@@ -479,10 +645,10 @@ export const PlacementDrives = () => {
         </Card>
       )}
 
-      {/* MODAL: SCHEDULE DRIVE */}
+      {/* MODAL: SCHEDULE / EDIT DRIVE */}
       {showAddDriveModal && (
         <div className="fixed inset-0 z-50 bg-[#111827]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#FFFFFF] rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-[#F1E7CF] relative animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-[#FFFFFF] rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-[#F1E7CF] relative animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setShowAddDriveModal(false)}
               className="absolute top-4 right-4 p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
@@ -492,12 +658,15 @@ export const PlacementDrives = () => {
 
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <Briefcase className="w-5 h-5 text-[#D99A00]" />
-              Schedule Campus Placement Drive
+              {editingDriveId ? 'Edit Placement Drive & Eligibility' : 'Schedule Campus Placement Drive'}
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5">Post an active job opening with eligibility criteria and drive timeline.</p>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Select eligible courses and job domain. Automatic targeted notifications will be sent to matching students.
+            </p>
 
-            <form onSubmit={handleCreateDrive} className="mt-4 space-y-3 text-xs">
-              <div className="grid grid-cols-2 gap-3">
+            <form onSubmit={handleSaveDrive} className="mt-4 space-y-4 text-xs">
+              {/* Row 1: Company & Job Title */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="font-semibold text-slate-700 block mb-1">Company Name *</label>
                   <input
@@ -522,7 +691,22 @@ export const PlacementDrives = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              {/* Row 2: Job Field & Job Type */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="font-semibold text-slate-700 block mb-1">
+                    Job Role / Domain / Field *
+                  </label>
+                  <select
+                    value={driveForm.jobField}
+                    onChange={(e) => setDriveForm({ ...driveForm, jobField: e.target.value })}
+                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-medium"
+                  >
+                    {JOB_FIELDS.map((fld) => (
+                      <option key={fld} value={fld}>{fld}</option>
+                    ))}
+                  </select>
+                </div>
                 <div>
                   <label className="font-semibold text-slate-700 block mb-1">Job Type</label>
                   <select
@@ -535,6 +719,110 @@ export const PlacementDrives = () => {
                     <option value="Internship (6 Months)">Internship (6 Months)</option>
                   </select>
                 </div>
+              </div>
+
+              {/* Row 3: COURSE SELECTION (MULTI-SELECT INTERFACE) */}
+              <div className="p-3.5 rounded-xl bg-amber-50/50 border border-amber-200 space-y-2.5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <label className="font-bold text-amber-950 flex items-center gap-1.5 text-xs">
+                      <GraduationCap className="w-4 h-4 text-[#D99A00]" />
+                      Eligible Degree Courses (Multiple Selection) *
+                    </label>
+                    <span className="text-[11px] text-slate-500">
+                      Targeted notifications will ONLY be sent to students belonging to selected courses.
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleSelectAllCourses}
+                      className="text-[11px] font-semibold text-[#D99A00] hover:underline"
+                    >
+                      Select All
+                    </button>
+                    <span className="text-slate-300">|</span>
+                    <button
+                      type="button"
+                      onClick={handleClearAllCourses}
+                      className="text-[11px] font-semibold text-slate-500 hover:text-slate-700 hover:underline"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+
+                {/* Available Courses Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                  {AVAILABLE_COURSES.map((course) => {
+                    const isSelected = driveForm.eligibleCourses.includes(course);
+                    return (
+                      <button
+                        key={course}
+                        type="button"
+                        onClick={() => handleToggleCourse(course)}
+                        className={`flex items-start gap-2 p-2 rounded-lg text-left transition-all border ${
+                          isSelected
+                            ? 'bg-[#FFF8E6] border-[#D99A00] text-slate-900 shadow-2xs font-semibold'
+                            : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                        }`}
+                      >
+                        <div
+                          className={`w-4 h-4 rounded mt-0.5 flex items-center justify-center shrink-0 border ${
+                            isSelected
+                              ? 'bg-[#D99A00] border-[#D99A00] text-white'
+                              : 'border-slate-300 bg-white'
+                          }`}
+                        >
+                          {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
+                        </div>
+                        <span className="text-xs leading-tight">{course}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Custom / Additional Course Input */}
+                <div className="pt-2 border-t border-amber-200/60 flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={customCourseInput}
+                    onChange={(e) => setCustomCourseInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddCustomCourse();
+                      }
+                    }}
+                    placeholder="Add other custom course/branch..."
+                    className="flex-1 p-1.5 bg-white border border-slate-200 rounded-lg text-xs"
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={handleAddCustomCourse}
+                    className="!py-1.5 !text-xs"
+                  >
+                    Add Course
+                  </Button>
+                </div>
+
+                {/* Selected Courses Summary */}
+                <div className="text-[11px] text-slate-600">
+                  <span className="font-semibold text-slate-800">
+                    {driveForm.eligibleCourses.length} course(s) selected:
+                  </span>{' '}
+                  {driveForm.eligibleCourses.length > 0 ? (
+                    driveForm.eligibleCourses.join(', ')
+                  ) : (
+                    <span className="text-red-600 font-semibold">None selected (at least 1 required)</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Row 4: Compensation & Cutoffs */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="font-semibold text-slate-700 block mb-1">CTC Package Display *</label>
                   <input
@@ -546,9 +834,6 @@ export const PlacementDrives = () => {
                     className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-mono"
                   />
                 </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="font-semibold text-slate-700 block mb-1">Min CGPA Required</label>
                   <input
@@ -573,6 +858,7 @@ export const PlacementDrives = () => {
                 </div>
               </div>
 
+              {/* Row 5: Skills */}
               <div>
                 <label className="font-semibold text-slate-700 block mb-1">Required Skills (Comma-separated)</label>
                 <input
@@ -584,7 +870,8 @@ export const PlacementDrives = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              {/* Row 6: Schedule Dates */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="font-semibold text-slate-700 block mb-1">Drive Date *</label>
                   <input
@@ -607,23 +894,39 @@ export const PlacementDrives = () => {
                 </div>
               </div>
 
-              <div>
-                <label className="font-semibold text-slate-700 block mb-1">Assessment Venue / Platform</label>
-                <input
-                  type="text"
-                  value={driveForm.venue}
-                  onChange={(e) => setDriveForm({ ...driveForm, venue: e.target.value })}
-                  placeholder="e.g. Auditorium 2 & Online HackerEarth"
-                  className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800"
-                />
+              {/* Row 7: Venue & Evaluation Rounds */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="font-semibold text-slate-700 block mb-1">Assessment Venue / Platform</label>
+                  <input
+                    type="text"
+                    value={driveForm.venue}
+                    onChange={(e) => setDriveForm({ ...driveForm, venue: e.target.value })}
+                    placeholder="e.g. Auditorium 2 & Online HackerEarth"
+                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800"
+                  />
+                </div>
+                <div>
+                  <label className="font-semibold text-slate-700 block mb-1">Evaluation Rounds (Comma-separated)</label>
+                  <input
+                    type="text"
+                    value={driveForm.evaluationRounds}
+                    onChange={(e) => setDriveForm({ ...driveForm, evaluationRounds: e.target.value })}
+                    placeholder="e.g. Online Test, Tech Interview 1, HR"
+                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800"
+                  />
+                </div>
               </div>
 
+              {/* Actions */}
               <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
                 <Button variant="secondary" size="sm" onClick={() => setShowAddDriveModal(false)}>
                   Cancel
                 </Button>
                 <Button variant="primary" size="sm" type="submit" disabled={submitting}>
-                  {submitting ? 'Scheduling...' : 'Confirm & Schedule Drive'}
+                  {submitting
+                    ? (editingDriveId ? 'Updating...' : 'Scheduling...')
+                    : (editingDriveId ? 'Save & Sync Notifications' : 'Confirm & Schedule Drive')}
                 </Button>
               </div>
             </form>

@@ -15,6 +15,8 @@ import {
   Shield,
   Fuel,
   Users,
+  Download,
+  FileText,
 } from 'lucide-react';
 import Card from '../../../components/common/Card';
 import Badge from '../../../components/common/Badge';
@@ -238,6 +240,33 @@ export const StaffTransport = () => {
     }
   };
 
+  // Download Bus Pass as PDF
+  const [downloadingId, setDownloadingId] = useState(null);
+
+  const handleDownloadPassPdf = async (pass) => {
+    const passId = pass._id || pass.id || pass.passNumber;
+    if (!passId) return;
+    setDownloadingId(passId);
+    try {
+      const res = await staffService.downloadBusPassPdfBlob(passId);
+      const blob = new Blob([res.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `BusPass_${pass.passNumber || 'Commuter'}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Error downloading bus pass PDF, falling back to direct link:', err);
+      const directUrl = staffService.getBusPassPdfUrl(passId);
+      window.open(directUrl, '_blank');
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
   if (loading && vehicles.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-16">
@@ -340,7 +369,7 @@ export const StaffTransport = () => {
             }`}
           >
             <CreditCard className="w-4 h-4" />
-            Student Transport Passes
+            Transport Fee & Student Passes
             <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
               activeTab === 'passes' ? 'bg-[#FFFFFF]/20 text-[#FFFFFF]' : 'bg-[#FFF8E6] text-[#111827]'
             }`}>
@@ -540,8 +569,8 @@ export const StaffTransport = () => {
       {/* TAB 3: STUDENT TRANSPORT PASSES */}
       {activeTab === 'passes' && (
         <Card
-          title="Student Transport Commuter Passes"
-          subtitle="Issued suburban transport passes, designated boarding halts, and validity"
+          title="Transport Fee & Student Commuter Passes"
+          subtitle="Issued suburban transport passes, semester fee clearance, designated boarding halts, and printable bus passes"
           headerAction={
             <div className="relative">
               <Search className="w-3.5 h-3.5 text-[#4B5563] absolute left-3 top-2.5" />
@@ -570,7 +599,9 @@ export const StaffTransport = () => {
                     <th className="p-3.5">Pickup Stoppage</th>
                     <th className="p-3.5">Fleet Vehicle</th>
                     <th className="p-3.5">Valid Till</th>
-                    <th className="p-3.5 text-right">Pass Status</th>
+                    <th className="p-3.5 text-center">Fee Status</th>
+                    <th className="p-3.5 text-center">Pass Status</th>
+                    <th className="p-3.5 text-right">Bus Pass (PDF)</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#F1E7CF]">
@@ -598,10 +629,34 @@ export const StaffTransport = () => {
                       <td className="p-3.5 font-mono font-medium text-[#111827]">
                         {p.validTill ? new Date(p.validTill).toLocaleDateString('en-IN') : 'End of Academic Year'}
                       </td>
-                      <td className="p-3.5 text-right">
+                      <td className="p-3.5 text-center">
+                        <Badge variant="teal" size="sm">
+                          Paid
+                        </Badge>
+                      </td>
+                      <td className="p-3.5 text-center">
                         <Badge variant="teal" size="sm" hasDot>
                           {p.status}
                         </Badge>
+                      </td>
+                      <td className="p-3.5 text-right whitespace-nowrap">
+                        {p.passNumber ? (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            leftIcon={<Download className="w-3.5 h-3.5 text-[#D99A00]" />}
+                            onClick={() => handleDownloadPassPdf(p)}
+                            disabled={downloadingId === (p._id || p.id || p.passNumber)}
+                          >
+                            {downloadingId === (p._id || p.id || p.passNumber)
+                              ? 'Downloading...'
+                              : 'Download Bus Pass (PDF)'}
+                          </Button>
+                        ) : (
+                          <span className="text-[#4B5563] text-[11px] italic font-medium">
+                            Pass Info Pending
+                          </span>
+                        )}
                       </td>
                     </tr>
                   ))}

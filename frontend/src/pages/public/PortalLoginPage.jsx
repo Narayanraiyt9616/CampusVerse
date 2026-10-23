@@ -174,7 +174,11 @@ export const PortalLoginPage = () => {
     setSubmitting(true);
     try {
       await login(email, password, portal.canonicalRole);
-      const destination = location.state?.from?.pathname || portal.dashboardPath;
+      let destination = portal.dashboardPath;
+      const fromPath = location.state?.from?.pathname || (typeof location.state?.from === 'string' ? location.state.from : '');
+      if (fromPath && fromPath.startsWith(portal.dashboardPath)) {
+        destination = fromPath;
+      }
       navigate(destination, { replace: true });
     } catch (err) {
       setErrorMessage(
@@ -220,7 +224,10 @@ export const PortalLoginPage = () => {
                   <span>{portal.demoUser.label}</span>
                 </div>
                 <div className="text-xs text-[#64748B] font-mono font-semibold">
-                  {portal.demoUser.email}
+                  ID: <strong className="text-[#111827]">{portal.demoUser.email}</strong>
+                  {portal.demoUser.password && (
+                    <> • Password: <strong className="text-[#111827]">{portal.demoUser.password}</strong></>
+                  )}
                 </div>
               </div>
               <button

@@ -17,6 +17,10 @@ import {
   TrendingUp,
   MapPin,
   Sparkles,
+  FileText,
+  Eye,
+  Download,
+  Globe,
 } from 'lucide-react';
 import Card from '../../../components/common/Card';
 import Badge from '../../../components/common/Badge';
@@ -24,6 +28,34 @@ import Button from '../../../components/common/Button';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import AlertBanner from '../../../components/common/AlertBanner';
 import { placementService } from '../../../services/api';
+
+const getFullFileUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  const backendBase = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api').replace(/\/api\/?$/, '');
+  return `${backendBase}${url.startsWith('/') ? '' : '/'}${url}`;
+};
+
+const handleDownloadResume = async (resumeUrl, studentName) => {
+  if (!resumeUrl) return;
+  try {
+    const res = await fetch(resumeUrl);
+    if (!res.ok) throw new Error('File download failed');
+    const blob = await res.blob();
+    const blobUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    const ext = resumeUrl.split('.').pop()?.split(/[?#]/)[0] || 'pdf';
+    const filename = `${(studentName || 'Candidate').replace(/[^a-zA-Z0-9]/g, '_')}_Resume.${ext}`;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(blobUrl);
+  } catch (err) {
+    window.open(resumeUrl, '_blank');
+  }
+};
 
 export const PlacementApplications = () => {
   const [applications, setApplications] = useState([]);
@@ -96,7 +128,8 @@ export const PlacementApplications = () => {
       name.toLowerCase().includes(q) ||
       id.toLowerCase().includes(q) ||
       company.toLowerCase().includes(q) ||
-      role.toLowerCase().includes(q);
+      role.toLowerCase().includes(q) ||
+      (a.projects || []).some((p) => (p.title || '').toLowerCase().includes(q));
 
     return matchesStatus && matchesDrive && matchesSearch;
   });
@@ -316,6 +349,7 @@ export const PlacementApplications = () => {
                 <tr>
                   <th className="p-3.5">Candidate Details</th>
                   <th className="p-3.5">Company & Role</th>
+                  <th className="p-3.5">Resume & Live Projects</th>
                   <th className="p-3.5">Current Stage</th>
                   <th className="p-3.5">Interview / Offer Details</th>
                   <th className="p-3.5 text-center">Selection Status</th>
@@ -344,6 +378,92 @@ export const PlacementApplications = () => {
                       <span className="text-[10px] text-slate-400 font-mono">
                         {a.drive?.salaryPackage?.displayPackage}
                       </span>
+                    </td>
+
+                    <td className="p-3.5 min-w-[260px]">
+                      {/* Uploaded Resume */}
+                      <div className="mb-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1 mb-1">
+                          <FileText className="w-3 h-3 text-[#D99A00]" />
+                          Uploaded Resume
+                        </span>
+                        {a.resumeLink ? (
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <a
+                              href={getFullFileUrl(a.resumeLink)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-[#FFF8E6] text-[#D99A00] border border-[#F1E7CF] hover:bg-[#FFF2CC] transition-colors"
+                              title="View resume in new tab"
+                            >
+                              <Eye className="w-3 h-3" />
+                              View
+                            </a>
+                            <button
+                              type="button"
+                              onClick={() => handleDownloadResume(getFullFileUrl(a.resumeLink), a.student?.name)}
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 transition-colors cursor-pointer"
+                              title="Download resume file"
+                            >
+                              <Download className="w-3 h-3" />
+                              Download
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-slate-400 italic text-[11px] block">No resume uploaded</span>
+                        )}
+                      </div>
+
+                      {/* Submitted Live Projects */}
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1 mb-1">
+                          <Globe className="w-3 h-3 text-emerald-600" />
+                          Live Projects {a.projects?.length ? `(${a.projects.length})` : ''}
+                        </span>
+                        {a.projects && a.projects.length > 0 ? (
+                          <div className="space-y-1">
+                            {a.projects.map((proj) => (
+                              <div
+                                key={proj._id}
+                                className="flex items-center justify-between gap-1.5 p-1 rounded bg-slate-50 border border-slate-200/80 text-[11px]"
+                              >
+                                <span className="font-medium text-slate-800 truncate max-w-[130px]" title={proj.title}>
+                                  {proj.title}
+                                </span>
+                                <div className="flex items-center gap-1 shrink-0">
+                                  {proj.liveUrl && (
+                                    <a
+                                      href={proj.liveUrl.startsWith('http') ? proj.liveUrl : `https://${proj.liveUrl}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-colors"
+                                      title={`Open Live Demo: ${proj.liveUrl}`}
+                                    >
+                                      <Globe className="w-2.5 h-2.5" />
+                                      Live
+                                      <ExternalLink className="w-2.5 h-2.5 opacity-70" />
+                                    </a>
+                                  )}
+                                  {proj.githubUrl && (
+                                    <a
+                                      href={proj.githubUrl.startsWith('http') ? proj.githubUrl : `https://${proj.githubUrl}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200 transition-colors"
+                                      title={`Open GitHub: ${proj.githubUrl}`}
+                                    >
+                                      Code
+                                      <ExternalLink className="w-2.5 h-2.5 opacity-70" />
+                                    </a>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-slate-400 italic text-[11px] block">No live projects submitted</span>
+                        )}
+                      </div>
                     </td>
 
                     <td className="p-3.5 font-mono text-slate-700 font-medium">

@@ -127,7 +127,7 @@ export const Sidebar = ({
               <span className="text-[11px] text-[#FFC107] font-mono font-bold">RBAC Verified</span>
             </div>
             <div className="text-xs text-white/90 font-medium">
-              Portal: <strong className="text-white font-bold">{config.label}</strong>
+              Portal: <strong className="text-white font-bold">{config?.label || 'Portal'}</strong>
             </div>
           </div>
 
@@ -135,11 +135,11 @@ export const Sidebar = ({
           <div className="pt-2 border-t border-[#1F2937] flex items-center justify-between text-xs">
             <div className="flex items-center gap-2.5 overflow-hidden">
               <div className="w-8 h-8 rounded-full bg-[#D99A00] text-white font-bold flex items-center justify-center shrink-0 text-sm shadow-sm">
-                {(user?.name || config.profileName).charAt(0).toUpperCase()}
+                {(user?.name || config?.profileName || 'Admin').charAt(0).toUpperCase()}
               </div>
               <div className="truncate">
-                <p className="text-white font-bold truncate text-xs">{user?.name || config.profileName}</p>
-                <p className="text-[11px] text-[#F1E7CF] font-medium truncate">{user?.email || config.roleTitle}</p>
+                <p className="text-white font-bold truncate text-xs">{user?.name || config?.profileName || 'Administrator'}</p>
+                <p className="text-[11px] text-[#F1E7CF] font-medium truncate">{user?.email || config?.roleTitle || 'Campus Administrator'}</p>
               </div>
             </div>
             <button

@@ -129,18 +129,7 @@ const FALLBACK_DASHBOARD = {
       assignedTo: 'Transport Dispatcher'
     }
   ],
-  alerts: [
-    {
-      type: 'warning',
-      title: '1 Transit Route Reporting Delay',
-      message: 'Morning commuter bus schedule impacted by arterial traffic or road diversions.'
-    },
-    {
-      type: 'danger',
-      title: '1 High Priority Maintenance Ticket Pending',
-      message: 'Immediate electrical or HVAC dispatch required in resident blocks.'
-    }
-  ]
+  alerts: []
 };
 
 export const StaffOverview = () => {
@@ -188,7 +177,11 @@ export const StaffOverview = () => {
   const blocks = activeData.hostelBlocksSummary || FALLBACK_DASHBOARD.hostelBlocksSummary;
   const fleet = activeData.transportFleet || FALLBACK_DASHBOARD.transportFleet;
   const complaints = activeData.recentComplaints || FALLBACK_DASHBOARD.recentComplaints;
-  const alerts = activeData.alerts || FALLBACK_DASHBOARD.alerts;
+  const alerts = (activeData.alerts || FALLBACK_DASHBOARD.alerts || []).filter(
+    (al) =>
+      !al?.title?.toLowerCase().includes('transit route') &&
+      !al?.title?.toLowerCase().includes('maintenance ticket')
+  );
 
   return (
     <div className="space-y-6">

@@ -70,6 +70,7 @@ router.get('/fees', listFees);
 router.get('/fees/:id', getFee);
 router.post('/fees', createFee);
 router.patch('/fees/:id', updateFee);
+router.put('/fees/:id', updateFee);
 router.delete('/fees/:id', deleteFee);
 
 // 9. Timetable, Notices & Leave Approvals
@@ -87,6 +88,7 @@ router.patch('/leaves/:id/status', admin.adminUpdateLeaveStatus);
 
 // 10. Reports & System Settings
 router.get('/reports', admin.adminGetReportData);
+router.get('/reports/export', admin.adminExportReportData);
 router.get('/settings', admin.adminGetSystemSettings);
 
 module.exports = router;

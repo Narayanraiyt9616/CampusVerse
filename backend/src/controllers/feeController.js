@@ -92,30 +92,84 @@ exports.createFee = async (req, res, next) => {
   }
 };
 
-// PATCH /api/fees/:id - update (admin updates status, payment details)
+// PATCH & PUT /api/fees/:id - update (admin updates status, payment details, amount, category, dates, etc.)
 exports.updateFee = async (req, res, next) => {
   try {
     if (!checkDB(res)) return;
     const { id } = req.params;
-    const { status, paidAmount, paymentDate, paymentMode, receiptNumber, remarks, amount, dueDate, category, description } = req.body;
+    const {
+      status,
+      paidAmount,
+      paymentDate,
+      paymentMode,
+      receiptNumber,
+      remarks,
+      amount,
+      dueDate,
+      category,
+      description,
+      semester,
+      academicYear,
+    } = req.body;
 
     const fee = await Fee.findById(id);
-    if (!fee) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND' } });
+    if (!fee) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Fee record not found.' } });
 
-    if (status !== undefined) fee.status = status;
-    if (paidAmount !== undefined) fee.paidAmount = Number(paidAmount);
-    if (paymentDate !== undefined) fee.paymentDate = paymentDate ? new Date(paymentDate) : null;
+    // Validate amounts
+    if (amount !== undefined) {
+      const numAmt = Number(amount);
+      if (isNaN(numAmt) || numAmt < 0) {
+        return res.status(400).json({ success: false, error: { message: 'Invoiced amount must be a non-negative number.' } });
+      }
+      fee.amount = numAmt;
+    }
+
+    if (paidAmount !== undefined) {
+      const numPaid = Number(paidAmount);
+      if (isNaN(numPaid) || numPaid < 0) {
+        return res.status(400).json({ success: false, error: { message: 'Paid amount must be a non-negative number.' } });
+      }
+      fee.paidAmount = numPaid;
+    }
+
+    if (dueDate !== undefined) {
+      const parsedDate = new Date(dueDate);
+      if (isNaN(parsedDate.getTime())) {
+        return res.status(400).json({ success: false, error: { message: 'Invalid due date format.' } });
+      }
+      fee.dueDate = parsedDate;
+    }
+
+    if (category !== undefined) fee.category = category;
+    if (description !== undefined) fee.description = description;
     if (paymentMode !== undefined) fee.paymentMode = paymentMode;
     if (receiptNumber !== undefined) fee.receiptNumber = receiptNumber;
     if (remarks !== undefined) fee.remarks = remarks;
-    if (amount !== undefined) fee.amount = Number(amount);
-    if (dueDate !== undefined) fee.dueDate = new Date(dueDate);
-    if (category !== undefined) fee.category = category;
-    if (description !== undefined) fee.description = description;
+    if (semester !== undefined) fee.semester = Number(semester);
+    if (academicYear !== undefined) fee.academicYear = String(academicYear).trim();
+
+    if (paymentDate !== undefined) {
+      fee.paymentDate = paymentDate ? new Date(paymentDate) : null;
+    }
+
+    // Status logic: if explicitly provided, honor it; otherwise if paidAmount >= amount, mark as Paid
+    if (status !== undefined) {
+      fee.status = status;
+    } else if (fee.paidAmount >= fee.amount && fee.amount > 0) {
+      fee.status = 'Paid';
+    } else if (fee.paidAmount < fee.amount && fee.status === 'Paid') {
+      fee.status = 'Pending';
+    }
 
     await fee.save();
-    await fee.populate('student', 'studentId name email');
-    res.json({ success: true, data: fee, message: 'Fee record updated.' });
+    await fee.populate('student', 'studentId name email department semester');
+
+    return res.json({
+      success: true,
+      data: fee,
+      fee,
+      message: 'Fee invoice updated successfully.',
+    });
   } catch (err) {
     next(err);
   }

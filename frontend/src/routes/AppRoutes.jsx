@@ -73,11 +73,11 @@ export const AppRoutes = () => {
           }
         />
 
-        {/* Administrator Console (opens only with admin credentials) */}
+        {/* Administrator Console (opens only with admin or superadmin credentials) */}
         <Route
           path="/admin"
           element={
-            <ProtectedRoute allowedRoles={['admin']} portalLogin="/login/admin">
+            <ProtectedRoute allowedRoles={['admin', 'superadmin']} portalLogin="/login/admin">
               <AdminDashboard />
             </ProtectedRoute>
           }
@@ -85,7 +85,7 @@ export const AppRoutes = () => {
         <Route
           path="/admin/:section"
           element={
-            <ProtectedRoute allowedRoles={['admin']} portalLogin="/login/admin">
+            <ProtectedRoute allowedRoles={['admin', 'superadmin']} portalLogin="/login/admin">
               <AdminDashboard />
             </ProtectedRoute>
           }

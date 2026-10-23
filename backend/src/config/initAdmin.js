@@ -91,6 +91,31 @@ async function initializeAccounts() {
         password: process.env.PARENT_PASSWORD || 'Parent@2026',
         name: 'Rajendra Singhania',
         role: ROLES.PARENT,
+        metadata: { studentId: 'CS21B1042' },
+      },
+      {
+        username: 'parent_aditi',
+        email: 'parent.aditi@campusverse.edu',
+        password: process.env.PARENT_ADITI_PASSWORD || 'Parent@2026',
+        name: 'G. K. Nair',
+        role: ROLES.PARENT,
+        metadata: { studentId: 'CS21B1001' },
+      },
+      {
+        username: 'parent_rohan',
+        email: 'parent.rohan@campusverse.edu',
+        password: process.env.PARENT_ROHAN_PASSWORD || 'Parent@2026',
+        name: 'Suresh Deshmukh',
+        role: ROLES.PARENT,
+        metadata: { studentId: 'EC22B2014' },
+      },
+      {
+        username: 'parent_pooja',
+        email: 'parent.pooja@campusverse.edu',
+        password: process.env.PARENT_POOJA_PASSWORD || 'Parent@2026',
+        name: 'V. Iyer',
+        role: ROLES.PARENT,
+        metadata: { studentId: 'ME23B3008' },
       },
       {
         username: 'placementdemo',
@@ -128,11 +153,22 @@ async function initializeAccounts() {
           passwordHash,
           role: acc.role,
           status: 'active',
+          metadata: acc.metadata || {},
         });
         console.log(`[Auth Init] Created default account for role: ${acc.role} (${acc.email})`);
-      } else if (!existing.username) {
-        existing.username = acc.username;
-        await existing.save();
+      } else {
+        let changed = false;
+        if (!existing.username) {
+          existing.username = acc.username;
+          changed = true;
+        }
+        if (acc.metadata && (!existing.metadata || !existing.metadata.studentId)) {
+          existing.metadata = { ...(existing.metadata || {}), ...acc.metadata };
+          changed = true;
+        }
+        if (changed) {
+          await existing.save();
+        }
       }
     }
 

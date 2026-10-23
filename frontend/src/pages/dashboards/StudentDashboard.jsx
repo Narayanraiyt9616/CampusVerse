@@ -6,8 +6,14 @@ import {
   BookOpen, TrendingUp, AlertTriangle, CheckCircle2, Clock, FileText,
   Download, Eye, ChevronDown, ChevronUp, Award, Percent, BarChart3,
   ArrowLeft, RefreshCw, Loader2, Heart, Users2, CreditCard,
-  AlertCircle, Check, PlusCircle, Calendar, Star,
+  AlertCircle, Check, PlusCircle, Calendar, Star, FileCheck2, Briefcase, Code,
 } from 'lucide-react';
+import StudentAdmitCardSection from './student/StudentAdmitCardSection';
+import StudentPlacementSection from './student/StudentPlacementSection';
+import StudentAttendanceSection from './student/StudentAttendanceSection';
+import StudentProgressReportSection from './student/StudentProgressReportSection';
+import StudentAssignmentSection from './student/StudentAssignmentSection';
+import StudentLiveProjectSection from './student/StudentLiveProjectSection';
 import PageHeader from '../../components/common/PageHeader';
 import StatCard from '../../components/common/StatCard';
 import Card from '../../components/common/Card';
@@ -762,13 +768,17 @@ const FeesSection = ({ fees }) => {
 
 // ─── Overview Section ────────────────────────────────────────────────────────
 
-const OverviewSection = ({ profile, results, fees }) => {
+const OverviewSection = ({ profile, results, fees, notifications = [] }) => {
   const overall = DEMO_STUDENT.attendanceSummary.overallPercentage;
   const pendingAssignments = DEMO_STUDENT.assignments.filter((a) => a.status === 'Pending').length;
   const feeList = (fees && fees.length > 0) ? fees : DEMO_STUDENT.fees;
   const totalFees = feeList.reduce((s, f) => s + f.amount, 0);
   const paidFees = feeList.filter((f) => f.status === 'Paid').reduce((s, f) => s + (f.paidAmount || f.amount || 0), 0);
   const feeDue = totalFees - paidFees;
+
+  const placementNotifs = notifications.filter(
+    (n) => n.type === 'PLACEMENT_DRIVE' || n.category === 'Placement'
+  );
 
   return (
     <div className="space-y-6">
@@ -779,13 +789,63 @@ const OverviewSection = ({ profile, results, fees }) => {
         <StatCard title="Fee Balance" value={formatCurrency(feeDue)} subtitle="Outstanding dues" change={feeDue === 0 ? 'All cleared' : 'Due soon'} changeType={feeDue === 0 ? 'increase' : 'decrease'} icon={<IndianRupee className="w-5 h-5 text-[#D99A00]" />} />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+      {/* Target Course-Wise Placement Opportunity Alert */}
+      {placementNotifs.length > 0 && (
+        <div className="p-4 sm:p-5 rounded-2xl bg-[#FFF8E6] border border-[#D99A00] shadow-sm space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#F1E7CF] pb-2">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#D99A00] animate-ping" />
+              <h3 className="text-sm font-bold text-[#111827]">
+                A new placement opportunity is available for your course!
+              </h3>
+            </div>
+            <Link to="/student/placement">
+              <Button variant="primary" size="sm" className="!py-1 !text-xs">
+                View & Apply
+              </Button>
+            </Link>
+          </div>
+
+          <div className="space-y-2">
+            {placementNotifs.slice(0, 3).map((n) => {
+              const meta = n.metadata || {};
+              return (
+                <div key={n._id} className="p-3 bg-white rounded-xl border border-[#F1E7CF] text-xs">
+                  <div className="flex flex-wrap items-center justify-between gap-1">
+                    <span className="font-bold text-slate-900">{n.companyName || meta.companyName}</span>
+                    <Badge variant="teal" size="sm">{n.jobRole || meta.jobTitle || 'Role'}</Badge>
+                  </div>
+                  <p className="text-slate-600 mt-1 font-medium">{n.message}</p>
+                  <div className="flex flex-wrap items-center gap-3 mt-2 text-[11px] text-slate-500 font-mono">
+                    {meta.displayPackage && (
+                      <span className="font-bold text-[#D99A00]">{meta.displayPackage}</span>
+                    )}
+                    {(n.driveDate || meta.driveDate) && (
+                      <span>Drive Date: {new Date(n.driveDate || meta.driveDate).toLocaleDateString('en-IN')}</span>
+                    )}
+                    {(n.applicationDeadline || meta.applicationDeadline) && (
+                      <span className="text-red-700 font-bold">
+                        Deadline: {new Date(n.applicationDeadline || meta.applicationDeadline).toLocaleDateString('en-IN')}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         {[
-          { to: '/student/profile', label: 'My Profile', icon: <User className="w-5 h-5" />, desc: 'Personal details & guardian info' },
-          { to: '/student/academics', label: 'Academic History', icon: <GraduationCap className="w-5 h-5" />, desc: 'Marks, grades & CGPA progression' },
-          { to: '/student/attendance', label: 'Attendance', icon: <CalendarCheck className="w-5 h-5" />, desc: 'Subject-wise attendance records' },
-          { to: '/student/assignments', label: 'Assignments & Exams', icon: <ClipboardList className="w-5 h-5" />, desc: 'Tasks, deadlines & results' },
+          { to: '/student/profile', label: 'My Profile', icon: <User className="w-5 h-5" />, desc: 'Personal details & contact info' },
+          { to: '/student/attendance', label: 'Attendance Report', icon: <CalendarCheck className="w-5 h-5" />, desc: 'Subject-wise attendance & PDF report' },
+          { to: '/student/progress-report', label: 'Progress Report', icon: <TrendingUp className="w-5 h-5" />, desc: 'Assignments, midterms, lab marks & report' },
+          { to: '/student/assignments', label: 'Assignments & Exams', icon: <ClipboardList className="w-5 h-5" />, desc: 'Active tasks, submissions & exam schedule' },
+          { to: '/student/projects', label: 'Live Projects', icon: <Code className="w-5 h-5" />, desc: 'Project portfolio submission & faculty reviews' },
+          { to: '/student/admit-card', label: 'Admit Card', icon: <FileCheck2 className="w-5 h-5" />, desc: 'Examination hall tickets & schedule' },
           { to: '/student/fees', label: 'Fees', icon: <IndianRupee className="w-5 h-5" />, desc: 'Invoices & payment history' },
+          { to: '/student/placement', label: 'Placement Drives', icon: <Briefcase className="w-5 h-5" />, desc: 'Recruitment drives & resume application' },
         ].map((item) => (
           <Link key={item.to} to={item.to} className="group block">
             <div className="p-5 rounded-2xl border border-[#F1E7CF] bg-white hover:border-[#D99A00] shadow-sm hover:shadow-card-hover transition-all duration-200 group-hover:-translate-y-0.5 h-full">
@@ -826,6 +886,7 @@ export const StudentDashboard = () => {
   const [profile, setProfile] = useState(null);
   const [results, setResults] = useState([]);
   const [fees, setFees] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   const [assignments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -839,14 +900,16 @@ export const StudentDashboard = () => {
     setLoading(true);
     setError('');
     try {
-      const [profileRes, resultsRes, feesRes] = await Promise.allSettled([
+      const [profileRes, resultsRes, feesRes, notifRes] = await Promise.allSettled([
         studentService.getMyProfile(),
         resultService.list({ limit: 100 }),
         feeService.list({ limit: 100 }),
+        studentService.getMyNotifications({ limit: 50 }),
       ]);
       if (profileRes.status === 'fulfilled' && profileRes.value?.success) setProfile(profileRes.value.data);
       if (resultsRes.status === 'fulfilled' && resultsRes.value?.success) setResults(resultsRes.value.data || []);
       if (feesRes.status === 'fulfilled' && feesRes.value?.success) setFees(feesRes.value.data || []);
+      if (notifRes.status === 'fulfilled' && notifRes.value?.success) setNotifications(notifRes.value.data || []);
     } catch {
       setError('Some data could not be loaded. Showing demo data where applicable.');
     } finally {
@@ -880,10 +943,15 @@ export const StudentDashboard = () => {
 
   const SECTION_LABELS = {
     profile: 'My Profile',
-    academics: 'Academic History',
-    attendance: 'Attendance',
-    assignments: 'Assignments & Exams',
-    fees: 'Fees',
+    attendance: 'Attendance Report',
+    academics: 'Academic Progress Report',
+    'progress-report': 'Academic Progress Report',
+    assignments: 'Assignments & Examination Timetable',
+    projects: 'Live Project Portfolio',
+    'live-projects': 'Live Project Portfolio',
+    'admit-card': 'Admit Card & Hall Ticket',
+    fees: 'Fees & Invoices',
+    placement: 'Placement Drives & Recruitment',
   };
 
   const sectionLabel = currentSection ? (SECTION_LABELS[currentSection] || currentSection) : null;
@@ -937,14 +1005,38 @@ export const StudentDashboard = () => {
         </div>
       ) : (
         <>
-          {!currentSection && <OverviewSection profile={profile} results={results} fees={fees} />}
+          {!currentSection && (
+            <OverviewSection
+              profile={profile}
+              results={results}
+              fees={fees}
+              notifications={notifications}
+            />
+          )}
           {(!currentSection || currentSection === 'profile') && (
             <ProfileSection user={user} profile={profile} onSave={handleSaveProfile} saving={saving} />
           )}
-          {(!currentSection || currentSection === 'academics') && <AcademicsSection results={results} />}
-          {(!currentSection || currentSection === 'attendance') && <AttendanceSection />}
-          {(!currentSection || currentSection === 'assignments') && <AssignmentsSection results={results} assignments={assignments} />}
-          {(!currentSection || currentSection === 'fees') && <FeesSection fees={fees} />}
+          {(!currentSection || currentSection === 'attendance') && (
+            <StudentAttendanceSection profile={profile} />
+          )}
+          {(!currentSection || currentSection === 'progress-report' || currentSection === 'academics') && (
+            <StudentProgressReportSection profile={profile} />
+          )}
+          {(!currentSection || currentSection === 'assignments') && (
+            <StudentAssignmentSection profile={profile} />
+          )}
+          {(!currentSection || currentSection === 'projects' || currentSection === 'live-projects') && (
+            <StudentLiveProjectSection profile={profile} />
+          )}
+          {currentSection === 'admit-card' && (
+            <StudentAdmitCardSection profile={profile} />
+          )}
+          {currentSection === 'placement' && (
+            <StudentPlacementSection profile={profile} />
+          )}
+          {(!currentSection || currentSection === 'fees') && (
+            <FeesSection fees={fees} />
+          )}
         </>
       )}
     </div>

@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const path = require('path');
 
 // Auth routes and middleware
 const authRoutes = require('./routes/authRoutes');
@@ -43,8 +44,8 @@ const createApp = () => {
 
   // Parse cookies and request bodies
   app.use(cookieParser());
-  app.use(express.json({ limit: '1mb' }));
-  app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+  app.use(express.json({ limit: '10mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
   // Public auth endpoints (no auth required)
   app.use('/api/auth', authRoutes);
@@ -87,7 +88,12 @@ const createApp = () => {
   app.use('/api/parent', authMiddleware, require('./routes/parentRoutes'));
   app.use('/api/staff', authMiddleware, require('./routes/staffRoutes'));
   app.use('/api/placement', authMiddleware, require('./routes/placementRoutes'));
+  app.use('/api/admit-cards', authMiddleware, require('./routes/admitCardRoutes'));
+  app.use('/api/search', authMiddleware, require('./routes/searchRoutes'));
+  app.use('/api/projects', authMiddleware, require('./routes/projectRoutes'));
 
+  // Static uploads for assignment files and resumes
+  app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
   // 404 and error handling
   app.use(notFoundMiddleware);

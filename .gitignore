@@ -45,3 +45,7 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
+
+# Uploads
+backend/uploads/*
+!backend/uploads/**/.gitkeep

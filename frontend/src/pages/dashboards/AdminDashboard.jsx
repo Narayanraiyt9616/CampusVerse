@@ -20,6 +20,8 @@ import {
   ArrowLeft,
   LayoutDashboard,
   GraduationCap,
+  Download,
+  Plus,
 } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader';
 import Badge from '../../components/common/Badge';
@@ -43,6 +45,7 @@ import AdminSchedule from './admin/AdminSchedule';
 import AdminApprovals from './admin/AdminApprovals';
 import AdminReports from './admin/AdminReports';
 import AdminSettings from './admin/AdminSettings';
+import AdminAdmitCards from './admin/AdminAdmitCards';
 
 const SECTIONS_NAV = [
   { id: '', label: 'Executive Overview', icon: LayoutDashboard },
@@ -52,6 +55,7 @@ const SECTIONS_NAV = [
   { id: 'academics', label: 'Academics', icon: Building2 },
   { id: 'attendance', label: 'Attendance', icon: CalendarCheck },
   { id: 'examinations', label: 'Exams & Results', icon: Award },
+  { id: 'admit-cards', label: 'Admit Cards', icon: FileCheck2 },
   { id: 'fees', label: 'Fees & Invoices', icon: IndianRupee },
   { id: 'schedule', label: 'Schedule & Notices', icon: Clock },
   { id: 'approvals', label: 'Leaves & Approvals', icon: FileCheck2 },
@@ -83,6 +87,15 @@ export const AdminDashboard = () => {
   const [createLoading, setCreateLoading] = useState(false);
   const [createError, setCreateError] = useState('');
   const [createSuccess, setCreateSuccess] = useState('');
+
+  // Export Reports modal state
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [exportType, setExportType] = useState('students');
+  const [exportFormat, setExportFormat] = useState('csv');
+  const [exportLoading, setExportLoading] = useState(false);
+  const [exportError, setExportError] = useState('');
+  // Admit Card creation modal trigger for header action
+  const [admitCardModalTrigger, setAdmitCardModalTrigger] = useState(0);
 
   const currentSection = section ? section.toLowerCase() : '';
 
@@ -143,6 +156,8 @@ export const AdminDashboard = () => {
         return 'Attendance Monitoring & Shortage Enforcement';
       case 'examinations':
         return 'Examinations Schedule & Results Publishing';
+      case 'admit-cards':
+        return 'Admit Card Management & Examination Hall Tickets';
       case 'fees':
         return 'Institutional Fees Invoicing & Financial Ledger';
       case 'schedule':
@@ -180,23 +195,41 @@ export const AdminDashboard = () => {
                 </Button>
               </Link>
             )}
+            {currentSection === 'credentials' && (
+              <Button
+                variant="primary"
+                size="sm"
+                leftIcon={<Key className="w-3.5 h-3.5" />}
+                onClick={() => {
+                  setIsCreateModalOpen(true);
+                  setCreateError('');
+                  setCreateSuccess('');
+                }}
+              >
+                Create Credentials
+              </Button>
+            )}
+            {currentSection === 'admit-cards' && (
+              <Button
+                variant="primary"
+                size="sm"
+                leftIcon={<Plus className="w-3.5 h-3.5" />}
+                onClick={() => setAdmitCardModalTrigger((prev) => prev + 1)}
+              >
+                Create Admit Card
+              </Button>
+            )}
             <Button
-              variant="primary"
+              variant="secondary"
               size="sm"
-              leftIcon={<Key className="w-3.5 h-3.5" />}
+              leftIcon={<FileSpreadsheet className="w-3.5 h-3.5" />}
               onClick={() => {
-                setIsCreateModalOpen(true);
-                setCreateError('');
-                setCreateSuccess('');
+                setIsExportModalOpen(true);
+                setExportError('');
               }}
             >
-              Create Credentials
+              Export Reports
             </Button>
-            <Link to="/admin/reports">
-              <Button variant="secondary" size="sm" leftIcon={<FileSpreadsheet className="w-3.5 h-3.5" />}>
-                Export Reports
-              </Button>
-            </Link>
           </div>
         }
       />
@@ -232,6 +265,7 @@ export const AdminDashboard = () => {
         {(currentSection === 'academics' || currentSection === 'departments') && <AdminAcademics />}
         {currentSection === 'attendance' && <AdminAttendance />}
         {currentSection === 'examinations' && <AdminExaminations />}
+        {currentSection === 'admit-cards' && <AdminAdmitCards createTrigger={admitCardModalTrigger} />}
         {currentSection === 'fees' && <AdminFees />}
         {currentSection === 'schedule' && <AdminSchedule />}
         {(currentSection === 'approvals' || currentSection === 'complaints') && <AdminApprovals />}
@@ -344,6 +378,188 @@ export const AdminDashboard = () => {
               value={credForm.name}
               onChange={(e) => setCredForm((prev) => ({ ...prev, name: e.target.value }))}
             />
+          </div>
+        </div>
+      </Modal>
+
+      {/* Global Interactive Export Reports Modal */}
+      <Modal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        title="Export Institutional Data & Reports"
+        description="Generate and download comprehensive official university datasets with accurate, live database records."
+        footer={
+          <div className="flex items-center justify-between w-full">
+            <Link
+              to="/admin/reports"
+              onClick={() => setIsExportModalOpen(false)}
+              className="text-xs font-bold text-[#D99A00] hover:underline"
+            >
+              Open Interactive Reports Table →
+            </Link>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setIsExportModalOpen(false)}
+              >
+                Close
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                isLoading={exportLoading}
+                disabled={exportLoading}
+                leftIcon={<Download className="w-3.5 h-3.5" />}
+                onClick={async () => {
+                  setExportLoading(true);
+                  setExportError('');
+                  try {
+                    const res = await adminService.getReportData(exportType);
+                    const rows = (res && res.data) || [];
+                    if (rows.length === 0) {
+                      setExportError('No records available for the selected report category.');
+                      return;
+                    }
+                    const timestamp = new Date().toISOString().slice(0, 10);
+                    const filename = `CampusVerse_${exportType}_Report_${timestamp}.${exportFormat}`;
+
+                    if (exportFormat === 'json') {
+                      const jsonStr = JSON.stringify(rows, null, 2);
+                      const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8;' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = filename;
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                      URL.revokeObjectURL(url);
+                    } else {
+                      const headers = Object.keys(rows[0]);
+                      let csv = '\uFEFF';
+                      csv += headers.map((h) => `"${String(h).replace(/"/g, '""')}"`).join(',') + '\r\n';
+                      rows.forEach((r) => {
+                        csv += headers.map((h) => `"${String(r[h] ?? '').replace(/"/g, '""')}"`).join(',') + '\r\n';
+                      });
+                      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = filename;
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                      URL.revokeObjectURL(url);
+                    }
+                    setIsExportModalOpen(false);
+                  } catch (err) {
+                    setExportError(err.message || 'Failed to download report.');
+                  } finally {
+                    setExportLoading(false);
+                  }
+                }}
+              >
+                {exportLoading ? 'Generating File...' : `Download ${exportFormat.toUpperCase()}`}
+              </Button>
+            </div>
+          </div>
+        }
+      >
+        <div className="space-y-4">
+          {exportError && (
+            <AlertBanner
+              variant="error"
+              title="Export Error"
+              message={exportError}
+              dismissible
+              onDismiss={() => setExportError('')}
+            />
+          )}
+
+          <div>
+            <label className="block text-xs font-bold text-[#111827] uppercase tracking-wider mb-2">
+              Select Report Dataset
+            </label>
+            <select
+              value={exportType}
+              onChange={(e) => setExportType(e.target.value)}
+              className="w-full h-11 px-4 text-sm font-semibold rounded-xl border border-[#F1E7CF] bg-white text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#D99A00]"
+            >
+              <option value="students">Student Enrollment Registry (Students, Programs, Semesters)</option>
+              <option value="faculty">Faculty & Academic Staff Roster (Designations, Qualifications)</option>
+              <option value="attendance">Attendance Compliance & Shortage Report (Percentages, Defaulters)</option>
+              <option value="results">Academic Performance & Examination Results (Grades, Marks)</option>
+              <option value="fees">Institutional Fee Invoices & Dues Ledger (Collections, Balances)</option>
+              <option value="admit-cards">Examination Admit Cards & Hall Ticket Registry</option>
+              <option value="courses">Course Catalog & Curricula Mapping (Credits, Departments)</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-[#111827] uppercase tracking-wider mb-2">
+              Export File Format
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <label
+                className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-colors ${
+                  exportFormat === 'csv'
+                    ? 'border-[#D99A00] bg-[#FFF8E6]/50 ring-1 ring-[#D99A00]'
+                    : 'border-[#F1E7CF] bg-white'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="exportFormat"
+                    value="csv"
+                    checked={exportFormat === 'csv'}
+                    onChange={() => setExportFormat('csv')}
+                    className="accent-[#D99A00]"
+                  />
+                  <div>
+                    <p className="text-xs font-bold text-[#111827]">CSV / Excel</p>
+                    <p className="text-[10px] text-[#4B5563]">Spreadsheet compatible with UTF-8</p>
+                  </div>
+                </div>
+                <FileSpreadsheet className="w-4 h-4 text-[#D99A00]" />
+              </label>
+
+              <label
+                className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-colors ${
+                  exportFormat === 'json'
+                    ? 'border-[#D99A00] bg-[#FFF8E6]/50 ring-1 ring-[#D99A00]'
+                    : 'border-[#F1E7CF] bg-white'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="exportFormat"
+                    value="json"
+                    checked={exportFormat === 'json'}
+                    onChange={() => setExportFormat('json')}
+                    className="accent-[#D99A00]"
+                  />
+                  <div>
+                    <p className="text-xs font-bold text-[#111827]">JSON Dataset</p>
+                    <p className="text-[10px] text-[#4B5563]">Structured programmatic schema</p>
+                  </div>
+                </div>
+                <FileCheck2 className="w-4 h-4 text-[#D99A00]" />
+              </label>
+            </div>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-[#4B5563] space-y-1">
+            <p className="font-bold text-[#111827] flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+              Complete & Live Data Export Guarantee:
+            </p>
+            <p className="leading-relaxed">
+              The exported file will contain all live records directly from MongoDB without pagination truncation,
+              including academic metadata, student identifications, and ledger records.
+            </p>
           </div>
         </div>
       </Modal>

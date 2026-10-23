@@ -19,11 +19,10 @@ import Button from '../../components/common/Button';
 import { useAuth } from '../../context/AuthContext';
 import { parentService } from '../../services/api';
 
-// Subcomponents for the 6 Parent Portal modules
+// Subcomponents for the Parent Portal modules
 import ParentOverview from './parent/ParentOverview';
 import ParentStudentInfo from './parent/ParentStudentInfo';
 import ParentAcademics from './parent/ParentAcademics';
-import ParentSchedule from './parent/ParentSchedule';
 import ParentFees from './parent/ParentFees';
 import ParentNotices from './parent/ParentNotices';
 
@@ -31,7 +30,6 @@ const SECTIONS = [
   { id: 'dashboard', path: '/parent', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'student', path: '/parent/student', label: 'Student Information', icon: User },
   { id: 'academics', path: '/parent/academics', label: 'Attendance & Results', icon: CalendarCheck },
-  { id: 'schedule', path: '/parent/schedule', label: 'Assignments & Timetable', icon: Clock },
   { id: 'fees', path: '/parent/fees', label: 'Fees & Invoices', icon: IndianRupee },
   { id: 'notices', path: '/parent/notices', label: 'Notices & Alerts', icon: FileCheck2 },
 ];
@@ -54,8 +52,7 @@ export const ParentDashboard = () => {
         const res = await parentService.getWards();
         if (res && res.success && res.wards?.length > 0) {
           setWards(res.wards);
-          const defaultWard =
-            res.wards.find((w) => w.studentId === 'CS21B1042') || res.wards[0];
+          const defaultWard = res.wards[0];
           if (!selectedStudentId) {
             setSelectedStudentId(defaultWard._id);
           }
@@ -99,21 +96,6 @@ export const ParentDashboard = () => {
       subtitle: 'Subject-wise attendance compliance, lecture turnstile logs, and published grades',
       breadcrumb: 'Attendance & Results',
     },
-    schedule: {
-      title: 'Coursework Deadlines & Class Schedules',
-      subtitle: 'Weekly timetable, homework assignments, and upcoming examination seatings',
-      breadcrumb: 'Assignments & Timetable',
-    },
-    timetable: {
-      title: 'Coursework Deadlines & Class Schedules',
-      subtitle: 'Weekly timetable, homework assignments, and upcoming examination seatings',
-      breadcrumb: 'Assignments & Timetable',
-    },
-    assignments: {
-      title: 'Coursework Deadlines & Class Schedules',
-      subtitle: 'Weekly timetable, homework assignments, and upcoming examination seatings',
-      breadcrumb: 'Assignments & Timetable',
-    },
     fees: {
       title: 'Institutional Invoicing & Bursar Ledger',
       subtitle: 'Verified payment history, outstanding semester balances, and e-receipts',
@@ -146,10 +128,6 @@ export const ParentDashboard = () => {
       case 'attendance':
       case 'results':
         return <ParentAcademics selectedStudentId={selectedStudentId} />;
-      case 'schedule':
-      case 'timetable':
-      case 'assignments':
-        return <ParentSchedule selectedStudentId={selectedStudentId} />;
       case 'fees':
       case 'invoices':
         return <ParentFees selectedStudentId={selectedStudentId} />;
@@ -182,22 +160,28 @@ export const ParentDashboard = () => {
           <span className="text-[#111827] font-bold">{meta.breadcrumb}</span>
         </div>
 
-        {/* Global Ward Switcher Dropdown */}
+        {/* Global Ward Switcher Strip */}
         {wards.length > 0 && (
           <div className="flex items-center gap-2 bg-white px-3.5 py-1.5 rounded-xl border border-[#F1E7CF] shadow-sm">
             <Users className="w-4 h-4 text-[#D99A00]" />
             <span className="text-xs font-bold text-[#111827]">Ward:</span>
-            <select
-              value={selectedStudentId}
-              onChange={(e) => setSelectedStudentId(e.target.value)}
-              className="text-xs font-bold text-[#111827] bg-transparent border-0 focus:ring-0 focus:outline-none cursor-pointer"
-            >
-              {wards.map((w) => (
-                <option key={w._id} value={w._id}>
-                  {w.name} ({w.studentId})
-                </option>
-              ))}
-            </select>
+            {wards.length > 1 ? (
+              <select
+                value={selectedStudentId}
+                onChange={(e) => setSelectedStudentId(e.target.value)}
+                className="text-xs font-bold text-[#111827] bg-transparent border-0 focus:ring-0 focus:outline-none cursor-pointer"
+              >
+                {wards.map((w) => (
+                  <option key={w._id} value={w._id}>
+                    {w.name} ({w.studentId})
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <span className="text-xs font-bold text-[#111827]">
+                {wards[0].name} ({wards[0].studentId})
+              </span>
+            )}
           </div>
         )}
       </div>
@@ -217,7 +201,7 @@ export const ParentDashboard = () => {
         }
       />
 
-      {/* Modern Navigation Pills Strip for all 6 Modules */}
+      {/* Modern Navigation Pills Strip for Parent Portal Modules */}
       <div className="bg-white p-2 rounded-2xl border border-[#F1E7CF] shadow-sm flex items-center gap-2 overflow-x-auto scrollbar-none">
         {SECTIONS.map((sec) => {
           const Icon = sec.icon;
@@ -225,7 +209,6 @@ export const ParentDashboard = () => {
             (currentSection === 'dashboard' && sec.id === 'dashboard') ||
             currentSection === sec.id ||
             (sec.id === 'academics' && (currentSection === 'attendance' || currentSection === 'results')) ||
-            (sec.id === 'schedule' && (currentSection === 'timetable' || currentSection === 'assignments')) ||
             (sec.id === 'fees' && currentSection === 'invoices') ||
             (sec.id === 'notices' && currentSection === 'alerts');
 

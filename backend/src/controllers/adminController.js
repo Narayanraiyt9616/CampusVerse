@@ -11,6 +11,7 @@ const AssignmentSubmission = require('../models/AssignmentSubmission');
 const Exam = require('../models/Exam');
 const Result = require('../models/Result');
 const Fee = require('../models/Fee');
+const AdmitCard = require('../models/AdmitCard');
 const Notice = require('../models/Notice');
 const LeaveApplication = require('../models/LeaveApplication');
 const Timetable = require('../models/Timetable');
@@ -556,6 +557,12 @@ exports.createCredentials = async (req, res) => {
 
     const passwordHash = await bcrypt.hash(cleanPassword, SALT_ROUNDS);
 
+    let sid = req.body.studentId || req.body.metadata?.studentId;
+    if (!sid && targetRole === ROLES.PARENT) {
+      const match = cleanUsername.match(/[a-z]{2}[0-9]{2}[a-z][0-9]{4}/i);
+      if (match) sid = match[0].toUpperCase();
+    }
+
     let user = await User.findOne({ username: cleanUsername });
     if (user) {
       user.passwordHash = passwordHash;
@@ -563,10 +570,18 @@ exports.createCredentials = async (req, res) => {
       user.status = 'active';
       user.mustChangePassword = false;
       if (name) user.name = cleanName;
+      if (targetRole === ROLES.PARENT && sid) {
+        user.metadata = { ...(user.metadata || {}), studentId: String(sid).trim().toUpperCase() };
+      }
       await user.save();
     } else {
       const existingEmail = await User.findOne({ email: cleanEmail });
       const finalEmail = existingEmail ? `${cleanUsername}.${Date.now()}@campusverse.edu` : cleanEmail;
+
+      const metadata = {};
+      if (targetRole === ROLES.PARENT && sid) {
+        metadata.studentId = String(sid).trim().toUpperCase();
+      }
 
       user = await User.create({
         username: cleanUsername,
@@ -576,6 +591,7 @@ exports.createCredentials = async (req, res) => {
         role: targetRole,
         status: 'active',
         mustChangePassword: false,
+        metadata,
       });
     }
 
@@ -1872,112 +1888,289 @@ exports.adminUpdateLeaveStatus = async (req, res) => {
 };
 
 /* ──────────────────────────────────────────────────────────────────────────
-   10. REPORTS & ANALYTICS DATASET GENERATOR
+   10. REPORTS & ANALYTICS DATASET GENERATOR & EXPORTER
    ────────────────────────────────────────────────────────────────────────── */
+
+/**
+ * Reusable helper to assemble complete, accurate report records across all institutional domains.
+ */
+async function fetchReportDataset(type = 'students') {
+  const normType = String(type).trim().toLowerCase();
+
+  // 1. Student Enrollment Registry
+  if (normType === 'students') {
+    const students = await Student.find()
+      .populate('department', 'name code')
+      .sort({ studentId: 1 })
+      .lean();
+
+    const rows = students.map((s) => ({
+      'Student ID': s.studentId || 'N/A',
+      'Name': s.name || 'N/A',
+      'Email': s.email || 'N/A',
+      'Department': s.department?.name || 'Unassigned',
+      'Semester': s.semester || 1,
+      'Enrollment Year': s.enrollmentYear || 'N/A',
+      'Status': s.status || 'Active',
+    }));
+
+    return {
+      reportType: 'students',
+      title: 'Student Enrollment Registry',
+      rows,
+    };
+  }
+
+  // 2. Teaching Faculty & Academic Staff
+  if (normType === 'faculty') {
+    const faculties = await Faculty.find()
+      .populate('department', 'name code')
+      .sort({ name: 1 })
+      .lean();
+
+    const rows = faculties.map((f) => ({
+      'Faculty ID': f.facultyId || 'N/A',
+      'Name': f.name || 'N/A',
+      'Email': f.email || 'N/A',
+      'Department': f.department?.name || 'General Faculty',
+      'Designation': f.designation || 'Lecturer',
+      'Qualification': f.qualification || 'M.Tech / Ph.D',
+      'Joining Date': f.joiningDate ? new Date(f.joiningDate).toLocaleDateString('en-IN') : 'N/A',
+      'Status': f.status || 'Active',
+    }));
+
+    return {
+      reportType: 'faculty',
+      title: 'Teaching Faculty & Academic Staff Registry',
+      rows,
+    };
+  }
+
+  // 3. Attendance Compliance & Shortage Report
+  if (normType === 'attendance') {
+    const attendance = await Attendance.find({})
+      .populate('records.student', 'name studentId email department semester')
+      .lean();
+
+    const studentMap = {};
+
+    attendance.forEach((att) => {
+      (att.records || []).forEach((r) => {
+        if (r.student && r.student._id) {
+          const sid = r.student._id.toString();
+          if (!studentMap[sid]) {
+            studentMap[sid] = {
+              student: r.student,
+              total: 0,
+              present: 0,
+              absent: 0,
+            };
+          }
+          studentMap[sid].total += 1;
+          if (r.status === 'Present') studentMap[sid].present += 1;
+          else if (r.status === 'Absent') studentMap[sid].absent += 1;
+        }
+      });
+    });
+
+    const rows = Object.values(studentMap).map((item) => {
+      const pct = item.total > 0 ? Math.round((item.present / item.total) * 100) : 0;
+      return {
+        'Student ID': item.student.studentId || 'N/A',
+        'Name': item.student.name || 'Unknown',
+        'Semester': item.student.semester || 'N/A',
+        'Total Sessions': item.total,
+        'Present Count': item.present,
+        'Absent Count': item.absent,
+        'Attendance Percentage': `${pct}%`,
+        'Compliance Status': pct >= 75 ? 'Compliant' : 'Shortage Defaulter',
+      };
+    });
+
+    return {
+      reportType: 'attendance',
+      title: 'Institutional Attendance Compliance & Shortage Report',
+      rows,
+    };
+  }
+
+  // 4. Academic Performance & Results
+  if (normType === 'results') {
+    const results = await Result.find()
+      .populate('student', 'name studentId semester')
+      .populate('course', 'courseCode title')
+      .sort({ semester: 1 })
+      .lean();
+
+    const rows = results.map((r) => {
+      const pct = r.maxMarks > 0 ? Math.round((r.marksObtained / r.maxMarks) * 100) : 0;
+      return {
+        'Roll Number': r.student?.studentId || 'N/A',
+        'Student Name': r.student?.name || 'N/A',
+        'Course Code': r.course?.courseCode || 'N/A',
+        'Course Title': r.course?.title || 'N/A',
+        'Assessment': r.assessmentName || 'Assessment',
+        'Marks Obtained': r.marksObtained,
+        'Max Marks': r.maxMarks,
+        'Score Percentage': `${pct}%`,
+        'Grade Status': pct >= 40 ? 'Pass' : 'Fail',
+        'Published Status': r.published ? 'Published' : 'Draft',
+      };
+    });
+
+    return {
+      reportType: 'results',
+      title: 'Academic Performance & Examination Results Report',
+      rows,
+    };
+  }
+
+  // 5. Fee Dues & Realized Collections
+  if (normType === 'fees') {
+    const fees = await Fee.find()
+      .populate('student', 'name studentId email')
+      .sort({ dueDate: -1 })
+      .lean();
+
+    const rows = fees.map((f) => {
+      const balance = Math.max(0, (f.amount || 0) - (f.paidAmount || 0));
+      return {
+        'Invoice Number': f.invoiceNumber || 'N/A',
+        'Student ID': f.student?.studentId || 'N/A',
+        'Student Name': f.student?.name || 'N/A',
+        'Category': f.category || 'Tuition Fee',
+        'Total Invoiced Amount': f.amount || 0,
+        'Paid Amount': f.paidAmount || 0,
+        'Outstanding Dues': balance,
+        'Payment Status': f.status || 'Pending',
+        'Due Date': f.dueDate ? new Date(f.dueDate).toLocaleDateString('en-IN') : 'N/A',
+        'Payment Date': f.paymentDate ? new Date(f.paymentDate).toLocaleDateString('en-IN') : 'N/A',
+        'Payment Mode': f.paymentMode || 'N/A',
+        'Receipt Number': f.receiptNumber || 'N/A',
+        'Semester': f.semester || 'N/A',
+        'Academic Year': f.academicYear || '2025-2026',
+      };
+    });
+
+    return {
+      reportType: 'fees',
+      title: 'Institutional Fee Dues & Realized Collections Ledger',
+      rows,
+    };
+  }
+
+  // 6. Examination Admit Cards & Hall Tickets
+  if (normType === 'admit-cards' || normType === 'admitcards') {
+    const admitCards = await AdmitCard.find()
+      .populate('department', 'name code')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const rows = admitCards.map((ac) => ({
+      'Student ID': ac.studentId || 'N/A',
+      'Candidate Name': ac.studentName || 'N/A',
+      'Department': ac.departmentName || ac.department?.name || 'Engineering',
+      'Semester': ac.semester || 1,
+      'Examination': ac.examTitle || 'Semester Examination',
+      'Session': ac.examSession || 'Spring 2026',
+      'Exam Window': ac.examDate || 'Scheduled Window',
+      'Issue Status': ac.status || 'Issued',
+      'Revision Count': ac.reissueCount || 0,
+      'Issue Date': ac.issueDate ? new Date(ac.issueDate).toLocaleDateString('en-IN') : 'N/A',
+    }));
+
+    return {
+      reportType: 'admit-cards',
+      title: 'Examination Admit Cards & Hall Ticket Registry',
+      rows,
+    };
+  }
+
+  // 7. Academic Courses & Curricula
+  if (normType === 'courses') {
+    const courses = await Course.find()
+      .populate('department', 'name code')
+      .sort({ courseCode: 1 })
+      .lean();
+
+    const rows = courses.map((c) => ({
+      'Course Code': c.courseCode || 'N/A',
+      'Course Title': c.title || 'N/A',
+      'Department': c.department?.name || 'Engineering',
+      'Semester': c.semester || 1,
+      'Credits': c.credits || 3,
+      'Type': c.type || 'Core',
+    }));
+
+    return {
+      reportType: 'courses',
+      title: 'Academic Course Catalog & Curricula Registry',
+      rows,
+    };
+  }
+
+  throw new Error(`Unsupported report type: "${type}". Supported: students, faculty, attendance, results, fees, admit-cards, courses.`);
+}
+
 exports.adminGetReportData = async (req, res) => {
   try {
     const { type = 'students' } = req.query;
+    const { reportType, title, rows } = await fetchReportDataset(type);
 
-    if (type === 'students') {
-      const students = await Student.find().populate('department', 'name code').sort({ studentId: 1 });
-      const rows = students.map((s) => ({
-        'Student ID': s.studentId,
-        'Name': s.name,
-        'Email': s.email,
-        'Department': s.department?.name || 'Unassigned',
-        'Semester': s.semester,
-        'Enrollment Year': s.enrollmentYear,
-        'Status': s.status,
-      }));
-      return res.json({ success: true, reportType: 'students', title: 'Student Enrollment Registry', count: rows.length, data: rows });
-    }
-
-    if (type === 'attendance') {
-      const attendance = await Attendance.find({}).populate('records.student', 'name studentId email department semester');
-      const studentMap = {};
-
-      attendance.forEach((att) => {
-        (att.records || []).forEach((r) => {
-          if (r.student && r.student._id) {
-            const sid = r.student._id.toString();
-            if (!studentMap[sid]) {
-              studentMap[sid] = {
-                student: r.student,
-                total: 0,
-                present: 0,
-                absent: 0,
-              };
-            }
-            studentMap[sid].total += 1;
-            if (r.status === 'Present') studentMap[sid].present += 1;
-            else if (r.status === 'Absent') studentMap[sid].absent += 1;
-          }
-        });
-      });
-
-      const rows = Object.values(studentMap).map((item) => {
-        const pct = item.total > 0 ? Math.round((item.present / item.total) * 100) : 0;
-        return {
-          'Student ID': item.student.studentId || 'N/A',
-          'Name': item.student.name || 'Unknown',
-          'Semester': item.student.semester || 'N/A',
-          'Total Sessions': item.total,
-          'Present Count': item.present,
-          'Absent Count': item.absent,
-          'Attendance Percentage': `${pct}%`,
-          'Status': pct >= 75 ? 'Compliant' : 'Shortage Defaulter',
-        };
-      });
-
-      return res.json({ success: true, reportType: 'attendance', title: 'Institutional Attendance Compliance Report', count: rows.length, data: rows });
-    }
-
-    if (type === 'results') {
-      const results = await Result.find()
-        .populate('student', 'name studentId semester')
-        .populate('course', 'courseCode title')
-        .sort({ semester: 1 });
-
-      const rows = results.map((r) => {
-        const pct = r.maxMarks > 0 ? Math.round((r.marksObtained / r.maxMarks) * 100) : 0;
-        return {
-          'Roll Number': r.student?.studentId || 'N/A',
-          'Student Name': r.student?.name || 'N/A',
-          'Course Code': r.course?.courseCode || 'N/A',
-          'Course Title': r.course?.title || 'N/A',
-          'Assessment': r.assessmentName,
-          'Marks Obtained': r.marksObtained,
-          'Max Marks': r.maxMarks,
-          'Score Percentage': `${pct}%`,
-          'Grade Status': pct >= 40 ? 'Pass' : 'Fail',
-          'Published': r.published ? 'Yes' : 'No',
-        };
-      });
-
-      return res.json({ success: true, reportType: 'results', title: 'Academic Performance & Examination Results Report', count: rows.length, data: rows });
-    }
-
-    if (type === 'fees') {
-      const fees = await Fee.find().populate('student', 'name studentId email').sort({ dueDate: -1 });
-      const rows = fees.map((f) => ({
-        'Invoice Number': f.invoiceNumber,
-        'Student ID': f.student?.studentId || 'N/A',
-        'Student Name': f.student?.name || 'N/A',
-        'Category': f.category,
-        'Amount': f.amount,
-        'Paid Amount': f.paidAmount,
-        'Outstanding Balance': Math.max(0, f.amount - f.paidAmount),
-        'Status': f.status,
-        'Due Date': f.dueDate ? new Date(f.dueDate).toLocaleDateString() : 'N/A',
-        'Payment Mode': f.paymentMode || 'N/A',
-      }));
-
-      return res.json({ success: true, reportType: 'fees', title: 'Institutional Fee Dues & Realized Collections Report', count: rows.length, data: rows });
-    }
-
-    return res.status(400).json({ success: false, error: 'Invalid report type requested. Supported: students, attendance, results, fees.' });
+    return res.json({
+      success: true,
+      reportType,
+      title,
+      count: rows.length,
+      data: rows,
+    });
   } catch (err) {
-    return res.status(500).json({ success: false, error: err.message });
+    console.error('adminGetReportData error:', err);
+    return res.status(400).json({ success: false, error: err.message });
+  }
+};
+
+/**
+ * Direct file export endpoint with streaming and RFC-compliant CSV / JSON output
+ * GET /api/admin/reports/export?type=students&format=csv
+ */
+exports.adminExportReportData = async (req, res) => {
+  try {
+    const { type = 'students', format = 'csv' } = req.query;
+    const { reportType, title, rows } = await fetchReportDataset(type);
+
+    const safeTitle = (reportType || 'report').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const timestamp = new Date().toISOString().slice(0, 10);
+
+    if (String(format).toLowerCase() === 'json') {
+      res.setHeader('Content-Type', 'application/json; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="CampusVerse_${safeTitle}_${timestamp}.json"`);
+      return res.send(JSON.stringify(rows, null, 2));
+    }
+
+    // Default to CSV with Excel UTF-8 BOM
+    let csvContent = '\uFEFF';
+    if (rows.length > 0) {
+      const headers = Object.keys(rows[0]);
+      csvContent += headers.map((h) => `"${String(h).replace(/"/g, '""')}"`).join(',') + '\r\n';
+
+      rows.forEach((row) => {
+        const line = headers.map((h) => {
+          const val = row[h] === undefined || row[h] === null ? '' : String(row[h]);
+          return `"${val.replace(/"/g, '""')}"`;
+        });
+        csvContent += line.join(',') + '\r\n';
+      });
+    }
+
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="CampusVerse_${safeTitle}_${timestamp}.csv"`);
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+
+    return res.send(csvContent);
+  } catch (err) {
+    console.error('adminExportReportData error:', err);
+    return res.status(400).json({ success: false, error: err.message });
   }
 };
 

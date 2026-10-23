@@ -11,47 +11,187 @@ const Notice = require('../models/Notice');
 const User = require('../models/User');
 
 /**
- * Helper to resolve the linked student for the parent
+ * Resolves all authorized Student records for the authenticated user.
+ * - Admin / SuperAdmin: Unrestricted access (can view all students or any requested student).
+ * - Parent: Strictly restricted to their authorized linked ward(s).
  */
-async function resolveStudent(req) {
-  // 1. If explicit query parameter is passed
-  if (req.query.studentId) {
-    const s = await Student.findOne({
-      $or: [
-        { studentId: req.query.studentId.trim().toUpperCase() },
-        { _id: req.query.studentId.match(/^[0-9a-fA-F]{24}$/) ? req.query.studentId : null },
-      ],
-    }).populate('department', 'name code description');
-    if (s) return s;
+async function getAuthorizedStudents(user) {
+  if (!user) return [];
+
+  // Admins and SuperAdmins have access to all students
+  if (user.role === 'admin' || user.role === 'superadmin') {
+    return await Student.find({}).populate('department', 'name code description');
   }
 
-  // 2. If studentId is set in parent user's metadata
-  const metaSid = req.user?.metadata?.studentId;
-  if (metaSid) {
-    const s = await Student.findOne({ studentId: metaSid.trim().toUpperCase() }).populate('department', 'name code description');
-    if (s) return s;
+  // Role: PARENT
+  const candidateIds = new Set();
+  const candidateObjectIds = new Set();
+  const meta = user.metadata || {};
+
+  // 1. Direct metadata studentId / roll number (e.g. 'CS21B1042')
+  if (meta.studentId && typeof meta.studentId === 'string' && meta.studentId.trim()) {
+    candidateIds.add(meta.studentId.trim().toUpperCase());
   }
 
-  // 3. Fallback: match by Aarav Singhania (CS21B1042) or first student
-  let student = await Student.findOne({ studentId: 'CS21B1042' }).populate('department', 'name code description');
-  if (!student) {
-    student = await Student.findOne({ status: 'Active' }).populate('department', 'name code description');
+  // 2. Array of studentIds in metadata
+  if (Array.isArray(meta.studentIds)) {
+    meta.studentIds.forEach((id) => {
+      if (typeof id === 'string' && id.trim()) candidateIds.add(id.trim().toUpperCase());
+    });
   }
-  return student;
+
+  // 3. Wards array in metadata
+  if (Array.isArray(meta.wards)) {
+    meta.wards.forEach((w) => {
+      if (typeof w === 'string' && w.trim()) {
+        if (/^[0-9a-fA-F]{24}$/.test(w.trim())) candidateObjectIds.add(w.trim());
+        else candidateIds.add(w.trim().toUpperCase());
+      } else if (w?.studentId) {
+        candidateIds.add(w.studentId.trim().toUpperCase());
+      } else if (w?._id) {
+        candidateObjectIds.add(w._id.toString());
+      }
+    });
+  }
+
+  // 4. Single student or ward field in metadata
+  if (meta.student) {
+    if (typeof meta.student === 'string' && meta.student.trim()) {
+      if (/^[0-9a-fA-F]{24}$/.test(meta.student.trim())) candidateObjectIds.add(meta.student.trim());
+      else candidateIds.add(meta.student.trim().toUpperCase());
+    } else if (meta.student._id) {
+      candidateObjectIds.add(meta.student._id.toString());
+    } else if (meta.student.studentId) {
+      candidateIds.add(meta.student.studentId.trim().toUpperCase());
+    }
+  }
+  if (meta.wardId && typeof meta.wardId === 'string' && meta.wardId.trim()) {
+    if (/^[0-9a-fA-F]{24}$/.test(meta.wardId.trim())) candidateObjectIds.add(meta.wardId.trim());
+    else candidateIds.add(meta.wardId.trim().toUpperCase());
+  }
+
+  // 5. Canonical Demo Parent mapping (parentdemo / parent@campusverse.edu -> Aarav Singhania CS21B1042)
+  if (user.username === 'parentdemo' || user.email === 'parent@campusverse.edu') {
+    candidateIds.add('CS21B1042');
+  }
+
+  // 6. Check username or email for student roll pattern (e.g. parent_CS21B1001 or parent.CS21B1001@...)
+  const identifierString = `${user.username || ''} ${user.email || ''}`;
+  const matchedCodes = identifierString.match(/[A-Z]{2}[0-9]{2}[A-Z][0-9]{4}/gi);
+  if (matchedCodes) {
+    matchedCodes.forEach((code) => candidateIds.add(code.toUpperCase()));
+  }
+
+  // 7. Check if username like parent_aditi matches student name
+  if (candidateIds.size === 0 && candidateObjectIds.size === 0 && user.username) {
+    const cleanUser = user.username.replace(/^parent[_.]?/i, '').trim();
+    if (cleanUser && cleanUser.length >= 3) {
+      const matchByName = await Student.findOne({
+        name: new RegExp(`^${cleanUser}`, 'i'),
+      }).populate('department', 'name code description');
+      if (matchByName) {
+        return [matchByName];
+      }
+    }
+  }
+
+  const queryOr = [];
+  if (candidateIds.size > 0) {
+    queryOr.push({ studentId: { $in: Array.from(candidateIds) } });
+  }
+  if (candidateObjectIds.size > 0) {
+    queryOr.push({ _id: { $in: Array.from(candidateObjectIds) } });
+  }
+
+  if (queryOr.length === 0) {
+    return [];
+  }
+
+  return await Student.find({ $or: queryOr }).populate('department', 'name code description');
+}
+
+/**
+ * Validates authentication & strictly enforces student-specific authorization for parents.
+ * Prevents unauthorized access or privilege escalation across other students' records.
+ */
+async function resolveAuthorizedStudent(req) {
+  const user = req.user;
+  if (!user) {
+    return { error: 'Authentication required. Please log in.', statusCode: 401 };
+  }
+
+  const requestedParam = (req.query.studentId || req.params.studentId || req.body?.studentId || '').toString().trim();
+
+  // 1. Admin or SuperAdmin: Can inspect any student
+  if (user.role === 'admin' || user.role === 'superadmin') {
+    if (requestedParam) {
+      const isObjectId = /^[0-9a-fA-F]{24}$/.test(requestedParam);
+      const student = await Student.findOne({
+        $or: [
+          { studentId: requestedParam.toUpperCase() },
+          { _id: isObjectId ? requestedParam : null },
+        ],
+      }).populate('department', 'name code description');
+      if (!student) {
+        return { error: `Student '${requestedParam}' was not found.`, statusCode: 404 };
+      }
+      return { student };
+    }
+    const student = (await Student.findOne({ studentId: 'CS21B1042' }).populate('department', 'name code description'))
+      || (await Student.findOne({ status: 'Active' }).populate('department', 'name code description'));
+    return { student };
+  }
+
+  // 2. Role: PARENT (Strict Account-Specific Authorization Enforcement)
+  const authorizedWards = await getAuthorizedStudents(user);
+
+  if (!authorizedWards || authorizedWards.length === 0) {
+    return {
+      error: 'No authorized student is linked to your parent account. Please contact the institution administrator.',
+      statusCode: 403,
+      unauthorized: true,
+    };
+  }
+
+  if (requestedParam) {
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(requestedParam);
+    const cleanParam = requestedParam.toUpperCase();
+
+    const matched = authorizedWards.find((s) => {
+      const matchSid = s.studentId && s.studentId.toUpperCase() === cleanParam;
+      const matchId = isObjectId && s._id && s._id.toString() === requestedParam;
+      return matchSid || matchId;
+    });
+
+    if (!matched) {
+      // SECURITY ENFORCEMENT: Access to another student's records is strictly prohibited
+      return {
+        error: `Access Denied: You are not authorized to access records for student '${requestedParam}'. You can only view data for your own linked ward.`,
+        statusCode: 403,
+        unauthorized: true,
+      };
+    }
+
+    return { student: matched, authorizedWards };
+  }
+
+  // Default: first authorized ward
+  return { student: authorizedWards[0], authorizedWards };
 }
 
 /**
  * 1. GET /api/parent/dashboard
- * Live parent dashboard telemetry
+ * Live parent dashboard telemetry for authorized student only
  */
 exports.getParentDashboard = async (req, res) => {
   try {
-    const student = await resolveStudent(req);
-    if (!student) {
-      return res.status(404).json({ success: false, error: 'No linked student found.' });
+    const authResult = await resolveAuthorizedStudent(req);
+    if (authResult.error) {
+      return res.status(authResult.statusCode || 403).json({ success: false, error: authResult.error });
     }
+    const student = authResult.student;
 
-    // Attendance aggregation
+    // Attendance aggregation strictly for this student
     const attendanceRecords = await Attendance.find({
       'records.student': student._id,
     }).sort({ date: -1 });
@@ -82,7 +222,7 @@ exports.getParentDashboard = async (req, res) => {
     const overallAttendancePct = totalSessions > 0 ? Math.round((presentCount / totalSessions) * 100) : 0;
     const isLowAttendance = overallAttendancePct < 75;
 
-    // Academic Performance / Results
+    // Academic Performance / Results strictly for this student
     const results = await Result.find({
       student: student._id,
       published: true,
@@ -97,7 +237,7 @@ exports.getParentDashboard = async (req, res) => {
     const avgScorePct = totalMaxMarks > 0 ? Math.round((totalMarksObtained / totalMaxMarks) * 100) : 85;
     const calculatedCgpa = ((avgScorePct / 100) * 10).toFixed(2);
 
-    // Fee Status
+    // Fee Status strictly for this student
     const fees = await Fee.find({ student: student._id }).sort({ dueDate: 1 });
     let totalBilled = 0;
     let totalPaid = 0;
@@ -113,7 +253,7 @@ exports.getParentDashboard = async (req, res) => {
 
     const pendingAmount = Math.max(0, totalBilled - totalPaid);
 
-    // Upcoming Examinations
+    // Upcoming Examinations for the student's semester
     const upcomingExams = await Exam.find({
       semester: student.semester,
     }).populate('faculty', 'name email').sort({ examDate: 1 }).limit(4);
@@ -171,17 +311,18 @@ exports.getParentDashboard = async (req, res) => {
 
 /**
  * 2. GET /api/parent/student
- * Detailed student profile, department, and faculty advisor info
+ * Detailed student profile, department, and faculty advisor info for authorized student only
  */
 exports.getParentStudentInfo = async (req, res) => {
   try {
-    const student = await resolveStudent(req);
-    if (!student) {
-      return res.status(404).json({ success: false, error: 'Student not found.' });
+    const authResult = await resolveAuthorizedStudent(req);
+    if (authResult.error) {
+      return res.status(authResult.statusCode || 403).json({ success: false, error: authResult.error });
     }
+    const student = authResult.student;
 
     const courses = await Course.find({
-      department: student.department?._id,
+      department: student.department?._id || student.department,
       semester: student.semester,
     });
 
@@ -215,16 +356,17 @@ exports.getParentStudentInfo = async (req, res) => {
 
 /**
  * 3. GET /api/parent/attendance-and-results
- * Subject-wise attendance, attendance logs, and published examination results
+ * Subject-wise attendance, logs, and published results for authorized student only
  */
 exports.getParentAttendanceAndResults = async (req, res) => {
   try {
-    const student = await resolveStudent(req);
-    if (!student) {
-      return res.status(404).json({ success: false, error: 'Student not found.' });
+    const authResult = await resolveAuthorizedStudent(req);
+    if (authResult.error) {
+      return res.status(authResult.statusCode || 403).json({ success: false, error: authResult.error });
     }
+    const student = authResult.student;
 
-    // 1. Attendance Records
+    // 1. Attendance Records strictly for this student
     const attendanceSessions = await Attendance.find({
       'records.student': student._id,
     }).populate('faculty', 'name email').sort({ date: -1 });
@@ -273,7 +415,7 @@ exports.getParentAttendanceAndResults = async (req, res) => {
     const totalPresent = attendanceLogs.filter((l) => l.status === 'Present').length;
     const overallPercentage = totalLectures > 0 ? Math.round((totalPresent / totalLectures) * 100) : 0;
 
-    // 2. Published Examination Results
+    // 2. Published Examination Results strictly for this student
     const results = await Result.find({
       student: student._id,
       published: true,
@@ -326,22 +468,31 @@ exports.getParentAttendanceAndResults = async (req, res) => {
 
 /**
  * 4. GET /api/parent/assignments-and-timetable
- * Pending coursework, weekly timetable, and upcoming exam schedules
+ * Pending coursework, weekly timetable, and upcoming exam schedules for authorized student
  */
 exports.getParentAssignmentsAndTimetable = async (req, res) => {
   try {
-    const student = await resolveStudent(req);
-    if (!student) {
-      return res.status(404).json({ success: false, error: 'Student not found.' });
+    const authResult = await resolveAuthorizedStudent(req);
+    if (authResult.error) {
+      return res.status(authResult.statusCode || 403).json({ success: false, error: authResult.error });
     }
+    const student = authResult.student;
 
-    // 1. Coursework Assignments
-    const assignments = await Assignment.find()
+    // 1. Coursework Assignments for student's department and semester
+    const courses = await Course.find({
+      department: student.department?._id || student.department,
+      semester: student.semester,
+    }).select('_id');
+    const courseIds = courses.map((c) => c._id);
+
+    const assignments = await Assignment.find(
+      courseIds.length > 0 ? { course: { $in: courseIds } } : {}
+    )
       .populate('course', 'courseCode title')
       .populate('faculty', 'name email')
       .sort({ dueDate: 1 });
 
-    // 2. Class Timetable
+    // 2. Class Timetable for student's semester
     const timetables = await Timetable.find({
       semester: student.semester,
     })
@@ -349,7 +500,7 @@ exports.getParentAssignmentsAndTimetable = async (req, res) => {
       .populate('faculty', 'name email')
       .sort({ dayOfWeek: 1, startTime: 1 });
 
-    // 3. Examination Schedule
+    // 3. Examination Schedule for student's semester
     const exams = await Exam.find({
       semester: student.semester,
     }).populate('faculty', 'name email').sort({ examDate: 1 });
@@ -368,14 +519,15 @@ exports.getParentAssignmentsAndTimetable = async (req, res) => {
 
 /**
  * 5. GET /api/parent/fees
- * Verified payment history, pending dues, and downloadable receipts
+ * Verified payment history, pending dues, and receipts strictly for authorized student
  */
 exports.getParentFees = async (req, res) => {
   try {
-    const student = await resolveStudent(req);
-    if (!student) {
-      return res.status(404).json({ success: false, error: 'Student not found.' });
+    const authResult = await resolveAuthorizedStudent(req);
+    if (authResult.error) {
+      return res.status(authResult.statusCode || 403).json({ success: false, error: authResult.error });
     }
+    const student = authResult.student;
 
     const fees = await Fee.find({ student: student._id }).sort({ dueDate: -1 });
 
@@ -412,18 +564,22 @@ exports.getParentFees = async (req, res) => {
 
 /**
  * 6. GET /api/parent/notices
- * Institutional announcements, exam updates, attendance alerts, and fee reminders
+ * Institutional announcements, exam updates, and dynamic alerts for authorized student
  */
 exports.getParentNotices = async (req, res) => {
   try {
-    const student = await resolveStudent(req);
+    const authResult = await resolveAuthorizedStudent(req);
+    if (authResult.error) {
+      return res.status(authResult.statusCode || 403).json({ success: false, error: authResult.error });
+    }
+    const student = authResult.student;
 
     // Fetch official broadcast notices
     const officialNotices = await Notice.find({
       targetAudience: { $in: ['All', 'Students'] },
     }).sort({ pinned: -1, publishedAt: -1 });
 
-    // Dynamic smart alerts for the parent based on real student data
+    // Dynamic smart alerts strictly calculated for this authorized student
     const dynamicAlerts = [];
 
     if (student) {
@@ -477,14 +633,18 @@ exports.getParentNotices = async (req, res) => {
 
 /**
  * 7. GET /api/parent/wards
- * Returns all students so guardian can select/switch ward
+ * Returns ONLY authorized ward(s) for the logged-in parent
  */
 exports.getParentWards = async (req, res) => {
   try {
-    const students = await Student.find({}, 'name studentId email department semester status')
-      .populate('department', 'name code');
-    return res.json({ success: true, wards: students });
+    const authorizedWards = await getAuthorizedStudents(req.user);
+    return res.json({ success: true, wards: authorizedWards });
   } catch (err) {
     return res.status(500).json({ success: false, error: err.message });
   }
 };
+
+// Export helpers for internal & cross-middleware authorization checks
+exports.getAuthorizedStudents = getAuthorizedStudents;
+exports.resolveAuthorizedStudent = resolveAuthorizedStudent;
+

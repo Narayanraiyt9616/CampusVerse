@@ -10,6 +10,7 @@ export const Button = ({
   size = 'md',
   type = 'button',
   isLoading = false,
+  loading = false,
   disabled = false,
   leftIcon = null,
   rightIcon = null,
@@ -18,6 +19,7 @@ export const Button = ({
   onClick,
   ...props
 }) => {
+  const isSpinning = Boolean(isLoading || loading);
   const baseClasses = 'inline-flex items-center justify-center font-bold rounded-xl transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#D99A00] focus:ring-offset-2 select-none';
 
   const sizeClasses = {
@@ -37,18 +39,18 @@ export const Button = ({
     outline: 'border border-[#D99A00] text-[#D99A00] hover:bg-[#FFF8E6] hover:text-[#111827] bg-transparent',
   };
 
-  const disabledClasses = (disabled || isLoading) ? 'opacity-60 cursor-not-allowed pointer-events-none' : 'cursor-pointer active:scale-[0.99]';
+  const disabledClasses = (disabled || isSpinning) ? 'opacity-60 cursor-not-allowed pointer-events-none' : 'cursor-pointer active:scale-[0.99]';
 
   return (
     <button
       id={id}
       type={type}
-      disabled={disabled || isLoading}
+      disabled={disabled || isSpinning}
       onClick={onClick}
       className={`${baseClasses} ${sizeClasses[size] || sizeClasses.md} ${variantClasses[variant] || variantClasses.primary} ${disabledClasses} ${className}`}
       {...props}
     >
-      {isLoading ? (
+      {isSpinning ? (
         <svg
           className="animate-spin -ml-1 mr-2 h-4 w-4 text-current"
           xmlns="http://www.w3.org/2000/svg"

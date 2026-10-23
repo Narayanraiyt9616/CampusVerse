@@ -16,6 +16,7 @@ import {
   CreditCard,
   X,
   ExternalLink,
+  Download,
 } from 'lucide-react';
 import Card from '../../../components/common/Card';
 import Badge from '../../../components/common/Badge';
@@ -31,6 +32,31 @@ export const StaffStudents = () => {
   const [filterType, setFilterType] = useState('ALL'); // 'ALL' | 'HOSTEL' | 'TRANSPORT'
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [downloadingId, setDownloadingId] = useState(null);
+
+  const handleDownloadPassPdf = async (transportObj) => {
+    const id = transportObj?.passNumber || transportObj?._id || transportObj?.id;
+    if (!id) return;
+    setDownloadingId(id);
+    try {
+      const res = await staffService.downloadBusPassPdfBlob(id);
+      const blob = new Blob([res.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `BusPass_${transportObj.passNumber || 'Commuter'}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Error downloading bus pass PDF, falling back to direct link:', err);
+      const directUrl = staffService.getBusPassPdfUrl(id);
+      window.open(directUrl, '_blank');
+    } finally {
+      setDownloadingId(null);
+    }
+  };
 
   const fetchStudents = async () => {
     setLoading(true);
@@ -276,13 +302,25 @@ export const StaffStudents = () => {
                       </Badge>
                     </td>
 
-                    <td className="p-3.5 text-right">
-                      <button
-                        onClick={() => setSelectedStudent(s)}
-                        className="text-xs font-bold text-[#D99A00] hover:underline inline-flex items-center gap-1"
-                      >
-                        Logistics Card
-                      </button>
+                    <td className="p-3.5 text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-2">
+                        {s.transport?.hasPass && s.transport?.passNumber && (
+                          <button
+                            title="Download Bus Pass (PDF)"
+                            onClick={() => handleDownloadPassPdf(s.transport)}
+                            disabled={downloadingId === s.transport.passNumber}
+                            className="p-1.5 rounded-lg border border-[#F1E7CF] hover:bg-[#FFF8E6] text-[#D99A00] transition-colors"
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                        <button
+                          onClick={() => setSelectedStudent(s)}
+                          className="text-xs font-bold text-[#D99A00] hover:underline inline-flex items-center gap-1"
+                        >
+                          Logistics Card
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -381,6 +419,19 @@ export const StaffStudents = () => {
                     <span className="font-mono font-bold text-[#111827]">
                       {selectedStudent.transport.validTill ? new Date(selectedStudent.transport.validTill).toLocaleDateString('en-IN') : 'End of Academic Year'}
                     </span>
+                  </div>
+                  <div className="col-span-2 pt-2.5 border-t border-[#F1E7CF] flex justify-end">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      leftIcon={<Download className="w-3.5 h-3.5 text-[#D99A00]" />}
+                      onClick={() => handleDownloadPassPdf(selectedStudent.transport)}
+                      disabled={downloadingId === selectedStudent.transport.passNumber}
+                    >
+                      {downloadingId === selectedStudent.transport.passNumber
+                        ? 'Downloading...'
+                        : 'Download Bus Pass (PDF)'}
+                    </Button>
                   </div>
                 </div>
               ) : (
