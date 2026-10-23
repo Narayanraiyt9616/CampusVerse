@@ -52,6 +52,17 @@ const assignmentFileFilter = (req, file, cb) => {
   cb(null, true);
 };
 
+// Strict PDF-only file filter for PDF assignments and question papers
+const pdfOnlyFileFilter = (req, file, cb) => {
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (ext !== '.pdf' && file.mimetype !== 'application/pdf') {
+    const error = new Error('Invalid file type: Only PDF documents (.pdf) are accepted.');
+    error.statusCode = 400;
+    return cb(error, false);
+  }
+  cb(null, true);
+};
+
 // File filter for resumes (PDF, DOC, DOCX)
 const resumeFileFilter = (req, file, cb) => {
   const allowedExts = ['.pdf', '.doc', '.docx'];
@@ -70,15 +81,65 @@ const uploadAssignment = multer({
   limits: { fileSize: 25 * 1024 * 1024 }, // 25 MB max
 });
 
+const uploadPdfQuestionPaper = multer({
+  storage: assignmentStorage,
+  fileFilter: pdfOnlyFileFilter,
+  limits: { fileSize: 25 * 1024 * 1024 }, // 25 MB max
+});
+
 const uploadResume = multer({
   storage: resumeStorage,
   fileFilter: resumeFileFilter,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB max
 });
 
+// Middleware for faculty creating assignment (handles questionPaper or file field, or passes JSON)
+const uploadQuestionPaperMiddleware = (req, res, next) => {
+  const contentType = req.headers['content-type'] || '';
+  if (contentType.includes('multipart/form-data')) {
+    uploadPdfQuestionPaper.fields([
+      { name: 'questionPaper', maxCount: 1 },
+      { name: 'file', maxCount: 1 },
+    ])(req, res, (err) => {
+      if (err) {
+        return res.status(400).json({ success: false, error: err.message });
+      }
+      // Normalize single file to req.file
+      if (req.files) {
+        if (req.files.questionPaper && req.files.questionPaper[0]) {
+          req.file = req.files.questionPaper[0];
+        } else if (req.files.file && req.files.file[0]) {
+          req.file = req.files.file[0];
+        }
+      }
+      next();
+    });
+  } else {
+    next();
+  }
+};
+
+// Middleware for student submitting assignment (handles file or JSON for MCQ)
+const uploadStudentSubmissionMiddleware = (req, res, next) => {
+  const contentType = req.headers['content-type'] || '';
+  if (contentType.includes('multipart/form-data')) {
+    uploadAssignment.single('file')(req, res, (err) => {
+      if (err) {
+        return res.status(400).json({ success: false, error: err.message });
+      }
+      next();
+    });
+  } else {
+    next();
+  }
+};
+
 module.exports = {
   uploadAssignmentFile: uploadAssignment.single('file'),
+  uploadQuestionPaperMiddleware,
+  uploadStudentSubmissionMiddleware,
   uploadResumeFile: uploadResume.single('resume'),
   ASSIGNMENTS_DIR,
   RESUMES_DIR,
 };
+

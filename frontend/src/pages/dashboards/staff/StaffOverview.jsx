@@ -22,6 +22,7 @@ import Button from '../../../components/common/Button';
 import StatCard from '../../../components/common/StatCard';
 import AlertBanner from '../../../components/common/AlertBanner';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
+import PortalHeroBanner from '../../../components/common/PortalHeroBanner';
 import { staffService } from '../../../services/api';
 
 const FALLBACK_DASHBOARD = {
@@ -195,18 +196,47 @@ export const StaffOverview = () => {
         />
       )}
 
+      {/* Reference Image Inspired Hero Welcome Banner */}
+      <PortalHeroBanner
+        portalName="Hostel & Transport"
+        roleTitle="Estate Operations"
+        portalHighlight="Hostel & Transport"
+        headingPrefix="Welcome to"
+        subtitle="Oversee campus residence blocks, room allocations, transport bus fleet, commuter routes, and maintenance requests — all in one place."
+        icon={<Home className="w-4 h-4" />}
+        userName="M. Karthikeyan"
+        userIdentifier="Chief Warden & Estate Lead"
+        actions={
+          <div className="flex items-center gap-2">
+            <Link to={`${basePath}/hostel`}>
+              <Button variant="primary" size="sm" leftIcon={<Home className="w-3.5 h-3.5" />}>
+                Manage Rooms
+              </Button>
+            </Link>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={fetchDashboard}
+              leftIcon={<RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />}
+            >
+              Refresh Data
+            </Button>
+          </div>
+        }
+      />
+
       {/* Operational Alerts */}
       {alerts.length > 0 && (
         <div className="space-y-2">
           {alerts.map((al, idx) => (
             <div
               key={idx}
-              className="p-4 rounded-2xl border border-[#D99A00]/30 bg-[#FFF8E6] text-[#111827] flex items-start gap-3 shadow-sm"
+              className="p-4 rounded-2xl sm:rounded-3xl border border-[#FDE68A] bg-[#FFFDF5] text-[#0F172A] flex items-start gap-3 shadow-xs"
             >
-              <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-[#D99A00]" />
+              <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-[#D97706]" />
               <div className="flex-1 text-sm">
-                <span className="font-bold block text-base text-[#111827]">{al.title}</span>
-                <p className="mt-0.5 text-[#4B5563] leading-relaxed font-medium">{al.message}</p>
+                <span className="font-bold block text-base text-[#0F172A]">{al.title}</span>
+                <p className="mt-0.5 text-[#64748B] leading-relaxed font-medium">{al.message}</p>
               </div>
             </div>
           ))}
@@ -221,7 +251,8 @@ export const StaffOverview = () => {
           subtitle={`${stats.occupiedBeds} of ${stats.totalBeds} Beds Filled`}
           change={`${stats.availableBeds} Available`}
           changeType={stats.availableBeds > 5 ? 'increase' : 'decrease'}
-          icon={<Home className="w-5 h-5 text-[#D99A00]" />}
+          colorVariant="gold"
+          icon={<Home className="w-5 h-5 text-[#D97706]" />}
         />
 
         <StatCard
@@ -230,7 +261,8 @@ export const StaffOverview = () => {
           subtitle={`${stats.totalRoutes} Metro & Suburban Corridors`}
           change={stats.delayedRoutes > 0 ? `${stats.delayedRoutes} Delayed` : 'All On Time'}
           changeType={stats.delayedRoutes > 0 ? 'decrease' : 'increase'}
-          icon={<Bus className="w-5 h-5 text-[#D99A00]" />}
+          colorVariant="blue"
+          icon={<Bus className="w-5 h-5 text-[#2563EB]" />}
         />
 
         <StatCard
@@ -239,7 +271,8 @@ export const StaffOverview = () => {
           subtitle={`${stats.onScheduleVehicles} Vehicles In Service`}
           change="Operational"
           changeType="increase"
-          icon={<CheckCircle2 className="w-5 h-5 text-[#D99A00]" />}
+          colorVariant="emerald"
+          icon={<CheckCircle2 className="w-5 h-5 text-[#059669]" />}
         />
 
         <StatCard
@@ -248,25 +281,28 @@ export const StaffOverview = () => {
           subtitle="Electrical, Plumbing & Fleet"
           change={stats.highPriorityComplaints > 0 ? `${stats.highPriorityComplaints} Urgent` : 'Normal Queue'}
           changeType={stats.highPriorityComplaints > 0 ? 'decrease' : 'neutral'}
-          icon={<Wrench className="w-5 h-5 text-[#D99A00]" />}
+          colorVariant="amber"
+          icon={<Wrench className="w-5 h-5 text-[#D97706]" />}
         />
       </div>
 
-      {/* Quick Access Module Cards Grid matching Student Portal signature */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+      {/* Quick Access Module Cards Grid matching Reference Image Bottom Feature Icons */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { to: `${basePath}/hostel`, label: 'Hostel Management', icon: <Home className="w-5 h-5" />, desc: 'Room inventory, bed allocation & vacancy ledger' },
-          { to: `${basePath}/transport`, label: 'Transport Fleet', icon: <Bus className="w-5 h-5" />, desc: 'Fleet telemetry, commuter routes & bus passes' },
-          { to: `${basePath}/students`, label: 'Student Records', icon: <Users className="w-5 h-5" />, desc: 'Master roster of hostel boarders & transit commuters' },
-          { to: `${basePath}/complaints`, label: 'Complaints & Notices', icon: <ClipboardList className="w-5 h-5" />, desc: 'Maintenance tickets & campus service advisories' },
+          { to: `${basePath}/hostel`, label: 'Hostel Management', icon: <Home className="w-5 h-5" />, desc: 'Room inventory, bed allocation & vacancy ledger', iconBg: 'bg-[#FFF8E6] text-[#D97706] border-[#FDE68A]' },
+          { to: `${basePath}/transport`, label: 'Transport Fleet', icon: <Bus className="w-5 h-5" />, desc: 'Fleet telemetry, commuter routes & bus passes', iconBg: 'bg-[#EFF6FF] text-[#2563EB] border-[#BFDBFE]' },
+          { to: `${basePath}/students`, label: 'Student Records', icon: <Users className="w-5 h-5" />, desc: 'Master roster of hostel boarders & transit commuters', iconBg: 'bg-[#ECFDF5] text-[#059669] border-[#A7F3D0]' },
+          { to: `${basePath}/complaints`, label: 'Complaints & Notices', icon: <ClipboardList className="w-5 h-5" />, desc: 'Maintenance tickets & campus service advisories', iconBg: 'bg-[#FAF5FF] text-[#7C3AED] border-[#DDD6FE]' },
         ].map((item) => (
           <Link key={item.to} to={item.to} className="group block">
-            <div className="p-5 rounded-2xl border border-[#F1E7CF] bg-white hover:border-[#D99A00] shadow-sm hover:shadow-card-hover transition-all duration-200 group-hover:-translate-y-0.5 h-full">
-              <div className="w-10 h-10 rounded-xl bg-[#FFF8E6] text-[#D99A00] flex items-center justify-center mb-3.5 shadow-sm group-hover:scale-110 transition-transform">
-                {item.icon}
+            <div className="p-5 rounded-2xl sm:rounded-3xl border border-[#F1E7CF] bg-white hover:border-[#FDE68A] shadow-[0_4px_20px_rgba(217,119,6,0.03)] hover:shadow-[0_12px_32px_rgba(217,119,6,0.09)] transition-all duration-300 group-hover:-translate-y-1 h-full flex flex-col justify-between">
+              <div>
+                <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center mb-3.5 shadow-2xs group-hover:scale-110 transition-transform ${item.iconBg}`}>
+                  {item.icon}
+                </div>
+                <p className="font-black text-[#0F172A] text-sm group-hover:text-[#D97706] transition-colors">{item.label}</p>
+                <p className="text-xs text-[#64748B] font-medium mt-1 leading-relaxed">{item.desc}</p>
               </div>
-              <p className="font-bold text-[#111827] text-sm">{item.label}</p>
-              <p className="text-xs text-[#4B5563] font-medium mt-1 leading-relaxed">{item.desc}</p>
             </div>
           </Link>
         ))}

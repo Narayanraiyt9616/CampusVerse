@@ -14,7 +14,7 @@ export const Card = ({
   hoverable = false,
   className = '',
   bodyClassName = 'p-6',
-  headerClassName = 'px-6 py-4 border-b border-[#F1E7CF]',
+  headerClassName = 'px-6 py-4.5 border-b border-[#F1E7CF]',
   id,
 }) => {
   const hasHeader = Boolean(title || subtitle || badge || action);
@@ -22,18 +22,18 @@ export const Card = ({
   return (
     <div
       id={id}
-      className={`bg-white rounded-2xl border border-[#F1E7CF] shadow-card ${
-        hoverable ? 'hover:shadow-card-hover hover:border-[#D99A00] transition-all duration-200' : ''
+      className={`bg-white rounded-2xl sm:rounded-3xl border border-[#F1E7CF] shadow-[0_4px_24px_rgba(217,119,6,0.04)] ${
+        hoverable ? 'hover:shadow-[0_12px_32px_rgba(217,119,6,0.1)] hover:border-[#FDE68A] hover:-translate-y-0.5 transition-all duration-300' : 'transition-all duration-200'
       } ${className}`}
     >
       {hasHeader && (
         <div className={`flex flex-wrap items-center justify-between gap-3 ${headerClassName}`}>
           <div>
             <div className="flex items-center gap-2.5">
-              {title && <h3 className="font-bold text-[#111827] text-lg tracking-tight">{title}</h3>}
+              {title && <h3 className="font-extrabold text-[#0F172A] text-lg tracking-tight">{title}</h3>}
               {badge}
             </div>
-            {subtitle && <p className="text-xs text-[#4B5563] font-medium mt-0.5">{subtitle}</p>}
+            {subtitle && <p className="text-xs text-[#64748B] font-medium mt-0.5">{subtitle}</p>}
           </div>
           {action && <div className="flex items-center gap-2 shrink-0">{action}</div>}
         </div>
@@ -44,7 +44,7 @@ export const Card = ({
       </div>
 
       {footer && (
-        <div className="px-6 py-3.5 border-t border-[#F1E7CF] bg-[#FFFDF5] rounded-b-2xl text-xs text-[#111827] font-semibold flex items-center justify-between">
+        <div className="px-6 py-3.5 border-t border-[#F1E7CF] bg-[#FFFDF5] rounded-b-2xl sm:rounded-b-3xl text-xs text-[#0F172A] font-semibold flex items-center justify-between">
           {footer}
         </div>
       )}

@@ -6,8 +6,10 @@ import {
   ArrowLeft, BookOpen, FileText, Download, AlertCircle, CheckCircle,
   Loader2, RefreshCw, Eye, Star, Briefcase, GraduationCap, Phone,
   Mail, MapPin, BadgeCheck, Building2, Pencil, Save, Trash2,
-  FileCheck, AlertTriangle, Info, BookMarked, TrendingUp, Activity
+  FileCheck, AlertTriangle, Info, BookMarked, TrendingUp, Activity,
+  HelpCircle, UploadCloud, CheckSquare, ArrowUp, ArrowDown, FileUp, Sparkles
 } from 'lucide-react';
+
 import PageHeader from '../../components/common/PageHeader';
 import StatCard from '../../components/common/StatCard';
 import Card from '../../components/common/Card';
@@ -15,6 +17,7 @@ import Badge from '../../components/common/Badge';
 import Button from '../../components/common/Button';
 import Table from '../../components/common/Table';
 import Modal from '../../components/common/Modal';
+import PortalHeroBanner from '../../components/common/PortalHeroBanner';
 import { useAuth } from '../../context/AuthContext';
 import { facultyService, studentService } from '../../services/api';
 
@@ -95,14 +98,41 @@ export const FacultyDashboard = () => {
   const [exams, setExams] = useState([]);
   const [assignmentTab, setAssignmentTab] = useState('assignments');
   const [createAssignmentOpen, setCreateAssignmentOpen] = useState(false);
+  const [createAssignmentType, setCreateAssignmentType] = useState('mcq'); // 'mcq' | 'pdf'
+  const [mcqPreviewMode, setMcqPreviewMode] = useState(false);
   const [scheduleExamOpen, setScheduleExamOpen] = useState(false);
   const [submissionsModalOpen, setSubmissionsModalOpen] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState(null);
   const [submissions, setSubmissions] = useState([]);
-  const [assignmentForm, setAssignmentForm] = useState({ title: '', description: '', courseId: '', dueDate: '', maxMarks: 50, submissionType: 'text' });
-  const [examForm, setExamForm] = useState({ title: '', subject: '', className: '', semester: 7, examDate: '', startTime: '10:00', duration: 120, venue: '', maxMarks: 100, examType: 'Mid-Term', instructions: '' });
-  const [feedbackForm, setFeedbackForm] = useState({ submissionId: '', feedback: '', marksObtained: '' });
+  const [selectedSubmissionAnswers, setSelectedSubmissionAnswers] = useState(null);
+  const [pdfFile, setPdfFile] = useState(null);
+
+  const [assignmentForm, setAssignmentForm] = useState({
+    title: '',
+    subject: 'Computer Science & Engineering',
+    description: '',
+    instructions: '',
+    targetClass: 'CS-7A',
+    targetSemester: 7,
+    targetSection: 'A',
+    dueDate: '',
+    maxMarks: 50,
+    requiresPdfSubmission: true,
+  });
+
+  const [mcqQuestions, setMcqQuestions] = useState([
+    {
+      questionText: '',
+      options: ['', '', '', ''],
+      correctAnswer: 0,
+      marks: 1,
+      explanation: '',
+    },
+  ]);
+
+  const [feedbackForm, setFeedbackForm] = useState({ submissionId: '', studentName: '', studentId: '', feedback: '', marksObtained: '' });
   const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
+
 
   // Results state
   const [results, setResults] = useState([]);
@@ -285,19 +315,165 @@ export const FacultyDashboard = () => {
     finally { setLoad('editAtt', false); }
   };
 
-  const handleCreateAssignment = async () => {
-    if (!assignmentForm.title || !assignmentForm.dueDate || !assignmentForm.maxMarks) {
-      return showToast('Title, due date and max marks are required.', 'error');
+  // MCQ Helpers
+  const handleMcqAddQuestion = () => {
+    setMcqQuestions((prev) => [
+      ...prev,
+      {
+        questionText: '',
+        options: ['', '', '', ''],
+        correctAnswer: 0,
+        marks: 1,
+        explanation: '',
+      },
+    ]);
+  };
+
+  const handleMcqRemoveQuestion = (index) => {
+    if (mcqQuestions.length <= 1) {
+      return showToast('At least one question is required.', 'error');
     }
-    setLoad('createAssign', true);
+    setMcqQuestions((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleMcqMoveQuestion = (index, direction) => {
+    const targetIdx = index + direction;
+    if (targetIdx < 0 || targetIdx >= mcqQuestions.length) return;
+    setMcqQuestions((prev) => {
+      const copy = [...prev];
+      const temp = copy[index];
+      copy[index] = copy[targetIdx];
+      copy[targetIdx] = temp;
+      return copy;
+    });
+  };
+
+  const handleMcqQuestionChange = (index, field, value) => {
+    setMcqQuestions((prev) =>
+      prev.map((q, i) => (i === index ? { ...q, [field]: value } : q))
+    );
+  };
+
+  const handleMcqOptionChange = (qIndex, optIndex, value) => {
+    setMcqQuestions((prev) =>
+      prev.map((q, i) => {
+        if (i !== qIndex) return q;
+        const newOpts = [...q.options];
+        newOpts[optIndex] = value;
+        return { ...q, options: newOpts };
+      })
+    );
+  };
+
+  const handleMcqCorrectAnswerChange = (qIndex, optIndex) => {
+    setMcqQuestions((prev) =>
+      prev.map((q, i) => (i === qIndex ? { ...q, correctAnswer: optIndex } : q))
+    );
+  };
+
+  const mcqCalculatedMarks = mcqQuestions.reduce(
+    (sum, q) => sum + (Number(q.marks) || 1),
+    0
+  );
+
+  const handleCreateAssignment = async () => {
+    if (!assignmentForm.title || !assignmentForm.dueDate) {
+      return showToast('Assignment title and due date are required.', 'error');
+    }
+
+    if (createAssignmentType === 'mcq') {
+      if (mcqQuestions.length === 0) {
+        return showToast('Please add at least one question.', 'error');
+      }
+      for (let i = 0; i < mcqQuestions.length; i++) {
+        if (!mcqQuestions[i].questionText?.trim()) {
+          return showToast(`Question ${i + 1} text cannot be empty.`, 'error');
+        }
+        for (let j = 0; j < 4; j++) {
+          if (!mcqQuestions[i].options[j]?.trim()) {
+            return showToast(`Question ${i + 1}, Option ${String.fromCharCode(65 + j)} cannot be empty.`, 'error');
+          }
+        }
+      }
+
+      setLoad('createAssign', true);
+      try {
+        const payload = {
+          title: assignmentForm.title,
+          subject: assignmentForm.subject,
+          description: assignmentForm.description,
+          instructions: assignmentForm.instructions,
+          targetClass: assignmentForm.targetClass,
+          targetSemester: assignmentForm.targetSemester,
+          targetSection: assignmentForm.targetSection,
+          dueDate: assignmentForm.dueDate,
+          maxMarks: mcqCalculatedMarks,
+          assignmentType: 'mcq',
+          questions: mcqQuestions,
+        };
+        await facultyService.createAssignment(payload);
+        showToast('MCQ Assignment published to students!');
+        setCreateAssignmentOpen(false);
+        setMcqPreviewMode(false);
+        setMcqQuestions([{ questionText: '', options: ['', '', '', ''], correctAnswer: 0, marks: 1, explanation: '' }]);
+        setAssignmentForm({ title: '', subject: 'Computer Science & Engineering', description: '', instructions: '', targetClass: 'CS-7A', targetSemester: 7, targetSection: 'A', dueDate: '', maxMarks: 50, requiresPdfSubmission: true });
+        loadAssignments();
+      } catch (e) {
+        showToast(e?.message || 'Failed to create MCQ assignment.', 'error');
+      } finally {
+        setLoad('createAssign', false);
+      }
+    } else {
+      // PDF Assignment
+      if (!pdfFile) {
+        return showToast('Please upload a question paper PDF document.', 'error');
+      }
+      if (!assignmentForm.maxMarks || Number(assignmentForm.maxMarks) <= 0) {
+        return showToast('Please enter a valid maximum marks value.', 'error');
+      }
+
+      setLoad('createAssign', true);
+      try {
+        const formData = new FormData();
+        formData.append('title', assignmentForm.title);
+        formData.append('subject', assignmentForm.subject);
+        formData.append('description', assignmentForm.description);
+        formData.append('instructions', assignmentForm.instructions);
+        formData.append('targetClass', assignmentForm.targetClass);
+        formData.append('targetSemester', assignmentForm.targetSemester);
+        formData.append('targetSection', assignmentForm.targetSection);
+        formData.append('dueDate', assignmentForm.dueDate);
+        formData.append('maxMarks', assignmentForm.maxMarks);
+        formData.append('assignmentType', 'pdf');
+        formData.append('requiresPdfSubmission', assignmentForm.requiresPdfSubmission);
+        formData.append('questionPaper', pdfFile);
+
+        await facultyService.createAssignment(formData);
+        showToast('PDF Assignment published to students!');
+        setCreateAssignmentOpen(false);
+        setPdfFile(null);
+        setAssignmentForm({ title: '', subject: 'Computer Science & Engineering', description: '', instructions: '', targetClass: 'CS-7A', targetSemester: 7, targetSection: 'A', dueDate: '', maxMarks: 50, requiresPdfSubmission: true });
+        loadAssignments();
+      } catch (e) {
+        showToast(e?.message || 'Failed to publish PDF assignment.', 'error');
+      } finally {
+        setLoad('createAssign', false);
+      }
+    }
+  };
+
+  const handleDeleteAssignment = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this assignment?')) return;
+    setLoad(`delAsgn_${id}`, true);
     try {
-      await facultyService.createAssignment({ ...assignmentForm, courseId: assignmentForm.courseId || '000000000000000000000001' });
-      showToast('Assignment created successfully!');
-      setCreateAssignmentOpen(false);
-      setAssignmentForm({ title: '', description: '', courseId: '', dueDate: '', maxMarks: 50, submissionType: 'text' });
+      await facultyService.deleteAssignment(id);
+      showToast('Assignment deleted successfully.');
       loadAssignments();
-    } catch (e) { showToast(e?.message || 'Failed to create assignment.', 'error'); }
-    finally { setLoad('createAssign', false); }
+    } catch (e) {
+      showToast(e?.message || 'Failed to delete assignment.', 'error');
+    } finally {
+      setLoad(`delAsgn_${id}`, false);
+    }
   };
 
   const handleScheduleExam = async () => {
@@ -318,22 +494,36 @@ export const FacultyDashboard = () => {
     setLoad('subs', true);
     try {
       const res = await facultyService.getSubmissions(assignment._id);
-      setSubmissions(res?.submissions || res || []);
+      setSubmissions(res?.submissions || res?.data || res || []);
     } catch { setSubmissions([]); }
     finally { setLoad('subs', false); }
     setSubmissionsModalOpen(true);
   };
 
   const handleGiveFeedback = async () => {
+    if (!feedbackForm.marksObtained && feedbackForm.marksObtained !== 0 && feedbackForm.marksObtained !== '0') {
+      return showToast('Marks obtained is required.', 'error');
+    }
+    const marks = Number(feedbackForm.marksObtained);
+    const max = selectedAssignment?.maxMarks || 100;
+    if (isNaN(marks) || marks < 0 || marks > max) {
+      return showToast(`Marks must be between 0 and maximum marks (${max}).`, 'error');
+    }
+
     setLoad('feedback', true);
     try {
-      await facultyService.giveFeedback(feedbackForm.submissionId, { feedback: feedbackForm.feedback, marksObtained: feedbackForm.marksObtained });
-      showToast('Feedback submitted!');
+      await facultyService.giveFeedback(feedbackForm.submissionId, {
+        feedback: feedbackForm.feedback,
+        marksObtained: marks,
+      });
+      showToast('Evaluation published and student notified!');
       setFeedbackModalOpen(false);
       if (selectedAssignment) handleViewSubmissions(selectedAssignment);
+      loadAssignments();
     } catch (e) { showToast(e?.message || 'Failed to submit feedback.', 'error'); }
     finally { setLoad('feedback', false); }
   };
+
 
   const handleEnterResult = async () => {
     if (!resultForm.studentId || !resultForm.assessmentName || !resultForm.marksObtained) {
@@ -401,41 +591,135 @@ export const FacultyDashboard = () => {
   // OVERVIEW
   const renderOverview = () => (
     <div className="space-y-6">
-      {/* Stats */}
+      {/* Reference Image Inspired Hero Welcome Banner */}
+      <PortalHeroBanner
+        portalName="Faculty Portal"
+        roleTitle="Faculty"
+        portalHighlight="Faculty Portal"
+        headingPrefix="Welcome to"
+        subtitle="Manage assigned classes, attendance telemetry, assignments, exam schedules, and student progress — all in one place."
+        icon={<GraduationCap className="w-4 h-4" />}
+        userName={user?.name || 'Dr. Rajiv Menon'}
+        userIdentifier={user?.email || 'faculty@campusverse.edu'}
+        actions={
+          <div className="flex items-center gap-2">
+            <Link to="/faculty/attendance">
+              <Button variant="primary" size="sm" leftIcon={<CalendarCheck className="w-3.5 h-3.5" />}>
+                Mark Attendance
+              </Button>
+            </Link>
+            <Link to="/faculty/assignments">
+              <Button variant="secondary" size="sm" leftIcon={<ClipboardList className="w-3.5 h-3.5" />}>
+                Assignments
+              </Button>
+            </Link>
+          </div>
+        }
+      />
+
+      {/* Stats with reference image pastel containers */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Assigned Students" value={students.length || 124} subtitle="Across all classes" colorVariant="navy" icon={<Users className="w-5 h-5 text-navy-800" />} change="Active" changeType="increase" />
-        <StatCard title="Pending Assignments" value={assignments.filter(a => new Date(a.dueDate) > new Date()).length || 3} subtitle="Awaiting grading" colorVariant="amber" icon={<ClipboardList className="w-5 h-5 text-amber-600" />} change="Due soon" changeType="neutral" />
-        <StatCard title="Exams Scheduled" value={exams.length || 2} subtitle="This semester" colorVariant="gold" icon={<Award className="w-5 h-5 text-[#D99A00]" />} change="Upcoming" changeType="neutral" />
-        <StatCard title="Notices Posted" value={notices.length} subtitle="Active announcements" colorVariant="emerald" icon={<Bell className="w-5 h-5 text-emerald-600" />} change="Published" changeType="increase" />
+        <StatCard
+          title="Assigned Students"
+          value={students.length || 124}
+          subtitle="Across all lecture sections"
+          colorVariant="blue"
+          icon={<Users className="w-5 h-5 text-[#2563EB]" />}
+          change="Active"
+          changeType="increase"
+        />
+        <StatCard
+          title="Pending Assignments"
+          value={assignments.filter(a => new Date(a.dueDate) > new Date()).length || 3}
+          subtitle="Awaiting grading"
+          colorVariant="amber"
+          icon={<ClipboardList className="w-5 h-5 text-[#D97706]" />}
+          change="Due soon"
+          changeType="neutral"
+        />
+        <StatCard
+          title="Exams Scheduled"
+          value={exams.length || 2}
+          subtitle="This semester"
+          colorVariant="gold"
+          icon={<Award className="w-5 h-5 text-[#D97706]" />}
+          change="Upcoming"
+          changeType="neutral"
+        />
+        <StatCard
+          title="Notices Posted"
+          value={notices.length}
+          subtitle="Active announcements"
+          colorVariant="emerald"
+          icon={<Bell className="w-5 h-5 text-[#059669]" />}
+          change="Published"
+          changeType="increase"
+        />
       </div>
-      {/* Quick timetable today */}
+
+      {/* 8 Module Navigation Cards inspired by Reference Image Bottom Feature Icons */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { to: '/faculty/students', label: 'Student Management', icon: <Users className="w-5 h-5" />, desc: 'Class rosters & student progress', iconBg: 'bg-[#EFF6FF] text-[#2563EB] border-[#BFDBFE]' },
+          { to: '/faculty/attendance', label: 'Attendance Management', icon: <CalendarCheck className="w-5 h-5" />, desc: 'Session mark sheets & shortage logs', iconBg: 'bg-[#FFF8E6] text-[#D97706] border-[#FDE68A]' },
+          { to: '/faculty/assignments', label: 'Assignments & Exams', icon: <ClipboardList className="w-5 h-5" />, desc: 'Create tasks & schedule mid-terms', iconBg: 'bg-[#FAF5FF] text-[#7C3AED] border-[#DDD6FE]' },
+          { to: '/faculty/results', label: 'Results Management', icon: <Award className="w-5 h-5" />, desc: 'Assessment scores & grade registry', iconBg: 'bg-[#ECFDF5] text-[#059669] border-[#A7F3D0]' },
+          { to: '/faculty/timetable', label: 'Faculty Timetable', icon: <Clock className="w-5 h-5" />, desc: 'Weekly lectures & lab classroom slots', iconBg: 'bg-[#EFF6FF] text-[#2563EB] border-[#BFDBFE]' },
+          { to: '/faculty/leave', label: 'Leave Applications', icon: <Calendar className="w-5 h-5" />, desc: 'Casual, medical leaves & approvals', iconBg: 'bg-[#FFF8E6] text-[#D97706] border-[#FDE68A]' },
+          { to: '/faculty/notices', label: 'Academic Notices', icon: <Bell className="w-5 h-5" />, desc: 'Broadcast circulars to students', iconBg: 'bg-[#ECFDF5] text-[#059669] border-[#A7F3D0]' },
+          { to: '/faculty/profile', label: 'Faculty Profile', icon: <User className="w-5 h-5" />, desc: 'Designation & department credentials', iconBg: 'bg-[#FAF5FF] text-[#7C3AED] border-[#DDD6FE]' },
+        ].map((item) => (
+          <Link key={item.to} to={item.to} className="group block">
+            <div className="p-5 rounded-2xl sm:rounded-3xl border border-[#F1E7CF] bg-white hover:border-[#FDE68A] shadow-[0_4px_20px_rgba(217,119,6,0.03)] hover:shadow-[0_12px_32px_rgba(217,119,6,0.09)] transition-all duration-300 group-hover:-translate-y-1 h-full flex flex-col justify-between">
+              <div>
+                <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center mb-3.5 shadow-2xs group-hover:scale-110 transition-transform ${item.iconBg}`}>
+                  {item.icon}
+                </div>
+                <p className="font-black text-[#0F172A] text-sm group-hover:text-[#D97706] transition-colors">{item.label}</p>
+                <p className="text-xs text-[#64748B] font-medium mt-1 leading-relaxed">{item.desc}</p>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      {/* Quick timetable today & Recent notices */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card title="Today's Classes" subtitle={`${new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}`} badge={<Badge variant="teal" size="sm">Live Schedule</Badge>}>
           {timetable.filter(t => t.dayOfWeek === new Date().toLocaleDateString('en-US', { weekday: 'long' })).length === 0 ? (
-            <div className="text-center py-6 text-slate-400 text-sm">No classes scheduled today</div>
+            <div className="text-center py-8 text-[#64748B] text-sm font-medium">No classes scheduled for today. Enjoy your day!</div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {timetable.filter(t => t.dayOfWeek === new Date().toLocaleDateString('en-US', { weekday: 'long' })).map(t => (
-                <div key={t._id} className="flex items-center justify-between p-3 bg-[#FFF8E6] border border-[#F1E7CF] rounded-lg text-xs">
-                  <div><p className="font-semibold text-slate-900">{t.course?.name || t.subject}</p><p className="text-slate-500">Sec {t.section} • {t.classroom}</p></div>
-                  <span className="font-mono text-[#D99A00] font-bold">{t.startTime} – {t.endTime}</span>
+                <div key={t._id} className="flex items-center justify-between p-3.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-2xl text-xs hover:border-[#FDE68A] transition-colors">
+                  <div>
+                    <p className="font-black text-[#0F172A]">{t.course?.name || t.subject}</p>
+                    <p className="text-[#64748B] mt-0.5 font-medium">Sec {t.section} • Room {t.classroom}</p>
+                  </div>
+                  <span className="font-mono text-[#D97706] font-bold px-2.5 py-1 rounded-full bg-[#FFF8E6] border border-[#FDE68A]">
+                    {t.startTime} – {t.endTime}
+                  </span>
                 </div>
               ))}
             </div>
           )}
         </Card>
-        <Card title="Recent Notices" badge={<Badge variant="info" size="sm">{notices.length} Active</Badge>}>
-          <div className="space-y-2">
+        <Card title="Recent Notices" subtitle="Academic communications & alerts" badge={<Badge variant="info" size="sm">{notices.length} Active</Badge>}>
+          <div className="space-y-2.5">
             {notices.slice(0, 3).map(n => (
-              <div key={n._id} className="flex items-start gap-3 p-2.5 border border-slate-100 rounded-lg hover:bg-slate-50 transition-colors">
-                {n.pinned && <Star className="w-3.5 h-3.5 text-amber-500 mt-0.5 shrink-0" />}
-                <div>
-                  <p className="text-xs font-semibold text-slate-900">{n.title}</p>
-                  <p className="text-[11px] text-slate-500 mt-0.5">{n.authorName} • {fmt(n.publishedAt)}</p>
+              <div key={n._id} className="flex items-start gap-3 p-3.5 border border-[#F1E7CF] rounded-2xl bg-white hover:bg-[#FFFDF5] hover:border-[#FDE68A] transition-colors">
+                {n.pinned && <Star className="w-3.5 h-3.5 text-[#D97706] mt-0.5 shrink-0" />}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-1">
+                    <p className="text-xs font-bold text-[#0F172A] truncate">{n.title}</p>
+                    <Badge variant="teal" size="sm">{n.category}</Badge>
+                  </div>
+                  <p className="text-[11px] text-[#64748B] mt-1 line-clamp-1">{n.content}</p>
+                  <p className="text-[10px] text-[#64748B] mt-1 font-semibold">{n.authorName} • {fmt(n.publishedAt)}</p>
                 </div>
               </div>
             ))}
-            {notices.length === 0 && <div className="text-center text-slate-400 text-sm py-4">No notices yet</div>}
+            {notices.length === 0 && <div className="text-center text-[#64748B] text-sm py-6">No notices published yet</div>}
           </div>
         </Card>
       </div>
@@ -680,33 +964,154 @@ export const FacultyDashboard = () => {
 
   // ASSIGNMENTS & EXAMS
   const renderAssignments = () => (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex gap-2">
-        {[['assignments', 'Assignments'], ['exams', 'Examinations']].map(([v, l]) => (
-          <button key={v} onClick={() => setAssignmentTab(v)} className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all ${assignmentTab === v ? 'bg-[#D99A00] text-white shadow' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'}`}>{l}</button>
+        {[['assignments', 'Assignments & Tasks'], ['exams', 'Examinations']].map(([v, l]) => (
+          <button
+            key={v}
+            onClick={() => setAssignmentTab(v)}
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+              assignmentTab === v
+                ? 'bg-[#D99A00] text-white shadow-md'
+                : 'bg-white text-slate-700 border border-[#F1E7CF] hover:bg-[#FFF8E6]'
+            }`}
+          >
+            {l}
+          </button>
         ))}
       </div>
 
       {assignmentTab === 'assignments' && (
-        <Card title="Assignments" subtitle="Create assignments, review submissions, and provide feedback" action={<Button variant="teal" size="sm" leftIcon={<Plus className="w-3.5 h-3.5" />} onClick={() => setCreateAssignmentOpen(true)}>New Assignment</Button>}>
-          {loading.assignments ? <div className="space-y-2">{[1,2,3].map(i => <Skeleton key={i} className="h-14" />)}</div> : (
-            assignments.length === 0 ? (
-              <div className="text-center py-12 text-slate-400"><ClipboardList className="w-10 h-10 mx-auto mb-2 opacity-30" /><p>No assignments yet. Create one above.</p></div>
-            ) : (
-              <Table keyField="_id"
-                columns={[
-                  { key: 'title', header: 'Assignment Title', render: v => <span className="font-semibold text-xs text-slate-900">{v}</span> },
-                  { key: 'course', header: 'Course', render: v => <span className="font-mono text-xs text-navy-900">{v?.code || '—'}</span> },
-                  { key: 'dueDate', header: 'Due Date', render: v => <span className="font-mono text-xs text-slate-500">{fmt(v)}</span> },
-                  { key: 'maxMarks', header: 'Max Marks', render: v => <span className="text-xs font-semibold">{v}</span> },
-                  { key: 'published', header: 'Status', render: v => <Badge variant={v ? 'success' : 'warning'} size="sm" hasDot>{v ? 'Published' : 'Draft'}</Badge> },
-                  { key: 'actions', header: '', render: (_, r) => (
-                    <Button variant="secondary" size="sm" className="text-xs" leftIcon={<Eye className="w-3 h-3" />} onClick={() => handleViewSubmissions(r)} disabled={loading.subs}>Submissions</Button>
-                  )},
-                ]}
-                data={assignments}
-              />
-            )
+        <Card
+          title="Smart Assignment Central"
+          subtitle="Publish multiple-choice assessments or PDF question papers and manage evaluations"
+          badge={<Badge variant="teal" size="sm">{assignments.length} Total Assignments</Badge>}
+          action={
+            <div className="flex items-center gap-2">
+              <Button
+                variant="primary"
+                size="sm"
+                leftIcon={<Plus className="w-3.5 h-3.5" />}
+                onClick={() => {
+                  setCreateAssignmentType('mcq');
+                  setMcqPreviewMode(false);
+                  setCreateAssignmentOpen(true);
+                }}
+              >
+                Create Assignment
+              </Button>
+            </div>
+          }
+        >
+          {loading.assignments ? (
+            <div className="space-y-2">{[1, 2, 3].map(i => <Skeleton key={i} className="h-16" />)}</div>
+          ) : assignments.length === 0 ? (
+            <div className="text-center py-16 text-slate-400">
+              <ClipboardList className="w-12 h-12 mx-auto mb-3 text-[#D99A00] opacity-40" />
+              <p className="text-sm font-bold text-slate-700">No assignments published yet.</p>
+              <p className="text-xs text-slate-500 mt-1">Click "Create Assignment" above to draft an MCQ or PDF assessment.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="bg-[#FFFDF5] border-b border-[#F1E7CF] text-slate-600 font-bold uppercase tracking-wider text-[11px]">
+                    <th className="py-3 px-4">Assignment & Subject</th>
+                    <th className="py-3 px-4">Type</th>
+                    <th className="py-3 px-4">Cohort</th>
+                    <th className="py-3 px-4">Due Date</th>
+                    <th className="py-3 px-4">Max Marks</th>
+                    <th className="py-3 px-4">Submissions</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#F1E7CF]">
+                  {assignments.map((asgn) => {
+                    const isMcq = (asgn.assignmentType || 'mcq').toLowerCase() === 'mcq';
+                    const hasSubmissions = (asgn.totalSubmissions || 0) > 0;
+                    return (
+                      <tr key={asgn._id} className="hover:bg-[#FFFDF5] transition-colors">
+                        <td className="py-3.5 px-4">
+                          <p className="font-extrabold text-slate-900 text-xs">{asgn.title}</p>
+                          <p className="text-[11px] text-[#D97706] font-semibold mt-0.5">
+                            {asgn.subject || asgn.course?.title || asgn.course?.courseCode || 'Coursework'}
+                          </p>
+                        </td>
+                        <td className="py-3.5 px-4">
+                          {isMcq ? (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0]">
+                              <CheckSquare className="w-3 h-3" />
+                              MCQ ({asgn.questions?.length || 0} Qs)
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#EFF6FF] text-[#2563EB] border border-[#BFDBFE]">
+                              <FileText className="w-3 h-3" />
+                              PDF Paper
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-3.5 px-4 font-medium text-slate-700">
+                          {asgn.targetClass && asgn.targetClass !== 'All' ? asgn.targetClass : `Sem ${asgn.targetSemester || 7}`}
+                          {asgn.targetSection ? ` • Sec ${asgn.targetSection}` : ''}
+                        </td>
+                        <td className="py-3.5 px-4 font-mono text-slate-600">
+                          <span className="inline-flex items-center gap-1">
+                            <Clock className="w-3 h-3 text-[#D97706]" />
+                            {fmt(asgn.dueDate)}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4 font-bold text-slate-900 font-mono">
+                          {asgn.maxMarks}
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md font-bold text-[11px] ${
+                            hasSubmissions
+                              ? 'bg-[#FFF8E6] text-[#D97706] border border-[#FDE68A]'
+                              : 'bg-slate-100 text-slate-500'
+                          }`}>
+                            {asgn.totalSubmissions || 0} Submissions
+                            {asgn.evaluatedCount ? ` (${asgn.evaluatedCount} Graded)` : ''}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              className="text-xs"
+                              leftIcon={<Eye className="w-3 h-3" />}
+                              onClick={() => handleViewSubmissions(asgn)}
+                              disabled={loading.subs}
+                            >
+                              Submissions
+                            </Button>
+                            {asgn.questionPaper?.url && (
+                              <a
+                                href={asgn.questionPaper.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-1.5 text-slate-500 hover:text-[#2563EB] rounded-lg hover:bg-blue-50 transition-colors"
+                                title="Download Question Paper"
+                              >
+                                <Download className="w-3.5 h-3.5" />
+                              </a>
+                            )}
+                            <button
+                              onClick={() => handleDeleteAssignment(asgn._id)}
+                              disabled={loading[`delAsgn_${asgn._id}`]}
+                              className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+                              title="Delete Assignment"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           )}
         </Card>
       )}
@@ -732,26 +1137,462 @@ export const FacultyDashboard = () => {
         </Card>
       )}
 
-      {/* Create Assignment Modal */}
-      <Modal isOpen={createAssignmentOpen} onClose={() => setCreateAssignmentOpen(false)} title="Create Assignment"
-        footer={<div className="flex gap-2"><Button variant="secondary" size="sm" onClick={() => setCreateAssignmentOpen(false)}>Cancel</Button><Button variant="teal" size="sm" onClick={handleCreateAssignment} disabled={loading.createAssign}>{loading.createAssign ? 'Creating…' : 'Create Assignment'}</Button></div>}>
-        <div className="space-y-3">
-          {[{ label: 'Assignment Title', field: 'title', placeholder: 'e.g. Backpropagation Implementation' }, { label: 'Description', field: 'description', placeholder: 'Assignment details...' }, { label: 'Due Date', field: 'dueDate', type: 'date' }, { label: 'Max Marks', field: 'maxMarks', type: 'number', placeholder: '50' }].map(({ label, field, placeholder, type }) => (
-            <div key={field}>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">{label}</label>
-              <input type={type || 'text'} placeholder={placeholder} value={assignmentForm[field]} onChange={e => setAssignmentForm(p => ({ ...p, [field]: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30 focus:border-[#D99A00]" />
+      {/* ─── CREATE ASSIGNMENT MODAL (MCQ & PDF SUPPORT) ─── */}
+      <Modal
+        isOpen={createAssignmentOpen}
+        onClose={() => { setCreateAssignmentOpen(false); setMcqPreviewMode(false); }}
+        title="Create & Publish Assignment"
+        description="Select assignment type and configure evaluation parameters"
+        maxWidth="max-w-4xl"
+        footer={
+          <div className="flex items-center justify-between w-full">
+            <div className="text-xs font-bold text-slate-600">
+              {createAssignmentType === 'mcq' && (
+                <span>Calculated Total: <span className="text-[#059669] font-mono text-sm">{mcqCalculatedMarks} Marks</span> ({mcqQuestions.length} Questions)</span>
+              )}
+              {createAssignmentType === 'pdf' && (
+                <span>Total Marks: <span className="text-[#D97706] font-mono text-sm">{assignmentForm.maxMarks || 0} Marks</span></span>
+              )}
             </div>
-          ))}
-          <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">Submission Type</label>
-            <select value={assignmentForm.submissionType} onChange={e => setAssignmentForm(p => ({ ...p, submissionType: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30">
-              <option value="text">Text</option><option value="file">File</option>
-            </select>
+            <div className="flex gap-2">
+              <Button variant="secondary" size="sm" onClick={() => { setCreateAssignmentOpen(false); setMcqPreviewMode(false); }}>
+                Cancel
+              </Button>
+              <Button
+                variant="teal"
+                size="sm"
+                onClick={handleCreateAssignment}
+                disabled={loading.createAssign}
+              >
+                {loading.createAssign ? 'Publishing…' : `Publish ${createAssignmentType.toUpperCase()} Assignment`}
+              </Button>
+            </div>
           </div>
+        }
+      >
+        <div className="space-y-5">
+          {/* 1. Type Switcher Buttons */}
+          <div className="grid grid-cols-2 gap-3 p-1.5 bg-[#FFFDF5] border border-[#F1E7CF] rounded-2xl">
+            <button
+              type="button"
+              onClick={() => { setCreateAssignmentType('mcq'); setMcqPreviewMode(false); }}
+              className={`flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl font-extrabold text-xs transition-all ${
+                createAssignmentType === 'mcq'
+                  ? 'bg-white text-[#D97706] shadow-md border border-[#FDE68A]'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <CheckSquare className="w-4 h-4 text-[#059669]" />
+              <div className="text-left">
+                <span className="block font-bold">MCQ Assignment</span>
+                <span className="block text-[10px] text-slate-400 font-normal">Automated server-side evaluation</span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => { setCreateAssignmentType('pdf'); setMcqPreviewMode(false); }}
+              className={`flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl font-extrabold text-xs transition-all ${
+                createAssignmentType === 'pdf'
+                  ? 'bg-white text-[#D97706] shadow-md border border-[#FDE68A]'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <FileText className="w-4 h-4 text-[#2563EB]" />
+              <div className="text-left">
+                <span className="block font-bold">PDF Assignment</span>
+                <span className="block text-[10px] text-slate-400 font-normal">Question paper upload & student PDF submission</span>
+              </div>
+            </button>
+          </div>
+
+          {/* 2. Common Metadata Form */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 p-4 rounded-2xl bg-[#FFFDF5] border border-[#F1E7CF]">
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-bold text-slate-700 mb-1">Assignment Title *</label>
+              <input
+                type="text"
+                placeholder={createAssignmentType === 'mcq' ? "e.g. Distributed Consensus & Raft Protocol Quiz" : "e.g. LL(1) Parser Implementation Problem Set"}
+                value={assignmentForm.title}
+                onChange={e => setAssignmentForm(p => ({ ...p, title: e.target.value }))}
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30 focus:border-[#D99A00]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">Subject / Course *</label>
+              <input
+                type="text"
+                placeholder="e.g. Artificial Intelligence (CS701)"
+                value={assignmentForm.subject}
+                onChange={e => setAssignmentForm(p => ({ ...p, subject: e.target.value }))}
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30 focus:border-[#D99A00]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">Target Class / Group</label>
+              <input
+                type="text"
+                placeholder="e.g. CS-7A or All"
+                value={assignmentForm.targetClass}
+                onChange={e => setAssignmentForm(p => ({ ...p, targetClass: e.target.value }))}
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30 focus:border-[#D99A00]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">Target Semester & Section</label>
+              <div className="grid grid-cols-2 gap-2">
+                <select
+                  value={assignmentForm.targetSemester}
+                  onChange={e => setAssignmentForm(p => ({ ...p, targetSemester: Number(e.target.value) }))}
+                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30"
+                >
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map(s => (
+                    <option key={s} value={s}>Semester {s}</option>
+                  ))}
+                </select>
+                <input
+                  type="text"
+                  placeholder="Section A"
+                  value={assignmentForm.targetSection}
+                  onChange={e => setAssignmentForm(p => ({ ...p, targetSection: e.target.value }))}
+                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">Submission Deadline *</label>
+              <input
+                type="datetime-local"
+                value={assignmentForm.dueDate}
+                onChange={e => setAssignmentForm(p => ({ ...p, dueDate: e.target.value }))}
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30 focus:border-[#D99A00]"
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-bold text-slate-700 mb-1">Instructions for Students</label>
+              <textarea
+                rows={2}
+                placeholder="Special guidelines, negative marking rules, or submission format instructions..."
+                value={assignmentForm.instructions}
+                onChange={e => setAssignmentForm(p => ({ ...p, instructions: e.target.value }))}
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30 resize-none font-medium"
+              />
+            </div>
+          </div>
+
+          {/* 3A. MCQ ASSIGNMENT QUESTIONS BUILDER */}
+          {createAssignmentType === 'mcq' && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between pb-1 border-b border-[#F1E7CF]">
+                <div className="flex items-center gap-2">
+                  <h4 className="text-sm font-extrabold text-[#0F172A]">Multiple Choice Questions ({mcqQuestions.length})</h4>
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0]">
+                    Auto-Graded ({mcqCalculatedMarks} Total Marks)
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setMcqPreviewMode(!mcqPreviewMode)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border border-[#F1E7CF] bg-white text-slate-700 hover:bg-[#FFF8E6] transition-colors"
+                  >
+                    <Eye className="w-3.5 h-3.5 text-[#D97706]" />
+                    {mcqPreviewMode ? 'Back to Editor' : 'Preview Student View'}
+                  </button>
+
+                  {!mcqPreviewMode && (
+                    <Button
+                      type="button"
+                      variant="primary"
+                      size="sm"
+                      leftIcon={<Plus className="w-3.5 h-3.5" />}
+                      onClick={handleMcqAddQuestion}
+                    >
+                      Add Question
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* MCQ PREVIEW MODE */}
+              {mcqPreviewMode ? (
+                <div className="p-5 rounded-2xl bg-[#FFFDF5] border border-[#FDE68A] space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-[#F1E7CF]">
+                    <div>
+                      <span className="text-xs font-bold uppercase tracking-wider text-[#D97706]">Student Assignment Preview</span>
+                      <h3 className="text-base font-extrabold text-[#0F172A] mt-0.5">{assignmentForm.title || 'Untitled MCQ Assignment'}</h3>
+                      <p className="text-xs text-slate-600 font-medium">{assignmentForm.subject} • {mcqQuestions.length} Questions • {mcqCalculatedMarks} Marks</p>
+                    </div>
+                    <Badge variant="teal" size="sm">Preview Mode</Badge>
+                  </div>
+
+                  <div className="space-y-4">
+                    {mcqQuestions.map((q, idx) => (
+                      <div key={idx} className="p-4 rounded-xl bg-white border border-[#F1E7CF] space-y-2.5">
+                        <div className="flex items-start justify-between">
+                          <span className="font-extrabold text-xs text-[#0F172A]">
+                            Q{idx + 1}. {q.questionText || <span className="italic text-slate-400">Question text not entered</span>}
+                          </span>
+                          <span className="font-mono text-xs font-bold text-[#D97706]">[{q.marks || 1} Mark]</span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                          {q.options.map((opt, oIdx) => (
+                            <div
+                              key={oIdx}
+                              className={`p-2.5 rounded-lg border text-xs flex items-center gap-2 ${
+                                q.correctAnswer === oIdx
+                                  ? 'bg-[#ECFDF5] border-[#059669] text-[#065F46] font-bold'
+                                  : 'bg-slate-50 border-slate-200 text-slate-700'
+                              }`}
+                            >
+                              <span className="w-5 h-5 rounded-full flex items-center justify-center bg-white border text-[11px] font-bold">
+                                {String.fromCharCode(65 + oIdx)}
+                              </span>
+                              <span className="flex-1">{opt || `Option ${String.fromCharCode(65 + oIdx)}`}</span>
+                              {q.correctAnswer === oIdx && (
+                                <span className="text-[10px] font-bold text-[#059669] uppercase">Correct</span>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                /* MCQ QUESTIONS BUILDER */
+                <div className="space-y-4 max-h-[460px] overflow-y-auto pr-1">
+                  {mcqQuestions.map((q, qIdx) => (
+                    <div
+                      key={qIdx}
+                      className="p-4 rounded-2xl bg-white border border-[#F1E7CF] shadow-xs space-y-3 relative group"
+                    >
+                      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                        <div className="flex items-center gap-2">
+                          <span className="w-7 h-7 rounded-xl bg-[#FFF8E6] text-[#D97706] font-extrabold text-xs flex items-center justify-center border border-[#FDE68A]">
+                            Q{qIdx + 1}
+                          </span>
+                          <span className="text-xs font-bold text-slate-800">Question {qIdx + 1}</span>
+                        </div>
+
+                        <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-1 mr-2 text-xs font-semibold text-slate-600">
+                            <span>Marks:</span>
+                            <input
+                              type="number"
+                              min="0.5"
+                              step="0.5"
+                              value={q.marks}
+                              onChange={e => handleMcqQuestionChange(qIdx, 'marks', e.target.value)}
+                              className="w-14 px-2 py-1 text-center bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono font-bold focus:outline-none focus:ring-1 focus:ring-[#D97706]"
+                            />
+                          </div>
+
+                          <button
+                            type="button"
+                            disabled={qIdx === 0}
+                            onClick={() => handleMcqMoveQuestion(qIdx, -1)}
+                            className="p-1 rounded text-slate-400 hover:text-slate-700 disabled:opacity-20"
+                            title="Move Up"
+                          >
+                            <ArrowUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            disabled={qIdx === mcqQuestions.length - 1}
+                            onClick={() => handleMcqMoveQuestion(qIdx, 1)}
+                            className="p-1 rounded text-slate-400 hover:text-slate-700 disabled:opacity-20"
+                            title="Move Down"
+                          >
+                            <ArrowDown className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleMcqRemoveQuestion(qIdx)}
+                            className="p-1 rounded text-slate-400 hover:text-red-600"
+                            title="Delete Question"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Question Text */}
+                      <div>
+                        <input
+                          type="text"
+                          placeholder="Enter question statement..."
+                          value={q.questionText}
+                          onChange={e => handleMcqQuestionChange(qIdx, 'questionText', e.target.value)}
+                          className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30 focus:border-[#D99A00]"
+                        />
+                      </div>
+
+                      {/* 4 Options */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        {q.options.map((opt, oIdx) => {
+                          const isCorrect = q.correctAnswer === oIdx;
+                          return (
+                            <div
+                              key={oIdx}
+                              className={`flex items-center gap-2 p-2 rounded-xl border transition-all ${
+                                isCorrect
+                                  ? 'bg-[#ECFDF5] border-[#059669]/60 ring-1 ring-[#059669]/40'
+                                  : 'bg-white border-slate-200'
+                              }`}
+                            >
+                              <label className="flex items-center gap-1.5 cursor-pointer shrink-0">
+                                <input
+                                  type="radio"
+                                  name={`correct_q_${qIdx}`}
+                                  checked={isCorrect}
+                                  onChange={() => handleMcqCorrectAnswerChange(qIdx, oIdx)}
+                                  className="w-3.5 h-3.5 text-[#059669] focus:ring-[#059669] cursor-pointer"
+                                />
+                                <span className={`w-5 h-5 rounded-lg flex items-center justify-center text-[10px] font-black ${
+                                  isCorrect ? 'bg-[#059669] text-white' : 'bg-slate-100 text-slate-600'
+                                }`}>
+                                  {String.fromCharCode(65 + oIdx)}
+                                </span>
+                              </label>
+
+                              <input
+                                type="text"
+                                placeholder={`Option ${String.fromCharCode(65 + oIdx)} text`}
+                                value={opt}
+                                onChange={e => handleMcqOptionChange(qIdx, oIdx, e.target.value)}
+                                className="flex-1 bg-transparent text-xs font-medium focus:outline-none placeholder:text-slate-400"
+                              />
+
+                              {isCorrect && (
+                                <span className="text-[10px] font-extrabold text-[#059669] px-1.5 py-0.5 rounded bg-white border border-[#A7F3D0] shrink-0">
+                                  Correct
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Explanation */}
+                      <div>
+                        <input
+                          type="text"
+                          placeholder="Optional explanation / rationale for this answer..."
+                          value={q.explanation || ''}
+                          onChange={e => handleMcqQuestionChange(qIdx, 'explanation', e.target.value)}
+                          className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[11px] text-slate-600 focus:bg-white focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  ))}
+
+                  <button
+                    type="button"
+                    onClick={handleMcqAddQuestion}
+                    className="w-full py-3 border-2 border-dashed border-[#F1E7CF] hover:border-[#D97706] rounded-2xl text-xs font-bold text-[#D97706] hover:bg-[#FFFDF5] flex items-center justify-center gap-2 transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Another Multiple Choice Question
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 3B. PDF ASSIGNMENT QUESTION PAPER UPLOAD */}
+          {createAssignmentType === 'pdf' && (
+            <div className="space-y-4 p-4 rounded-2xl bg-[#FFFDF5] border border-[#F1E7CF]">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-sm font-extrabold text-[#0F172A]">Question Paper Document (PDF)</h4>
+                  <p className="text-xs text-slate-500 font-medium">Upload the faculty assignment sheet or examination problem set</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="block text-xs font-bold text-slate-700">Max Marks *</label>
+                  <input
+                    type="number"
+                    min="1"
+                    placeholder="50"
+                    value={assignmentForm.maxMarks}
+                    onChange={e => setAssignmentForm(p => ({ ...p, maxMarks: Number(e.target.value) }))}
+                    className="w-20 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-mono font-bold text-center focus:outline-none focus:ring-2 focus:ring-[#D97706]"
+                  />
+                </div>
+              </div>
+
+              {/* PDF File Picker */}
+              <div className="border-2 border-dashed border-[#F1E7CF] rounded-2xl p-6 bg-white text-center hover:border-[#D97706] transition-colors">
+                <input
+                  type="file"
+                  id="pdfQuestionPaperInput"
+                  accept=".pdf,application/pdf"
+                  className="hidden"
+                  onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      if (!file.name.toLowerCase().endsWith('.pdf')) {
+                        return showToast('Only PDF documents (.pdf) are permitted.', 'error');
+                      }
+                      if (file.size > 25 * 1024 * 1024) {
+                        return showToast('File size must be under 25 MB.', 'error');
+                      }
+                      setPdfFile(file);
+                    }
+                  }}
+                />
+
+                {pdfFile ? (
+                  <div className="flex items-center justify-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center font-bold">
+                      <FileText className="w-6 h-6" />
+                    </div>
+                    <div className="text-left">
+                      <p className="font-extrabold text-xs text-slate-900">{pdfFile.name}</p>
+                      <p className="text-[11px] text-slate-500 font-mono">{(pdfFile.size / 1024 / 1024).toFixed(2)} MB • Ready to publish</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setPdfFile(null)}
+                      className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg"
+                      title="Remove File"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <label htmlFor="pdfQuestionPaperInput" className="cursor-pointer block">
+                    <UploadCloud className="w-10 h-10 text-[#D97706] mx-auto mb-2 opacity-70" />
+                    <p className="text-xs font-extrabold text-slate-900">Click to upload Question Paper (PDF)</p>
+                    <p className="text-[11px] text-slate-500 mt-1">Accepts standard PDF documents up to 25 MB</p>
+                  </label>
+                )}
+              </div>
+
+              {/* PDF Submission Enforcement Toggle */}
+              <label className="flex items-center gap-2.5 p-3 rounded-xl bg-white border border-[#F1E7CF] cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={assignmentForm.requiresPdfSubmission}
+                  onChange={e => setAssignmentForm(p => ({ ...p, requiresPdfSubmission: e.target.checked }))}
+                  className="w-4 h-4 text-[#D97706] rounded focus:ring-[#D97706]"
+                />
+                <span className="text-xs font-bold text-slate-800">
+                  Require students to submit their completed solutions as a PDF file
+                </span>
+              </label>
+            </div>
+          )}
         </div>
       </Modal>
 
-      {/* Schedule Exam Modal */}
+      {/* ─── SCHEDULE EXAM MODAL ─── */}
       <Modal isOpen={scheduleExamOpen} onClose={() => setScheduleExamOpen(false)} title="Schedule Examination"
         footer={<div className="flex gap-2"><Button variant="secondary" size="sm" onClick={() => setScheduleExamOpen(false)}>Cancel</Button><Button variant="teal" size="sm" onClick={handleScheduleExam} disabled={loading.scheduleExam}>{loading.scheduleExam ? 'Scheduling…' : 'Schedule Exam'}</Button></div>}>
         <div className="grid grid-cols-2 gap-3">
@@ -770,50 +1611,230 @@ export const FacultyDashboard = () => {
         </div>
       </Modal>
 
-      {/* Submissions Modal */}
-      <Modal isOpen={submissionsModalOpen} onClose={() => setSubmissionsModalOpen(false)} title="Assignment Submissions" description={selectedAssignment?.title}>
-        {loading.subs ? <div className="space-y-2">{[1,2,3].map(i => <Skeleton key={i} className="h-12" />)}</div> : (
-          submissions.length === 0 ? (
-            <div className="text-center py-8 text-slate-400 text-sm">No submissions yet.</div>
-          ) : (
-            <div className="space-y-2">
-              {submissions.map(sub => (
-                <div key={sub._id} className="p-3 border border-slate-200 rounded-lg flex items-center justify-between text-xs">
-                  <div>
-                    <p className="font-semibold text-slate-900">{sub.student?.name || '—'}</p>
-                    <p className="text-slate-500">{sub.student?.studentId} • {fmt(sub.submittedAt)}</p>
-                    {sub.feedback && <p className="text-slate-600 mt-0.5 italic">"{sub.feedback}"</p>}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {sub.marksObtained !== undefined && <span className="font-bold text-[#D99A00]">{sub.marksObtained}/{selectedAssignment?.maxMarks}</span>}
-                    <Badge variant={sub.status === 'graded' ? 'success' : 'warning'} size="sm">{sub.status}</Badge>
-                    <Button variant="secondary" size="sm" className="text-xs" onClick={() => { setFeedbackForm({ submissionId: sub._id, feedback: sub.feedback || '', marksObtained: sub.marksObtained || '' }); setFeedbackModalOpen(true); }}>
-                      {sub.status === 'graded' ? 'Edit Feedback' : 'Give Feedback'}
-                    </Button>
-                  </div>
-                </div>
-              ))}
+      {/* ─── SUBMISSIONS MANAGEMENT & EVALUATION MODAL ─── */}
+      <Modal
+        isOpen={submissionsModalOpen}
+        onClose={() => setSubmissionsModalOpen(false)}
+        title={`Submissions: ${selectedAssignment?.title || 'Assignment'}`}
+        description={`${selectedAssignment?.subject || ''} • Max Marks: ${selectedAssignment?.maxMarks || 100} • ${selectedAssignment?.assignmentType?.toUpperCase() || 'MCQ'}`}
+        maxWidth="max-w-4xl"
+      >
+        {loading.subs ? (
+          <div className="space-y-2">{[1, 2, 3].map(i => <Skeleton key={i} className="h-14" />)}</div>
+        ) : submissions.length === 0 ? (
+          <div className="text-center py-12 text-slate-400">
+            <ClipboardList className="w-10 h-10 mx-auto mb-2 opacity-30 text-[#D97706]" />
+            <p className="font-bold text-slate-700 text-sm">No student submissions received yet.</p>
+            <p className="text-xs text-slate-500 mt-0.5">Students enrolled in this cohort will appear here once they complete or upload answers.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-[#FFFDF5] border border-[#F1E7CF] text-xs">
+              <span className="font-bold text-slate-700">Total Submissions: {submissions.length}</span>
+              <span className="font-bold text-[#059669]">
+                Evaluated: {submissions.filter(s => s.status === 'Evaluated' || s.marksObtained !== undefined && s.marksObtained !== null).length}
+              </span>
+              <span className="font-bold text-[#D97706]">
+                Pending Evaluation: {submissions.filter(s => s.status !== 'Evaluated' && (s.marksObtained === undefined || s.marksObtained === null)).length}
+              </span>
             </div>
-          )
+
+            <div className="divide-y divide-slate-100 max-h-96 overflow-y-auto">
+              {submissions.map((sub) => {
+                const isEvaluated = sub.status === 'Evaluated' || (sub.marksObtained !== undefined && sub.marksObtained !== null);
+                const isLate = sub.status === 'Late Submitted' || sub.status === 'late';
+                const isMcq = (sub.submissionType || selectedAssignment?.assignmentType || 'mcq').toLowerCase() === 'mcq';
+
+                return (
+                  <div key={sub._id} className="p-3.5 hover:bg-[#FFFDF5] rounded-xl transition-colors space-y-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-extrabold text-xs text-slate-900">{sub.student?.name || 'Student'}</span>
+                          <span className="font-mono text-[11px] font-bold text-slate-500">{sub.student?.studentId}</span>
+                          <Badge variant={isEvaluated ? 'success' : isLate ? 'danger' : 'warning'} size="sm">
+                            {isEvaluated ? 'Evaluated' : isLate ? 'Late Submitted' : 'Submitted'}
+                          </Badge>
+                          {isMcq && (
+                            <span className="text-[10px] font-bold text-[#059669] px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200">
+                              Auto-Graded
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-slate-500 font-medium mt-0.5">
+                          Submitted on {fmt(sub.submittedAt)}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2.5">
+                        {isEvaluated && (
+                          <span className="font-mono font-extrabold text-sm text-[#D97706] bg-[#FFF8E6] px-2.5 py-1 rounded-lg border border-[#FDE68A]">
+                            Score: {sub.marksObtained} / {selectedAssignment?.maxMarks || 100}
+                          </span>
+                        )}
+
+                        {/* If PDF submission, download button */}
+                        {sub.file?.url && (
+                          <a
+                            href={sub.file.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#EFF6FF] border border-[#BFDBFE] text-[#2563EB] font-bold text-xs hover:bg-[#DBEAFE] transition-colors"
+                          >
+                            <Download className="w-3 h-3" />
+                            View PDF
+                          </a>
+                        )}
+
+                        {/* Action buttons */}
+                        {isMcq ? (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            className="text-xs"
+                            onClick={() => setSelectedSubmissionAnswers(sub)}
+                          >
+                            View Answers
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="teal"
+                            size="sm"
+                            className="text-xs"
+                            onClick={() => {
+                              setFeedbackForm({
+                                submissionId: sub._id,
+                                studentName: sub.student?.name,
+                                studentId: sub.student?.studentId,
+                                feedback: sub.feedback || '',
+                                marksObtained: sub.marksObtained !== undefined && sub.marksObtained !== null ? sub.marksObtained : '',
+                              });
+                              setFeedbackModalOpen(true);
+                            }}
+                          >
+                            {isEvaluated ? 'Update Evaluation' : 'Evaluate PDF'}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+
+                    {sub.feedback && (
+                      <p className="text-xs text-slate-600 bg-white p-2.5 rounded-lg border border-slate-100 font-medium italic">
+                        "{sub.feedback}"
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         )}
       </Modal>
 
-      {/* Feedback Modal */}
-      <Modal isOpen={feedbackModalOpen} onClose={() => setFeedbackModalOpen(false)} title="Provide Feedback"
-        footer={<div className="flex gap-2"><Button variant="secondary" size="sm" onClick={() => setFeedbackModalOpen(false)}>Cancel</Button><Button variant="teal" size="sm" onClick={handleGiveFeedback} disabled={loading.feedback}>{loading.feedback ? 'Submitting…' : 'Submit Feedback'}</Button></div>}>
-        <div className="space-y-3">
-          <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">Marks Obtained</label>
-            <input type="number" value={feedbackForm.marksObtained} onChange={e => setFeedbackForm(p => ({ ...p, marksObtained: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30 focus:border-[#D99A00]" placeholder="Enter marks" />
+      {/* ─── PDF EVALUATION & FEEDBACK MODAL ─── */}
+      <Modal
+        isOpen={feedbackModalOpen}
+        onClose={() => setFeedbackModalOpen(false)}
+        title="Evaluate Student PDF Submission"
+        description={`Student: ${feedbackForm.studentName || ''} (${feedbackForm.studentId || ''}) • Max Marks: ${selectedAssignment?.maxMarks || 100}`}
+        footer={
+          <div className="flex gap-2">
+            <Button variant="secondary" size="sm" onClick={() => setFeedbackModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="teal"
+              size="sm"
+              onClick={handleGiveFeedback}
+              disabled={loading.feedback}
+            >
+              {loading.feedback ? 'Publishing…' : 'Publish Evaluation & Notify Student'}
+            </Button>
           </div>
+        }
+      >
+        <div className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">Written Feedback</label>
-            <textarea rows={4} value={feedbackForm.feedback} onChange={e => setFeedbackForm(p => ({ ...p, feedback: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30 focus:border-[#D99A00] resize-none" placeholder="Write detailed feedback for the student..." />
+            <label className="block text-xs font-bold text-slate-700 mb-1">
+              Marks Awarded (Max: {selectedAssignment?.maxMarks || 100}) *
+            </label>
+            <input
+              type="number"
+              min="0"
+              max={selectedAssignment?.maxMarks || 100}
+              value={feedbackForm.marksObtained}
+              onChange={e => setFeedbackForm(p => ({ ...p, marksObtained: e.target.value }))}
+              className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30 focus:border-[#D99A00]"
+              placeholder={`Enter marks (0 - ${selectedAssignment?.maxMarks || 100})`}
+            />
           </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">Faculty Remarks & Feedback</label>
+            <textarea
+              rows={4}
+              value={feedbackForm.feedback}
+              onChange={e => setFeedbackForm(p => ({ ...p, feedback: e.target.value }))}
+              className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30 resize-none font-medium"
+              placeholder="Provide constructive feedback and grading notes for the student..."
+            />
+          </div>
+        </div>
+      </Modal>
+
+      {/* ─── MCQ ANSWERS BREAKDOWN MODAL ─── */}
+      <Modal
+        isOpen={!!selectedSubmissionAnswers}
+        onClose={() => setSelectedSubmissionAnswers(null)}
+        title="Student MCQ Submission Breakdown"
+        description={`Student: ${selectedSubmissionAnswers?.student?.name} (${selectedSubmissionAnswers?.student?.studentId}) • Score: ${selectedSubmissionAnswers?.marksObtained} / ${selectedAssignment?.maxMarks || 100}`}
+      >
+        <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
+          <div className="grid grid-cols-3 gap-2 p-3 rounded-xl bg-[#FFFDF5] border border-[#F1E7CF] text-center text-xs">
+            <div>
+              <span className="block text-[10px] text-slate-500 font-bold uppercase">Score</span>
+              <span className="font-extrabold text-[#D97706] text-sm">{selectedSubmissionAnswers?.marksObtained} / {selectedAssignment?.maxMarks}</span>
+            </div>
+            <div>
+              <span className="block text-[10px] text-slate-500 font-bold uppercase">Correct</span>
+              <span className="font-extrabold text-[#059669] text-sm">{selectedSubmissionAnswers?.correctCount || 0}</span>
+            </div>
+            <div>
+              <span className="block text-[10px] text-slate-500 font-bold uppercase">Incorrect</span>
+              <span className="font-extrabold text-red-600 text-sm">{selectedSubmissionAnswers?.incorrectCount || 0}</span>
+            </div>
+          </div>
+
+          {(selectedSubmissionAnswers?.mcqAnswers || []).map((ans, idx) => {
+            const question = selectedAssignment?.questions?.[ans.questionIndex || idx];
+            return (
+              <div key={idx} className="p-3.5 rounded-xl border border-slate-200 bg-white space-y-2">
+                <div className="flex items-center justify-between text-xs font-bold">
+                  <span>Q{idx + 1}. {question?.questionText || `Question ${idx + 1}`}</span>
+                  <Badge variant={ans.isCorrect ? 'success' : 'danger'} size="sm">
+                    {ans.isCorrect ? 'Correct (+1)' : 'Incorrect (0)'}
+                  </Badge>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className={`p-2 rounded-lg border ${ans.isCorrect ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`}>
+                    <span className="text-[10px] font-bold block uppercase text-slate-500">Student Selected:</span>
+                    <span className="font-semibold">{ans.selectedOption >= 0 ? `Option ${String.fromCharCode(65 + ans.selectedOption)}: ${question?.options?.[ans.selectedOption] || ''}` : 'Unanswered'}</span>
+                  </div>
+
+                  <div className="p-2 rounded-lg border bg-emerald-50 border-emerald-200 text-emerald-800">
+                    <span className="text-[10px] font-bold block uppercase text-slate-500">Correct Answer:</span>
+                    <span className="font-semibold">Option {String.fromCharCode(65 + (question?.correctAnswer ?? ans.selectedOption))}: {question?.options?.[question?.correctAnswer] || ''}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </Modal>
     </div>
   );
+
 
   // RESULTS
   const renderResults = () => (
@@ -1045,12 +2066,14 @@ export const FacultyDashboard = () => {
         </Link>
       )}
 
-      <PageHeader
-        title={meta.title}
-        subtitle={meta.subtitle}
-        breadcrumbs={breadcrumbs}
-        badge={<Badge variant="info" size="sm">Academic Year 2026–27</Badge>}
-      />
+      {currentSection !== 'overview' && (
+        <PageHeader
+          title={meta.title}
+          subtitle={meta.subtitle}
+          breadcrumbs={breadcrumbs}
+          badge={<Badge variant="teal" size="sm">Academic Year 2026–27</Badge>}
+        />
+      )}
 
       {/* Section Content */}
       {currentSection === 'overview' && renderOverview()}

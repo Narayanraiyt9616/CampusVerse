@@ -22,6 +22,7 @@ import Button from '../../components/common/Button';
 import Table from '../../components/common/Table';
 import Modal from '../../components/common/Modal';
 import Input from '../../components/common/Input';
+import PortalHeroBanner from '../../components/common/PortalHeroBanner';
 import { useAuth } from '../../context/AuthContext';
 import { DEMO_STUDENT } from '../../utils/demoData';
 import { studentService, resultService, feeService } from '../../services/api';
@@ -782,49 +783,101 @@ const OverviewSection = ({ profile, results, fees, notifications = [] }) => {
 
   return (
     <div className="space-y-6">
+      {/* Reference Image Inspired Hero Welcome Banner */}
+      <PortalHeroBanner
+        portalName="Student Portal"
+        roleTitle="Student"
+        portalHighlight="Student Portal"
+        headingPrefix="Welcome to"
+        subtitle="Access your academic profile, course rosters, attendance, telemetry, and grades — all in one place."
+        icon={<GraduationCap className="w-4 h-4" />}
+        userName={profile?.name || DEMO_STUDENT.name}
+        userIdentifier={profile?.studentId || DEMO_STUDENT.rollNumber}
+        actions={
+          <Link to="/student/profile">
+            <Button variant="secondary" size="sm" leftIcon={<User className="w-3.5 h-3.5" />}>
+              My Profile
+            </Button>
+          </Link>
+        }
+      />
+
+      {/* 4 Summary Stat Cards with curated pastel containers */}
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Attendance" value={formatPercent(overall)} subtitle="Semester average" change="Safe standing" changeType="increase" icon={<CalendarCheck className="w-5 h-5 text-[#D99A00]" />} />
-        <StatCard title="CGPA" value={DEMO_STUDENT.cgpa.toFixed(2)} subtitle={`Current SGPA: ${DEMO_STUDENT.currentSgpa}`} change="+0.04 vs Sem 6" changeType="increase" icon={<GraduationCap className="w-5 h-5 text-[#D99A00]" />} />
-        <StatCard title="Pending Tasks" value={pendingAssignments} subtitle="Assignments due" change={pendingAssignments > 0 ? 'Action needed' : 'All clear'} changeType={pendingAssignments > 0 ? 'decrease' : 'increase'} icon={<ClipboardList className="w-5 h-5 text-[#D99A00]" />} />
-        <StatCard title="Fee Balance" value={formatCurrency(feeDue)} subtitle="Outstanding dues" change={feeDue === 0 ? 'All cleared' : 'Due soon'} changeType={feeDue === 0 ? 'increase' : 'decrease'} icon={<IndianRupee className="w-5 h-5 text-[#D99A00]" />} />
+        <StatCard
+          title="Attendance"
+          value={formatPercent(overall)}
+          subtitle="Semester average"
+          change="Safe standing"
+          changeType="increase"
+          colorVariant="gold"
+          icon={<CalendarCheck className="w-5 h-5 text-[#D97706]" />}
+        />
+        <StatCard
+          title="CGPA"
+          value={DEMO_STUDENT.cgpa.toFixed(2)}
+          subtitle={`Current SGPA: ${DEMO_STUDENT.currentSgpa}`}
+          change="+0.04 vs Sem 6"
+          changeType="increase"
+          colorVariant="blue"
+          icon={<GraduationCap className="w-5 h-5 text-[#2563EB]" />}
+        />
+        <StatCard
+          title="Pending Tasks"
+          value={pendingAssignments}
+          subtitle="Assignments due"
+          change={pendingAssignments > 0 ? 'Action needed' : 'All clear'}
+          changeType={pendingAssignments > 0 ? 'decrease' : 'increase'}
+          colorVariant="emerald"
+          icon={<ClipboardList className="w-5 h-5 text-[#059669]" />}
+        />
+        <StatCard
+          title="Fee Balance"
+          value={formatCurrency(feeDue)}
+          subtitle="Outstanding dues"
+          change={feeDue === 0 ? 'All cleared' : 'Due soon'}
+          changeType={feeDue === 0 ? 'increase' : 'decrease'}
+          colorVariant="purple"
+          icon={<IndianRupee className="w-5 h-5 text-[#7C3AED]" />}
+        />
       </div>
 
       {/* Target Course-Wise Placement Opportunity Alert */}
       {placementNotifs.length > 0 && (
-        <div className="p-4 sm:p-5 rounded-2xl bg-[#FFF8E6] border border-[#D99A00] shadow-sm space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#F1E7CF] pb-2">
+        <div className="p-5 rounded-2xl sm:rounded-3xl bg-[#FFFDF5] border border-[#FDE68A] shadow-xs space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#F1E7CF] pb-2.5">
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#D99A00] animate-ping" />
-              <h3 className="text-sm font-bold text-[#111827]">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#D97706] animate-ping" />
+              <h3 className="text-sm font-bold text-[#0F172A]">
                 A new placement opportunity is available for your course!
               </h3>
             </div>
             <Link to="/student/placement">
-              <Button variant="primary" size="sm" className="!py-1 !text-xs">
+              <Button variant="primary" size="sm" className="!py-1.5 !text-xs">
                 View & Apply
               </Button>
             </Link>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {placementNotifs.slice(0, 3).map((n) => {
               const meta = n.metadata || {};
               return (
-                <div key={n._id} className="p-3 bg-white rounded-xl border border-[#F1E7CF] text-xs">
+                <div key={n._id} className="p-3.5 bg-white rounded-2xl border border-[#F1E7CF] text-xs shadow-2xs hover:border-[#FDE68A] transition-colors">
                   <div className="flex flex-wrap items-center justify-between gap-1">
-                    <span className="font-bold text-slate-900">{n.companyName || meta.companyName}</span>
+                    <span className="font-black text-[#0F172A]">{n.companyName || meta.companyName}</span>
                     <Badge variant="teal" size="sm">{n.jobRole || meta.jobTitle || 'Role'}</Badge>
                   </div>
-                  <p className="text-slate-600 mt-1 font-medium">{n.message}</p>
-                  <div className="flex flex-wrap items-center gap-3 mt-2 text-[11px] text-slate-500 font-mono">
+                  <p className="text-[#64748B] mt-1 font-medium">{n.message}</p>
+                  <div className="flex flex-wrap items-center gap-3 mt-2 text-[11px] text-[#64748B] font-mono">
                     {meta.displayPackage && (
-                      <span className="font-bold text-[#D99A00]">{meta.displayPackage}</span>
+                      <span className="font-bold text-[#D97706]">{meta.displayPackage}</span>
                     )}
                     {(n.driveDate || meta.driveDate) && (
                       <span>Drive Date: {new Date(n.driveDate || meta.driveDate).toLocaleDateString('en-IN')}</span>
                     )}
                     {(n.applicationDeadline || meta.applicationDeadline) && (
-                      <span className="text-red-700 font-bold">
+                      <span className="text-[#E11D48] font-bold">
                         Deadline: {new Date(n.applicationDeadline || meta.applicationDeadline).toLocaleDateString('en-IN')}
                       </span>
                     )}
@@ -836,39 +889,42 @@ const OverviewSection = ({ profile, results, fees, notifications = [] }) => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+      {/* Quick Navigation Cards Inspired by Reference Image Bottom Feature Icons */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { to: '/student/profile', label: 'My Profile', icon: <User className="w-5 h-5" />, desc: 'Personal details & contact info' },
-          { to: '/student/attendance', label: 'Attendance Report', icon: <CalendarCheck className="w-5 h-5" />, desc: 'Subject-wise attendance & PDF report' },
-          { to: '/student/progress-report', label: 'Progress Report', icon: <TrendingUp className="w-5 h-5" />, desc: 'Assignments, midterms, lab marks & report' },
-          { to: '/student/assignments', label: 'Assignments & Exams', icon: <ClipboardList className="w-5 h-5" />, desc: 'Active tasks, submissions & exam schedule' },
-          { to: '/student/projects', label: 'Live Projects', icon: <Code className="w-5 h-5" />, desc: 'Project portfolio submission & faculty reviews' },
-          { to: '/student/admit-card', label: 'Admit Card', icon: <FileCheck2 className="w-5 h-5" />, desc: 'Examination hall tickets & schedule' },
-          { to: '/student/fees', label: 'Fees', icon: <IndianRupee className="w-5 h-5" />, desc: 'Invoices & payment history' },
-          { to: '/student/placement', label: 'Placement Drives', icon: <Briefcase className="w-5 h-5" />, desc: 'Recruitment drives & resume application' },
+          { to: '/student/profile', label: 'My Profile', icon: <User className="w-5 h-5" />, desc: 'Personal details & contact info', iconBg: 'bg-[#FFF8E6] text-[#D97706] border-[#FDE68A]' },
+          { to: '/student/attendance', label: 'Attendance Report', icon: <CalendarCheck className="w-5 h-5" />, desc: 'Subject-wise attendance & PDF report', iconBg: 'bg-[#EFF6FF] text-[#2563EB] border-[#BFDBFE]' },
+          { to: '/student/progress-report', label: 'Progress Report', icon: <TrendingUp className="w-5 h-5" />, desc: 'Assignments, midterms, lab marks & report', iconBg: 'bg-[#ECFDF5] text-[#059669] border-[#A7F3D0]' },
+          { to: '/student/assignments', label: 'Assignments & Exams', icon: <ClipboardList className="w-5 h-5" />, desc: 'Active tasks, submissions & exam schedule', iconBg: 'bg-[#FAF5FF] text-[#7C3AED] border-[#DDD6FE]' },
+          { to: '/student/projects', label: 'Live Projects', icon: <Code className="w-5 h-5" />, desc: 'Project portfolio submission & reviews', iconBg: 'bg-[#FFF8E6] text-[#D97706] border-[#FDE68A]' },
+          { to: '/student/admit-card', label: 'Admit Card', icon: <FileCheck2 className="w-5 h-5" />, desc: 'Examination hall tickets & schedule', iconBg: 'bg-[#EFF6FF] text-[#2563EB] border-[#BFDBFE]' },
+          { to: '/student/fees', label: 'Fees & Invoices', icon: <IndianRupee className="w-5 h-5" />, desc: 'Semester invoices & payment receipts', iconBg: 'bg-[#ECFDF5] text-[#059669] border-[#A7F3D0]' },
+          { to: '/student/placement', label: 'Placement Drives', icon: <Briefcase className="w-5 h-5" />, desc: 'Recruitment drives & resume application', iconBg: 'bg-[#FAF5FF] text-[#7C3AED] border-[#DDD6FE]' },
         ].map((item) => (
           <Link key={item.to} to={item.to} className="group block">
-            <div className="p-5 rounded-2xl border border-[#F1E7CF] bg-white hover:border-[#D99A00] shadow-sm hover:shadow-card-hover transition-all duration-200 group-hover:-translate-y-0.5 h-full">
-              <div className="w-10 h-10 rounded-xl bg-[#FFF8E6] text-[#D99A00] flex items-center justify-center mb-3.5 shadow-sm group-hover:scale-110 transition-transform">
-                {item.icon}
+            <div className="p-5 rounded-2xl sm:rounded-3xl border border-[#F1E7CF] bg-white hover:border-[#FDE68A] shadow-[0_4px_20px_rgba(217,119,6,0.03)] hover:shadow-[0_12px_32px_rgba(217,119,6,0.09)] transition-all duration-300 group-hover:-translate-y-1 h-full flex flex-col justify-between">
+              <div>
+                <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center mb-3.5 shadow-2xs group-hover:scale-110 transition-transform ${item.iconBg}`}>
+                  {item.icon}
+                </div>
+                <p className="font-black text-[#0F172A] text-sm group-hover:text-[#D97706] transition-colors">{item.label}</p>
+                <p className="text-xs text-[#64748B] font-medium mt-1 leading-relaxed">{item.desc}</p>
               </div>
-              <p className="font-bold text-[#111827] text-sm">{item.label}</p>
-              <p className="text-xs text-[#4B5563] font-medium mt-1 leading-relaxed">{item.desc}</p>
             </div>
           </Link>
         ))}
       </div>
 
-      <Card title="Recent Notices" subtitle="Latest campus communications">
+      <Card title="Recent Notices" subtitle="Latest verified campus communications" badge={<Badge variant="teal" size="sm">Notice Board</Badge>}>
         <div className="space-y-3">
           {DEMO_STUDENT.notifications.slice(0, 3).map((n) => (
-            <div key={n.id} className="p-4 rounded-xl border border-[#F1E7CF] bg-white hover:bg-[#FFF8E6]/20 transition-colors text-xs">
+            <div key={n.id} className="p-4 rounded-2xl border border-[#F1E7CF] bg-white hover:bg-[#FFFDF5] hover:border-[#FDE68A] transition-all text-xs">
               <div className="flex items-center justify-between gap-2">
-                <span className="font-bold text-sm text-[#111827]">{n.title}</span>
+                <span className="font-bold text-sm text-[#0F172A]">{n.title}</span>
                 <Badge variant={n.priority === 'High' ? 'warning' : 'neutral'} size="sm">{n.category}</Badge>
               </div>
-              <p className="text-[#4B5563] text-xs mt-1.5 leading-relaxed font-medium">{n.message}</p>
-              <p className="text-[#4B5563] text-[11px] font-semibold mt-1.5">{n.date}</p>
+              <p className="text-[#64748B] text-xs mt-1.5 leading-relaxed font-medium">{n.message}</p>
+              <p className="text-[#64748B] text-[11px] font-semibold mt-1.5">{n.date}</p>
             </div>
           ))}
         </div>
@@ -958,30 +1014,29 @@ export const StudentDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={sectionLabel || `Welcome, ${loggedInName}`}
-        subtitle={
-          sectionLabel
-            ? `${loggedInName} · ${profile?.studentId || DEMO_STUDENT.rollNumber} · ${profile?.department?.name || DEMO_STUDENT.department}`
-            : `${profile?.email || user?.email || DEMO_STUDENT.email} · ${profile?.department?.name || DEMO_STUDENT.department} · Sem ${profile?.semester || '7'}`
-        }
-        breadcrumbs={
-          sectionLabel
-            ? [{ label: 'Student Portal', to: '/student' }, { label: sectionLabel }]
-            : [{ label: 'Student Portal', to: '/student' }, { label: 'Overview' }]
-        }
-        badge={<Badge variant="teal" size="sm"><Star className="w-3.5 h-3.5 mr-1 inline" />Dean's List</Badge>}
-        actions={
-          <div className="flex items-center gap-2.5">
-            {sectionLabel && (
-              <Link to="/student"><Button variant="secondary" size="sm" leftIcon={<ArrowLeft className="w-3.5 h-3.5" />}>Overview</Button></Link>
-            )}
-            <Button variant="secondary" size="sm" leftIcon={loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />} onClick={loadData} disabled={loading}>
-              Refresh
-            </Button>
-          </div>
-        }
-      />
+      {sectionLabel ? (
+        <PageHeader
+          title={sectionLabel}
+          subtitle={`${loggedInName} · ${profile?.studentId || DEMO_STUDENT.rollNumber} · ${profile?.department?.name || DEMO_STUDENT.department}`}
+          breadcrumbs={[
+            { label: 'Student Portal', to: '/student' },
+            { label: sectionLabel },
+          ]}
+          badge={<Badge variant="teal" size="sm"><Star className="w-3.5 h-3.5 mr-1 inline" />Dean's List</Badge>}
+          actions={
+            <div className="flex items-center gap-2.5">
+              <Link to="/student">
+                <Button variant="secondary" size="sm" leftIcon={<ArrowLeft className="w-3.5 h-3.5" />}>
+                  Overview
+                </Button>
+              </Link>
+              <Button variant="secondary" size="sm" leftIcon={loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />} onClick={loadData} disabled={loading}>
+                Refresh
+              </Button>
+            </div>
+          }
+        />
+      ) : null}
 
       {error && (
         <div className="flex items-center gap-2.5 p-4 rounded-xl bg-[#FFF8E6] border border-[#D99A00] text-xs sm:text-sm text-[#111827] font-medium">

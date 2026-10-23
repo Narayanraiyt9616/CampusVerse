@@ -24,6 +24,7 @@ import Button from '../../../components/common/Button';
 import StatCard from '../../../components/common/StatCard';
 import AlertBanner from '../../../components/common/AlertBanner';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
+import PortalHeroBanner from '../../../components/common/PortalHeroBanner';
 import { parentService } from '../../../services/api';
 
 export const ParentOverview = ({ selectedStudentId, onSelectStudent }) => {
@@ -87,22 +88,44 @@ export const ParentOverview = ({ selectedStudentId, onSelectStudent }) => {
         />
       )}
 
+      {/* Reference Image Inspired Hero Welcome Banner */}
+      <PortalHeroBanner
+        portalName="Parent Portal"
+        roleTitle="Parent / Guardian"
+        portalHighlight="Parent Portal"
+        headingPrefix="Welcome to"
+        subtitle="Track your ward's biometric attendance, examination results, fee invoices, and campus alerts — all in one place."
+        icon={<Users className="w-4 h-4" />}
+        userName={student?.name ? `${student.name}'s Guardian` : 'Parent / Guardian'}
+        userIdentifier={student?.studentId ? `Ward: ${student.studentId}` : 'Guardian Verified'}
+        actions={
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={fetchData}
+            leftIcon={<RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />}
+          >
+            Refresh Data
+          </Button>
+        }
+      />
+
       {/* Ward Switcher / Header Banner */}
-      <div className="bg-white rounded-2xl border border-[#F1E7CF] p-6 sm:p-8 shadow-card space-y-5">
+      <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#F1E7CF] p-6 sm:p-8 shadow-[0_4px_24px_rgba(217,119,6,0.04)] space-y-5">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#F1E7CF] pb-5">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-[#D99A00] text-white flex items-center justify-center font-extrabold text-2xl shadow-sm">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#F59E0B] to-[#D97706] text-white flex items-center justify-center font-black text-2xl shadow-xs ring-2 ring-[#FDE68A]/40">
               {student?.name?.charAt(0) || 'S'}
             </div>
             <div>
               <div className="flex items-center gap-2.5">
-                <h2 className="text-xl font-extrabold text-[#111827]">{student?.name || 'Aarav Singhania'}</h2>
+                <h2 className="text-xl font-black text-[#0F172A]">{student?.name || 'Aarav Singhania'}</h2>
                 <Badge variant={att.isLowAttendance ? 'warning' : 'teal'} size="sm" hasDot>
                   {acad.standing}
                 </Badge>
               </div>
-              <p className="text-xs sm:text-sm text-[#4B5563] font-mono mt-1 font-semibold">
-                Roll No: <strong className="text-[#111827]">{student?.studentId}</strong> • {student?.department} (Semester {student?.semester})
+              <p className="text-xs sm:text-sm text-[#64748B] font-mono mt-1 font-semibold">
+                Roll No: <strong className="text-[#0F172A]">{student?.studentId}</strong> • {student?.department} (Semester {student?.semester})
               </p>
             </div>
           </div>
@@ -110,11 +133,11 @@ export const ParentOverview = ({ selectedStudentId, onSelectStudent }) => {
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
             {wards.length > 1 && (
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-[#111827]">Select Ward:</span>
+                <span className="text-xs font-bold text-[#0F172A]">Select Ward:</span>
                 <select
                   value={student?.studentId || ''}
                   onChange={(e) => onSelectStudent(e.target.value)}
-                  className="h-10 px-3.5 text-xs sm:text-sm font-semibold rounded-xl border border-[#F1E7CF] bg-white text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#D99A00]"
+                  className="h-10 px-3.5 text-xs sm:text-sm font-semibold rounded-xl border border-[#F1E7CF] bg-white text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#F59E0B]"
                 >
                   {wards.map((w) => (
                     <option key={w._id} value={w.studentId}>
@@ -124,54 +147,45 @@ export const ParentOverview = ({ selectedStudentId, onSelectStudent }) => {
                 </select>
               </div>
             )}
-
-            <Button
-              variant="secondary"
-              size="sm"
-              leftIcon={<RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />}
-              onClick={fetchData}
-            >
-              Refresh Data
-            </Button>
           </div>
         </div>
 
         {/* Quick Ward Metric Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-          <div className="p-4 rounded-xl bg-[#FFFDF5] border border-[#F1E7CF]">
-            <span className="text-[#4B5563] text-xs block font-bold uppercase tracking-wider">Cumulative CGPA</span>
-            <span className="text-2xl font-extrabold text-[#D99A00] font-mono mt-1 block">{acad.cgpa.toFixed(2)} / 10.0</span>
-            <span className="text-[11px] text-[#4B5563] mt-1 block font-medium">Based on published grades</span>
+          <div className="p-4 rounded-2xl sm:rounded-3xl bg-[#FFFDF5] border border-[#F1E7CF] hover:border-[#FDE68A] transition-all">
+            <span className="text-[#64748B] text-xs block font-bold uppercase tracking-wider">Cumulative CGPA</span>
+            <span className="text-2xl font-black text-[#D97706] font-mono mt-1 block">{acad.cgpa.toFixed(2)} / 10.0</span>
+            <span className="text-[11px] text-[#64748B] mt-1 block font-medium">Based on published grades</span>
           </div>
 
-          <div className="p-4 rounded-xl bg-white border border-[#F1E7CF]">
-            <span className="text-[#4B5563] text-xs block font-bold uppercase tracking-wider">
+          <div className="p-4 rounded-2xl sm:rounded-3xl bg-white border border-[#F1E7CF] hover:border-[#FDE68A] transition-all">
+            <span className="text-[#64748B] text-xs block font-bold uppercase tracking-wider">
               Attendance Rate
             </span>
-            <span className="text-2xl font-extrabold font-mono mt-1 block text-[#111827]">
+            <span className="text-2xl font-black font-mono mt-1 block text-[#0F172A]">
               {att.overallPercentage}%
             </span>
-            <span className={`text-xs mt-1 block font-bold ${att.isLowAttendance ? 'text-[#111827]' : 'text-[#D99A00]'}`}>
+            <span className={`text-xs mt-1 block font-bold ${att.isLowAttendance ? 'text-[#E11D48]' : 'text-[#059669]'}`}>
               {att.isLowAttendance ? 'Shortage Alert (< 75%)' : 'Exceeds 75% Requirement'}
             </span>
           </div>
 
-          <div className="p-4 rounded-xl bg-white border border-[#F1E7CF]">
-            <span className="text-[#4B5563] text-xs block font-bold uppercase tracking-wider">
+          <div className="p-4 rounded-2xl sm:rounded-3xl bg-white border border-[#F1E7CF] hover:border-[#FDE68A] transition-all">
+            <span className="text-[#64748B] text-xs block font-bold uppercase tracking-wider">
               Fee Clearance
             </span>
-            <span className="text-2xl font-extrabold font-mono mt-1 block text-[#111827]">
+            <span className="text-2xl font-black font-mono mt-1 block text-[#0F172A]">
               {fee.pendingAmount > 0 ? `₹${fee.pendingAmount.toLocaleString()} Due` : 'All Cleared'}
             </span>
-            <span className="text-[11px] text-[#4B5563] mt-1 block font-medium">
+            <span className="text-[11px] text-[#64748B] mt-1 block font-medium">
               {fee.overdueCount > 0 ? `${fee.overdueCount} Overdue Invoice(s)` : 'Semester Tuition & Hostel'}
             </span>
           </div>
 
-          <div className="p-4 rounded-xl bg-[#FFFDF5] border border-[#F1E7CF]">
-            <span className="text-[#4B5563] text-xs block font-bold uppercase tracking-wider">Academic Standing</span>
-            <span className="text-lg font-extrabold text-[#111827] mt-1 block">{student?.status || 'Active'}</span>
-            <span className="text-[11px] text-[#4B5563] mt-1 block font-medium">Admitted {student?.enrollmentYear}</span>
+          <div className="p-4 rounded-2xl sm:rounded-3xl bg-[#FFFDF5] border border-[#F1E7CF] hover:border-[#FDE68A] transition-all">
+            <span className="text-[#64748B] text-xs block font-bold uppercase tracking-wider">Academic Standing</span>
+            <span className="text-lg font-black text-[#0F172A] mt-1 block">{student?.status || 'Active'}</span>
+            <span className="text-[11px] text-[#64748B] mt-1 block font-medium">Admitted {student?.enrollmentYear}</span>
           </div>
         </div>
       </div>

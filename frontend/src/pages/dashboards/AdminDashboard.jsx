@@ -176,25 +176,23 @@ export const AdminDashboard = () => {
 
   return (
     <div className="space-y-6">
-      {/* Top Page Header */}
-      <PageHeader
-        title={getSectionTitle()}
-        subtitle={`Dean & Registrar Administrator: ${user?.name || user?.username || 'Dr. Suresh Nambiar'} • ${user?.email || 'admin@campusverse.edu'}`}
-        breadcrumbs={
-          currentSection
-            ? [{ label: 'Admin Console', to: '/admin' }, { label: getSectionTitle() }]
-            : [{ label: 'Admin Console', to: '/admin' }, { label: 'Executive Overview' }]
-        }
-        badge={<Badge variant="navy" size="sm">Academic Year 2025-2026</Badge>}
-        actions={
-          <div className="flex items-center gap-2.5">
-            {currentSection && (
+      {/* Top Page Header (displayed on sub-sections) */}
+      {currentSection && (
+        <PageHeader
+          title={getSectionTitle()}
+          subtitle={`Dean & Registrar Administrator: ${user?.name || user?.username || 'Dr. Suresh Nambiar'} • ${user?.email || 'admin@campusverse.edu'}`}
+          breadcrumbs={[
+            { label: 'Admin Console', to: '/admin' },
+            { label: getSectionTitle() },
+          ]}
+          badge={<Badge variant="navy" size="sm">Academic Year 2025-2026</Badge>}
+          actions={
+            <div className="flex items-center gap-2.5">
               <Link to="/admin">
                 <Button variant="secondary" size="sm" leftIcon={<ArrowLeft className="w-3.5 h-3.5" />}>
                   Overview
                 </Button>
               </Link>
-            )}
             {currentSection === 'credentials' && (
               <Button
                 variant="primary"
@@ -233,6 +231,7 @@ export const AdminDashboard = () => {
           </div>
         }
       />
+      )}
 
       {/* Quick Navigation Scroll Strip */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none border-b border-[#F1E7CF]">
@@ -243,10 +242,10 @@ export const AdminDashboard = () => {
             <Link
               key={tab.id || 'overview'}
               to={tab.id ? `/admin/${tab.id}` : '/admin'}
-              className={`inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+              className={`inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-150 ${
                 isCurrent
-                  ? 'bg-[#D99A00] text-white shadow-sm border border-[#D99A00]'
-                  : 'bg-white text-[#111827] hover:bg-[#FFF8E6] border border-[#F1E7CF]'
+                  ? 'bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white shadow-xs border border-[#F59E0B]'
+                  : 'bg-white text-[#0F172A] hover:bg-[#FFF8E6] hover:border-[#FDE68A] border border-[#F1E7CF]'
               }`}
             >
               <Icon className="w-4 h-4" />

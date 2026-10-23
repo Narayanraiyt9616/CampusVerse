@@ -5,12 +5,18 @@ const notificationSchema = new mongoose.Schema(
     recipient: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Student',
-      required: [true, 'Recipient student reference is required'],
+      required: false,
+      index: true,
+    },
+    recipientUser: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: false,
       index: true,
     },
     studentId: {
       type: String,
-      required: true,
+      required: false,
       trim: true,
       index: true,
     },
@@ -44,6 +50,8 @@ const notificationSchema = new mongoose.Schema(
         'PLACEMENT_SHORTLISTED',
         'PLACEMENT_INTERVIEW',
         'PROJECT_REVIEW',
+        'ASSIGNMENT_PUBLISHED',
+        'ASSIGNMENT_SUBMISSION',
         'ASSIGNMENT_EVALUATION',
         'SYSTEM_ALERT',
         'GENERAL',
@@ -116,5 +124,7 @@ notificationSchema.virtual('applicationDeadline').get(function () {
 // Compound index to ensure uniqueness per student & drive to prevent duplicate alerts
 notificationSchema.index({ recipient: 1, drive: 1 });
 notificationSchema.index({ recipient: 1, createdAt: -1 });
+notificationSchema.index({ recipientUser: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Notification', notificationSchema);
+

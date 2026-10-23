@@ -90,43 +90,42 @@ export const StaffDashboard = () => {
 
   return (
     <div className="space-y-6">
-      {/* Page Header matching Student Portal */}
-      <PageHeader
-        title={meta.title}
-        subtitle={meta.subtitle}
-        breadcrumbs={
-          isOverview
-            ? [{ label: 'Hostel Portal', to: basePath }, { label: 'Overview' }]
-            : [{ label: 'Hostel Portal', to: basePath }, { label: meta.breadcrumb }]
-        }
-        badge={
-          <Badge variant="teal" size="sm" hasDot>
-            Estate Operations Active
-          </Badge>
-        }
-        actions={
-          <div className="flex items-center gap-2.5">
-            {!isOverview && (
+      {/* Page Header (rendered on sub-sections) */}
+      {!isOverview && (
+        <PageHeader
+          title={meta.title}
+          subtitle={meta.subtitle}
+          breadcrumbs={[
+            { label: 'Hostel & Transport', to: basePath },
+            { label: meta.breadcrumb },
+          ]}
+          badge={
+            <Badge variant="teal" size="sm" hasDot>
+              Estate Operations Active
+            </Badge>
+          }
+          actions={
+            <div className="flex items-center gap-2.5">
               <Link to={basePath}>
                 <Button variant="secondary" size="sm" leftIcon={<ArrowLeft className="w-3.5 h-3.5" />}>
                   Overview
                 </Button>
               </Link>
-            )}
-            <Button
-              variant="secondary"
-              size="sm"
-              leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
-              onClick={() => window.location.reload()}
-            >
-              Refresh
-            </Button>
-          </div>
-        }
-      />
+              <Button
+                variant="secondary"
+                size="sm"
+                leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
+                onClick={() => window.location.reload()}
+              >
+                Refresh
+              </Button>
+            </div>
+          }
+        />
+      )}
 
       {/* Modern Navigation Pills Strip matching Gold & Yellow theme */}
-      <div className="p-1.5 rounded-2xl bg-[#FFF8E6]/60 border border-[#F1E7CF] flex items-center gap-2 overflow-x-auto scrollbar-none">
+      <div className="bg-white p-2 rounded-2xl sm:rounded-3xl border border-[#F1E7CF] shadow-[0_4px_20px_rgba(217,119,6,0.03)] flex items-center gap-2 overflow-x-auto scrollbar-none">
         {SECTIONS.map((sec) => {
           const Icon = sec.icon;
           const isActive =
@@ -138,10 +137,10 @@ export const StaffDashboard = () => {
             <Link
               key={sec.id}
               to={sec.path}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-150 ${
                 isActive
-                  ? 'bg-[#D99A00] text-white shadow-sm'
-                  : 'text-[#111827] hover:bg-[#FFF8E6]'
+                  ? 'bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white shadow-xs border border-[#F59E0B]'
+                  : 'text-[#0F172A] hover:bg-[#FFF8E6] hover:border-[#FDE68A]'
               }`}
             >
               <Icon className="w-4 h-4" />

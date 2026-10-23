@@ -21,6 +21,7 @@ import Button from '../../../components/common/Button';
 import StatCard from '../../../components/common/StatCard';
 import AlertBanner from '../../../components/common/AlertBanner';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
+import PortalHeroBanner from '../../../components/common/PortalHeroBanner';
 import { placementService } from '../../../services/api';
 
 export const PlacementOverview = () => {
@@ -91,6 +92,35 @@ export const PlacementOverview = () => {
         />
       )}
 
+      {/* Reference Image Inspired Hero Welcome Banner */}
+      <PortalHeroBanner
+        portalName="Placement Cell"
+        roleTitle="Corporate Relations"
+        portalHighlight="Placement Cell"
+        headingPrefix="Welcome to"
+        subtitle="Coordinate recruitment drives, corporate partners, student eligibility, resumes, and official offer letters — all in one place."
+        icon={<Briefcase className="w-4 h-4" />}
+        userName="Prof. Vikramaditya"
+        userIdentifier="Head of Training & Placement"
+        actions={
+          <div className="flex items-center gap-2">
+            <Link to="/placement/companies">
+              <Button variant="primary" size="sm" leftIcon={<Building2 className="w-3.5 h-3.5" />}>
+                Manage Drives
+              </Button>
+            </Link>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={fetchDashboard}
+              leftIcon={<RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />}
+            >
+              Refresh Data
+            </Button>
+          </div>
+        }
+      />
+
       {/* Top Placement KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
@@ -100,7 +130,7 @@ export const PlacementOverview = () => {
           change={`${stats.totalOffersCount} Offers Made`}
           changeType="increase"
           colorVariant="emerald"
-          icon={<Award className="w-5 h-5 text-emerald-600" />}
+          icon={<Award className="w-5 h-5 text-[#059669]" />}
         />
 
         <StatCard
@@ -110,7 +140,7 @@ export const PlacementOverview = () => {
           change="Clean Academic Standing"
           changeType="increase"
           colorVariant="gold"
-          icon={<Users className="w-5 h-5 text-[#D99A00]" />}
+          icon={<Users className="w-5 h-5 text-[#D97706]" />}
         />
 
         <StatCard
@@ -119,8 +149,8 @@ export const PlacementOverview = () => {
           subtitle={`${stats.upcomingDrivesCount} Scheduled Campus Drives`}
           change="Tier 1 Dream Partners"
           changeType="increase"
-          colorVariant="navy"
-          icon={<Briefcase className="w-5 h-5 text-navy-800" />}
+          colorVariant="blue"
+          icon={<Briefcase className="w-5 h-5 text-[#2563EB]" />}
         />
 
         <StatCard
@@ -130,7 +160,7 @@ export const PlacementOverview = () => {
           change="National Top Decile"
           changeType="increase"
           colorVariant="purple"
-          icon={<TrendingUp className="w-5 h-5 text-purple-600" />}
+          icon={<TrendingUp className="w-5 h-5 text-[#7C3AED]" />}
         />
       </div>
 

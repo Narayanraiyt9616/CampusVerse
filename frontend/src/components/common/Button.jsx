@@ -29,14 +29,14 @@ export const Button = ({
   };
 
   const variantClasses = {
-    primary: 'bg-[#D99A00] text-white hover:bg-[#E5A900] shadow-sm border border-[#D99A00]',
-    secondary: 'bg-white text-[#111827] border border-[#F1E7CF] hover:bg-[#FFF8E6] hover:text-[#111827] shadow-sm',
-    teal: 'bg-[#D99A00] text-white hover:bg-[#E5A900] shadow-sm border border-[#D99A00]',
-    gold: 'bg-[#D99A00] text-white hover:bg-[#E5A900] shadow-sm border border-[#D99A00]',
-    yellow: 'bg-[#FFC107] text-[#111827] hover:bg-[#F5B301] shadow-sm border border-[#FFC107]',
-    danger: 'bg-[#EF4444] text-white hover:bg-[#DC2626] shadow-sm border border-[#EF4444]',
-    ghost: 'text-[#4B5563] hover:text-[#111827] hover:bg-[#FFF8E6] border border-transparent',
-    outline: 'border border-[#D99A00] text-[#D99A00] hover:bg-[#FFF8E6] hover:text-[#111827] bg-transparent',
+    primary: 'bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white hover:from-[#FBBF24] hover:to-[#E5A900] shadow-xs border border-[#F59E0B]',
+    secondary: 'bg-white text-[#0F172A] border border-[#F1E7CF] hover:bg-[#FFF8E6] hover:border-[#FDE68A] hover:text-[#0F172A] shadow-xs',
+    teal: 'bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white hover:from-[#FBBF24] hover:to-[#E5A900] shadow-xs border border-[#F59E0B]',
+    gold: 'bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white hover:from-[#FBBF24] hover:to-[#E5A900] shadow-xs border border-[#F59E0B]',
+    yellow: 'bg-[#FEF9C3] text-[#854D0E] hover:bg-[#FEF08A] shadow-xs border border-[#FDE047]',
+    danger: 'bg-[#E11D48] text-white hover:bg-[#BE123C] shadow-xs border border-[#E11D48]',
+    ghost: 'text-[#64748B] hover:text-[#0F172A] hover:bg-[#FFF8E6] border border-transparent',
+    outline: 'border border-[#D97706] text-[#D97706] hover:bg-[#FFF8E6] hover:text-[#B45309] bg-transparent',
   };
 
   const disabledClasses = (disabled || isSpinning) ? 'opacity-60 cursor-not-allowed pointer-events-none' : 'cursor-pointer active:scale-[0.99]';

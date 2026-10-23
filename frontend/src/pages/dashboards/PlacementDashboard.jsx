@@ -132,23 +132,25 @@ export const PlacementDashboard = () => {
         </div>
       </div>
 
-      {/* Page Header */}
-      <PageHeader
-        title={meta.title}
-        subtitle={meta.subtitle}
-        breadcrumbs={[
-          { label: 'Placement Cell', to: '/placement' },
-          { label: meta.breadcrumb },
-        ]}
-        badge={
-          <Badge variant="teal" size="sm" hasDot>
-            Placement Active
-          </Badge>
-        }
-      />
+      {/* Page Header (rendered on sub-sections) */}
+      {currentSection !== 'dashboard' && (
+        <PageHeader
+          title={meta.title}
+          subtitle={meta.subtitle}
+          breadcrumbs={[
+            { label: 'Placement Cell', to: '/placement' },
+            { label: meta.breadcrumb },
+          ]}
+          badge={
+            <Badge variant="teal" size="sm" hasDot>
+              Placement Active
+            </Badge>
+          }
+        />
+      )}
 
       {/* Modern Navigation Pills Strip for all 5 Modules */}
-      <div className="bg-white p-2 rounded-2xl border border-[#F1E7CF] shadow-sm flex items-center gap-2 overflow-x-auto scrollbar-none">
+      <div className="bg-white p-2 rounded-2xl sm:rounded-3xl border border-[#F1E7CF] shadow-[0_4px_20px_rgba(217,119,6,0.03)] flex items-center gap-2 overflow-x-auto scrollbar-none">
         {SECTIONS.map((sec) => {
           const Icon = sec.icon;
           const isActive =
@@ -163,10 +165,10 @@ export const PlacementDashboard = () => {
             <Link
               key={sec.id}
               to={sec.path}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-150 ${
                 isActive
-                  ? 'bg-[#D99A00] text-white shadow-sm border border-[#D99A00]'
-                  : 'text-[#111827] hover:bg-[#FFF8E6]'
+                  ? 'bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white shadow-xs border border-[#F59E0B]'
+                  : 'text-[#0F172A] hover:bg-[#FFF8E6] hover:border-[#FDE68A]'
               }`}
             >
               <Icon className="w-4 h-4" />

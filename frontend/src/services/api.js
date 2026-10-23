@@ -160,9 +160,18 @@ export const assignmentService = {
     return apiClient.post(`/assignments/${id}/submit`, formDataOrData);
   },
   list: async (params = {}) => apiClient.get('/assignments', { params }),
-  create: async (data) => apiClient.post('/assignments', data),
+  create: async (formDataOrData) => {
+    if (formDataOrData instanceof FormData) {
+      return apiClient.post('/assignments', formDataOrData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    }
+    return apiClient.post('/assignments', formDataOrData);
+  },
+  getSubmissions: async (id) => apiClient.get(`/assignments/${id}/submissions`),
   gradeSubmission: async (id, data) => apiClient.put(`/assignments/submissions/${id}/grade`, data),
   getSubmissionDetail: async (id) => apiClient.get(`/assignments/submissions/${id}`),
+  delete: async (id) => apiClient.delete(`/assignments/${id}`),
 };
 
 export const projectService = {
@@ -197,7 +206,7 @@ export const feeService = {
 
 export const assignmentSubmissionService = {
   // Get submissions for a specific assignment (faculty/admin)
-  listForAssignment: async (assignmentId) => apiClient.get(`/submissions?assignment=${assignmentId}`),
+  listForAssignment: async (assignmentId) => apiClient.get(`/assignments/${assignmentId}/submissions`),
   // Submit an assignment (student)
   submit: async (data) => apiClient.post('/submissions', data),
   // Update submission (faculty grading)
@@ -208,6 +217,11 @@ export const facultyService = {
   // Profile
   getMyProfile: () => apiClient.get('/faculty/me'),
   updateMyProfile: (data) => apiClient.patch('/faculty/me', data),
+
+  // Notifications
+  getNotifications: () => apiClient.get('/faculty/notifications'),
+  markNotificationRead: (id) => apiClient.patch(`/faculty/notifications/${id}/read`),
+  markAllNotificationsRead: () => apiClient.patch('/faculty/notifications/read-all'),
 
   // Student Management
   getAssignedStudents: (params = {}) => apiClient.get('/faculty/students', { params }),
@@ -220,14 +234,23 @@ export const facultyService = {
 
   // Assignments
   getMyAssignments: () => apiClient.get('/faculty/assignments'),
-  createAssignment: (data) => apiClient.post('/faculty/assignments', data),
+  createAssignment: (formDataOrData) => {
+    if (formDataOrData instanceof FormData) {
+      return apiClient.post('/faculty/assignments', formDataOrData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    }
+    return apiClient.post('/faculty/assignments', formDataOrData);
+  },
   getSubmissions: (assignmentId) => apiClient.get(`/faculty/assignments/${assignmentId}/submissions`),
   giveFeedback: (submissionId, data) => apiClient.patch(`/faculty/submissions/${submissionId}/feedback`, data),
+  deleteAssignment: (id) => apiClient.delete(`/assignments/${id}`),
 
   // Exams
   getMyExams: () => apiClient.get('/faculty/exams'),
   scheduleExam: (data) => apiClient.post('/faculty/exams', data),
   updateExam: (id, data) => apiClient.patch(`/faculty/exams/${id}`, data),
+
 
   // Results
   getMyResults: () => apiClient.get('/faculty/results'),

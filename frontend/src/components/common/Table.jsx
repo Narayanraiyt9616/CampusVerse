@@ -16,10 +16,10 @@ export const Table = ({
   id,
 }) => {
   return (
-    <div id={id} className={`w-full overflow-hidden border border-[#F1E7CF] rounded-2xl bg-white shadow-subtle ${className}`}>
+    <div id={id} className={`w-full overflow-hidden border border-[#F1E7CF] rounded-2xl sm:rounded-3xl bg-white shadow-[0_4px_24px_rgba(217,119,6,0.04)] ${className}`}>
       <div className="w-full overflow-x-auto">
-        <table className="w-full text-left text-sm text-[#111827] border-collapse">
-          <thead className="bg-[#FFFDF5] text-xs uppercase font-bold text-[#111827] tracking-wider border-b border-[#F1E7CF]">
+        <table className="w-full text-left text-sm text-[#0F172A] border-collapse">
+          <thead className="bg-[#FFFDF5] text-[11px] uppercase font-bold text-[#0F172A] tracking-wider border-b border-[#F1E7CF]">
             <tr>
               {columns.map((col, index) => (
                 <th

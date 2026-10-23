@@ -34,23 +34,25 @@ export const Sidebar = ({
         />
       )}
 
-      {/* Sidebar Container - Dark Navy (#111827) with Gold Accents */}
+      {/* Sidebar Container - Deep Dark Navy (#0B132B) with Gold Accents */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 w-64 bg-[#111827] text-white flex flex-col justify-between transition-transform duration-300 ease-in-out border-r border-[#1F2937] shadow-elevation ${
+        className={`fixed top-0 bottom-0 left-0 z-50 w-64 bg-[#0B132B] text-white flex flex-col justify-between transition-transform duration-300 ease-in-out border-r border-[#1E293B] shadow-2xl ${
           isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
         {/* Top Header & Branding */}
         <div>
-          <div className="flex items-center justify-between h-16 px-4 border-b border-[#1F2937] bg-[#111827]">
-            <Link to="/" className="flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-[#D99A00] rounded-xl p-1">
-              <img src="/campusverse-emblem.png" alt="CampusVerse AI Logo" className="w-9 h-9 object-contain" />
+          <div className="flex items-center justify-between h-16 px-4 border-b border-[#1E293B] bg-[#0B132B]">
+            <Link to="/" className="flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-[#F59E0B] rounded-xl p-1 transition-transform hover:scale-[1.02]">
+              <div className="w-9 h-9 rounded-xl bg-white/10 p-1 flex items-center justify-center border border-[#FDE68A]/30 shadow-sm">
+                <img src="/campusverse-emblem.png" alt="CampusVerse AI Logo" className="w-7 h-7 object-contain" />
+              </div>
               <div>
-                <span className="font-display font-bold text-lg text-white tracking-tight">
-                  CampusVerse<span className="text-[#FFC107]">AI</span>
+                <span className="font-display font-black text-lg text-white tracking-tight leading-none block">
+                  CampusVerse<span className="text-[#FACC15]">AI</span>
                 </span>
-                <span className="block text-[11px] text-[#F1E7CF] uppercase tracking-wider font-semibold">
-                  Intelligent ERP
+                <span className="block text-[10px] text-[#FDE68A] uppercase tracking-wider font-bold mt-0.5">
+                  University Ecosystem
                 </span>
               </div>
             </Link>
@@ -59,32 +61,26 @@ export const Sidebar = ({
             <button
               type="button"
               onClick={onClose}
-              className="lg:hidden p-1.5 rounded-lg text-[#F1E7CF] hover:text-white hover:bg-[#D99A00] focus:outline-none"
+              className="lg:hidden p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 focus:outline-none"
               aria-label="Close sidebar"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
-          {/* Current Role Indicator */}
-          <div className="px-4 py-3 bg-[#111827] border-b border-[#1F2937]">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-[#F1E7CF] uppercase tracking-wider">
-                Active Portal View
-              </span>
-              <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-[#FFF8E6] text-[#D99A00]">
-                ERP System
-              </span>
-            </div>
-            <div className="mt-1 flex items-center gap-2">
-              <span className="font-bold text-white text-base">
-                {config.label}
+          {/* Current Role Indicator matching the Reference Image Pill */}
+          <div className="px-4 py-3 bg-[#0B132B]/80 border-b border-[#1E293B]">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#FFF8E6] text-[#B45309] border border-[#FDE68A] w-full justify-center shadow-xs">
+              <span>{config.label}</span>
+              <span className="text-[#D97706]/40">|</span>
+              <span className="text-[#D97706] font-semibold">
+                Role: {role.charAt(0).toUpperCase() + role.slice(1)}
               </span>
             </div>
           </div>
 
           {/* Navigation Links */}
-          <nav className="p-3 space-y-1.5 overflow-y-auto max-h-[calc(100vh-280px)]">
+          <nav className="p-3 space-y-1.5 overflow-y-auto max-h-[calc(100vh-270px)] scrollbar-none">
             {config.menuItems.map((item, idx) => {
               const isSelected = location.pathname === item.to || (location.pathname === config.basePath && idx === 0 && !location.hash);
 
@@ -95,20 +91,20 @@ export const Sidebar = ({
                   onClick={() => {
                     if (onClose) onClose();
                   }}
-                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-150 ${
                     isSelected
-                      ? 'bg-[#D99A00] text-white shadow-sm font-bold border border-[#D99A00]'
-                      : 'text-white/85 hover:text-white hover:bg-white/10'
+                      ? 'bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white shadow-md shadow-[#D97706]/20 border border-[#FDE68A]/40'
+                      : 'text-slate-300 hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <span className={isSelected ? 'text-white' : 'text-[#FFC107]'}>
+                    <span className={isSelected ? 'text-white' : 'text-[#FACC15]'}>
                       {item.icon}
                     </span>
-                    <span>{item.label}</span>
+                    <span className="truncate">{item.label}</span>
                   </div>
                   {isSelected && (
-                    <span className="w-2 h-2 rounded-full bg-[#FFC107]" />
+                    <span className="w-2 h-2 rounded-full bg-white shadow-xs shrink-0" />
                   )}
                 </Link>
               );
@@ -117,33 +113,33 @@ export const Sidebar = ({
         </div>
 
         {/* Bottom Section: Role Switcher & User preview */}
-        <div className="p-3 border-t border-[#1F2937] bg-[#111827] space-y-3">
+        <div className="p-3 border-t border-[#1E293B] bg-[#0B132B] space-y-2.5">
           {/* Active Security Session Info */}
-          <div className="p-3 rounded-xl bg-[#1F2937] border border-[#374151] text-xs space-y-1">
-            <div className="flex items-center justify-between text-[11px] text-[#F1E7CF] font-bold">
+          <div className="px-3 py-2 rounded-xl bg-[#111C38] border border-[#1E293B] text-[11px] space-y-0.5">
+            <div className="flex items-center justify-between text-[#FDE68A] font-bold">
               <span>Security Realm</span>
-              <span className="text-[11px] text-[#FFC107] font-mono font-bold">RBAC Verified</span>
+              <span className="text-[10px] text-[#FACC15] font-mono font-bold">RBAC Verified</span>
             </div>
-            <div className="text-xs text-white/90 font-medium">
+            <div className="text-slate-300 font-medium truncate">
               Portal: <strong className="text-white font-bold">{config?.label || 'Portal'}</strong>
             </div>
           </div>
 
           {/* User profile capsule */}
-          <div className="pt-2 border-t border-[#1F2937] flex items-center justify-between text-xs">
+          <div className="pt-2 border-t border-[#1E293B] flex items-center justify-between text-xs">
             <div className="flex items-center gap-2.5 overflow-hidden">
-              <div className="w-8 h-8 rounded-full bg-[#D99A00] text-white font-bold flex items-center justify-center shrink-0 text-sm shadow-sm">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#F59E0B] to-[#D97706] text-white font-black flex items-center justify-center shrink-0 text-sm shadow-sm ring-2 ring-[#FDE68A]/30">
                 {(user?.name || config?.profileName || 'Admin').charAt(0).toUpperCase()}
               </div>
               <div className="truncate">
                 <p className="text-white font-bold truncate text-xs">{user?.name || config?.profileName || 'Administrator'}</p>
-                <p className="text-[11px] text-[#F1E7CF] font-medium truncate">{user?.email || config?.roleTitle || 'Campus Administrator'}</p>
+                <p className="text-[10px] text-[#FDE68A] font-medium truncate">{user?.email || config?.roleTitle || 'Campus Administrator'}</p>
               </div>
             </div>
             <button
               type="button"
               onClick={handleLogout}
-              className="p-2 rounded-xl text-white/80 hover:text-white hover:bg-[#D99A00] transition-colors"
+              className="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
               title="Sign Out"
             >
               <LogOut className="w-4 h-4" />

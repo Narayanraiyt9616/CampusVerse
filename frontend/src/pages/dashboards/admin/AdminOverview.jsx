@@ -25,6 +25,7 @@ import Badge from '../../../components/common/Badge';
 import Button from '../../../components/common/Button';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import AlertBanner from '../../../components/common/AlertBanner';
+import PortalHeroBanner from '../../../components/common/PortalHeroBanner';
 import { adminService } from '../../../services/api';
 
 export const AdminOverview = ({ onOpenCreateCreds }) => {
@@ -82,7 +83,39 @@ export const AdminOverview = ({ onOpenCreateCreds }) => {
         />
       )}
 
-      {/* Real-time Statistics Cards */}
+      {/* Reference Image Inspired Hero Welcome Banner */}
+      <PortalHeroBanner
+        portalName="Admin Console"
+        roleTitle="Administrator"
+        portalHighlight="Admin Console"
+        headingPrefix="Welcome to"
+        subtitle="Monitor campus-wide telemetry, department rosters, financial ledgers, examinations, and executive controls — all in one place."
+        icon={<ShieldCheck className="w-4 h-4" />}
+        userName="Dr. Suresh Nambiar"
+        userIdentifier="Dean & Academic Registrar"
+        actions={
+          <div className="flex items-center gap-2">
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={onOpenCreateCreds}
+              leftIcon={<Key className="w-3.5 h-3.5" />}
+            >
+              Create Credentials
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={fetchOverview}
+              leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
+            >
+              Refresh Data
+            </Button>
+          </div>
+        }
+      />
+
+      {/* Real-time Statistics Cards with Pastel Badges */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Enrolled Students"
@@ -90,7 +123,8 @@ export const AdminOverview = ({ onOpenCreateCreds }) => {
           subtitle={`Across ${stats?.departments ?? 0} Departments`}
           change={`${stats?.activeAccounts ?? 0} Active accounts`}
           changeType="increase"
-          icon={<Users className="w-5 h-5 text-[#D99A00]" />}
+          colorVariant="blue"
+          icon={<Users className="w-5 h-5 text-[#2563EB]" />}
         />
         <StatCard
           title="Teaching Faculty"
@@ -98,7 +132,8 @@ export const AdminOverview = ({ onOpenCreateCreds }) => {
           subtitle="Professors & Instructors"
           change="Accredited"
           changeType="increase"
-          icon={<GraduationCap className="w-5 h-5 text-[#D99A00]" />}
+          colorVariant="gold"
+          icon={<GraduationCap className="w-5 h-5 text-[#D97706]" />}
         />
         <StatCard
           title="Attendance Shortages"
@@ -106,7 +141,8 @@ export const AdminOverview = ({ onOpenCreateCreds }) => {
           subtitle="Students below 75% threshold"
           change={stats?.attendanceShortageCount > 0 ? 'Action Recommended' : 'Compliant'}
           changeType={stats?.attendanceShortageCount > 0 ? 'decrease' : 'increase'}
-          icon={<AlertTriangle className="w-5 h-5 text-[#D99A00]" />}
+          colorVariant="amber"
+          icon={<AlertTriangle className="w-5 h-5 text-[#D97706]" />}
         />
         <StatCard
           title="Realized Fee Recovery"
@@ -114,27 +150,28 @@ export const AdminOverview = ({ onOpenCreateCreds }) => {
           subtitle={`Pending: ₹${(feePending / 1000).toFixed(0)}k`}
           change={`${feeRecoveryPct}% Realized`}
           changeType={feeRecoveryPct >= 70 ? 'increase' : 'decrease'}
-          icon={<IndianRupee className="w-5 h-5 text-[#D99A00]" />}
+          colorVariant="emerald"
+          icon={<IndianRupee className="w-5 h-5 text-[#059669]" />}
         />
       </div>
 
       {/* Secondary Telemetry Strip */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3.5">
         {[
-          { label: 'Departments', value: stats?.departments ?? 0, icon: <Building2 className="w-4 h-4" /> },
-          { label: 'Courses', value: stats?.courses ?? 0, icon: <Clock className="w-4 h-4" /> },
-          { label: 'Attendance Sessions', value: stats?.attendanceSessions ?? 0, icon: <CalendarCheck className="w-4 h-4" /> },
-          { label: 'Upcoming Exams', value: stats?.upcomingExams ?? 0, icon: <Award className="w-4 h-4" /> },
-          { label: 'Pending Leaves', value: stats?.pendingLeavesCount ?? 0, icon: <FileCheck2 className="w-4 h-4" /> },
-          { label: 'Total Accounts', value: stats?.totalUsers ?? 0, icon: <ShieldCheck className="w-4 h-4" /> },
+          { label: 'Departments', value: stats?.departments ?? 0, icon: <Building2 className="w-4 h-4 text-[#D97706]" />, bg: 'bg-[#FFF8E6] border-[#FDE68A]' },
+          { label: 'Courses', value: stats?.courses ?? 0, icon: <Clock className="w-4 h-4 text-[#2563EB]" />, bg: 'bg-[#EFF6FF] border-[#BFDBFE]' },
+          { label: 'Attendance Sessions', value: stats?.attendanceSessions ?? 0, icon: <CalendarCheck className="w-4 h-4 text-[#059669]" />, bg: 'bg-[#ECFDF5] border-[#A7F3D0]' },
+          { label: 'Upcoming Exams', value: stats?.upcomingExams ?? 0, icon: <Award className="w-4 h-4 text-[#7C3AED]" />, bg: 'bg-[#FAF5FF] border-[#DDD6FE]' },
+          { label: 'Pending Leaves', value: stats?.pendingLeavesCount ?? 0, icon: <FileCheck2 className="w-4 h-4 text-[#D97706]" />, bg: 'bg-[#FFF8E6] border-[#FDE68A]' },
+          { label: 'Total Accounts', value: stats?.totalUsers ?? 0, icon: <ShieldCheck className="w-4 h-4 text-[#0F172A]" />, bg: 'bg-[#FFFDF5] border-[#F1E7CF]' },
         ].map((item) => (
-          <div key={item.label} className="p-3.5 bg-white border border-[#F1E7CF] rounded-2xl flex items-center gap-3 shadow-sm hover:border-[#D99A00] transition-colors">
-            <div className="w-10 h-10 rounded-xl bg-[#FFF8E6] text-[#D99A00] flex items-center justify-center shrink-0">
+          <div key={item.label} className="p-3.5 bg-white border border-[#F1E7CF] rounded-2xl sm:rounded-3xl flex items-center gap-3 shadow-[0_4px_20px_rgba(217,119,6,0.03)] hover:border-[#FDE68A] hover:-translate-y-0.5 transition-all">
+            <div className={`w-10 h-10 rounded-xl border flex items-center justify-center shrink-0 ${item.bg}`}>
               {item.icon}
             </div>
             <div>
-              <p className="text-[11px] text-[#4B5563] font-bold uppercase tracking-wider">{item.label}</p>
-              <p className="text-base font-extrabold text-[#111827] mt-0.5">{item.value}</p>
+              <p className="text-[10px] text-[#64748B] font-bold uppercase tracking-wider">{item.label}</p>
+              <p className="text-base font-black text-[#0F172A] mt-0.5">{item.value}</p>
             </div>
           </div>
         ))}

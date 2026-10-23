@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import { ROLE_CONFIGS } from './roleConfigs';
 import { useAuth } from '../../context/AuthContext';
-import { searchService, studentService } from '../../services/api';
+import { searchService, studentService, facultyService } from '../../services/api';
 
 export const Topbar = ({
   role = 'student',
@@ -53,12 +53,24 @@ export const Topbar = ({
     navigate('/login');
   };
 
+  const isFacultyUser = role === 'faculty' || user?.role === 'faculty';
+  const isStudentUser = role === 'student' || user?.role === 'student';
+
   const fetchLiveNotifications = async () => {
-    if (role === 'student' || user?.role === 'student') {
+    if (isStudentUser) {
       try {
         const res = await studentService.getMyNotifications({ limit: 10 });
         if (res && res.success && Array.isArray(res.data)) {
           setNotifications(res.data);
+        }
+      } catch {
+        // Fallback silently
+      }
+    } else if (isFacultyUser) {
+      try {
+        const res = await facultyService.getNotifications();
+        if (res && res.success && Array.isArray(res.data || res.notifications)) {
+          setNotifications(res.data || res.notifications);
         }
       } catch {
         // Fallback silently
@@ -68,13 +80,17 @@ export const Topbar = ({
 
   useEffect(() => {
     fetchLiveNotifications();
-    const interval = setInterval(fetchLiveNotifications, 30000);
+    const interval = setInterval(fetchLiveNotifications, 20000);
     return () => clearInterval(interval);
   }, [role, user]);
 
   const handleMarkAllRead = async () => {
     try {
-      await studentService.markAllNotificationsRead();
+      if (isFacultyUser) {
+        await facultyService.markAllNotificationsRead();
+      } else {
+        await studentService.markAllNotificationsRead();
+      }
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     } catch {
       // Ignore
@@ -84,7 +100,11 @@ export const Topbar = ({
   const handleNotificationClick = async (notif) => {
     if (!notif.isRead && notif._id) {
       try {
-        await studentService.markNotificationRead(notif._id);
+        if (isFacultyUser) {
+          await facultyService.markNotificationRead(notif._id);
+        } else {
+          await studentService.markNotificationRead(notif._id);
+        }
         setNotifications((prev) =>
           prev.map((n) => (n._id === notif._id ? { ...n, isRead: true } : n))
         );
@@ -95,8 +115,13 @@ export const Topbar = ({
     setShowNotifications(false);
     if (notif.type === 'PLACEMENT_DRIVE' || notif.category === 'Placement') {
       navigate('/student/placement');
+    } else if (notif.type === 'ASSIGNMENT_PUBLISHED' || notif.type === 'ASSIGNMENT_EVALUATION') {
+      navigate('/student/assignments');
+    } else if (notif.type === 'ASSIGNMENT_SUBMISSION') {
+      navigate('/faculty/assignments');
     }
   };
+
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
@@ -206,7 +231,7 @@ export const Topbar = ({
   const hasAnyResults = matchedNavSections.length > 0 || dbResults.length > 0;
 
   return (
-    <header className="sticky top-0 z-30 h-16 bg-white border-b border-[#F1E7CF] shadow-subtle px-4 sm:px-6 flex items-center justify-between">
+    <header className="sticky top-0 z-30 h-16 bg-white/95 backdrop-blur-md border-b border-[#F1E7CF] shadow-[0_2px_16px_rgba(217,119,6,0.04)] px-4 sm:px-6 flex items-center justify-between">
       {/* ──────────────────────────────────────────────────────────────────────────
           Left: Mobile Hamburger & Search Bar
       ────────────────────────────────────────────────────────────────────────── */}
@@ -453,16 +478,16 @@ export const Topbar = ({
           Right Controls: User Identity, Portal Switcher, Alerts, Logout
       ────────────────────────────────────────────────────────────────────────── */}
       <div className="flex items-center gap-3">
-        {/* User Identity Pill */}
-        <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-[#FFF8E6] border border-[#F1E7CF] text-xs">
-          <div className="w-7 h-7 rounded-full bg-[#D99A00] text-white flex items-center justify-center font-bold text-xs uppercase shadow-sm">
+        {/* User Identity Pill - Matching Reference Image */}
+        <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-[#FFF8E6] border border-[#FDE68A] text-xs shadow-xs">
+          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#F59E0B] to-[#D97706] text-white flex items-center justify-center font-black text-xs uppercase shadow-xs ring-1 ring-[#FDE68A]">
             {(user?.name || user?.username || 'U')[0]}
           </div>
           <div className="text-left hidden md:block">
-            <span className="font-bold text-[#111827] block text-xs leading-tight">
+            <span className="font-bold text-[#0F172A] block text-xs leading-tight">
               {user?.name || user?.username || 'Authenticated User'}
             </span>
-            <span className="text-[11px] text-[#D99A00] font-bold capitalize block leading-tight">
+            <span className="text-[10px] text-[#B45309] font-bold capitalize block leading-tight">
               {config.label}
             </span>
           </div>
@@ -473,13 +498,13 @@ export const Topbar = ({
           <button
             type="button"
             onClick={() => setShowRoleMenu(!showRoleMenu)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#F1E7CF] bg-white hover:bg-[#FFF8E6] text-xs font-bold text-[#111827] transition-colors focus:outline-none focus:ring-2 focus:ring-[#D99A00]"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-[#F1E7CF] bg-white hover:bg-[#FFF8E6] hover:border-[#FDE68A] text-xs font-bold text-[#0F172A] transition-all duration-150 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#F59E0B]"
             aria-expanded={showRoleMenu}
             aria-label="Switch portal view"
           >
-            <span className="w-2 h-2 rounded-full bg-[#D99A00]" />
+            <span className="w-2 h-2 rounded-full bg-[#F59E0B] animate-pulse" />
             <span className="hidden md:inline">Portals</span>
-            <ChevronDown className="w-3.5 h-3.5 text-[#111827]" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#0F172A]" />
           </button>
 
           {showRoleMenu && (

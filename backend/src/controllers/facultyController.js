@@ -9,6 +9,7 @@ const Notice = require('../models/Notice');
 const Exam = require('../models/Exam');
 const User = require('../models/User');
 const Faculty = require('../models/Faculty');
+const Notification = require('../models/Notification');
 
 // ─────────────────── FACULTY PROFILE ───────────────────
 
@@ -168,9 +169,34 @@ exports.editAttendance = async (req, res) => {
 exports.getMyAssignments = async (req, res) => {
   try {
     const assignments = await Assignment.find({ faculty: req.user._id })
-      .populate('course', 'name code')
+      .populate('course', 'name code title courseCode')
       .sort({ createdAt: -1 });
-    res.json({ success: true, assignments });
+
+    const assignmentIds = assignments.map((a) => a._id);
+    const submissions = await AssignmentSubmission.find({ assignment: { $in: assignmentIds } })
+      .select('assignment status marksObtained');
+
+    const statsMap = {};
+    submissions.forEach((s) => {
+      const key = s.assignment.toString();
+      if (!statsMap[key]) statsMap[key] = { totalSubmissions: 0, evaluatedCount: 0 };
+      statsMap[key].totalSubmissions++;
+      if (s.status === 'Evaluated' || (s.marksObtained !== undefined && s.marksObtained !== null)) {
+        statsMap[key].evaluatedCount++;
+      }
+    });
+
+    const enriched = assignments.map((a) => {
+      const obj = a.toJSON();
+      const stat = statsMap[a._id.toString()] || { totalSubmissions: 0, evaluatedCount: 0 };
+      return {
+        ...obj,
+        totalSubmissions: stat.totalSubmissions,
+        evaluatedCount: stat.evaluatedCount,
+      };
+    });
+
+    res.json({ success: true, assignments: enriched, data: enriched });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -178,19 +204,76 @@ exports.getMyAssignments = async (req, res) => {
 
 exports.createAssignment = async (req, res) => {
   try {
-    const { title, description, courseId, dueDate, maxMarks, submissionType } = req.body;
-    const assignment = await Assignment.create({
-      title,
-      description,
-      course: courseId,
-      faculty: req.user._id,
-      dueDate,
-      maxMarks,
-      submissionType: submissionType || 'text',
-      published: true,
-    });
-    res.status(201).json({ success: true, assignment });
+    let payload = { ...req.body };
+
+    if (typeof payload.questions === 'string') {
+      try { payload.questions = JSON.parse(payload.questions); } catch { payload.questions = []; }
+    }
+    if (payload.maxMarks !== undefined && typeof payload.maxMarks === 'string') {
+      payload.maxMarks = Number(payload.maxMarks);
+    }
+    if (payload.targetSemester !== undefined && typeof payload.targetSemester === 'string') {
+      payload.targetSemester = Number(payload.targetSemester);
+    }
+    if (payload.requiresPdfSubmission !== undefined && typeof payload.requiresPdfSubmission === 'string') {
+      payload.requiresPdfSubmission = payload.requiresPdfSubmission === 'true';
+    }
+
+    if (req.file) {
+      payload.questionPaper = {
+        filename: req.file.filename,
+        originalName: req.file.originalname,
+        mimeType: req.file.mimetype,
+        size: req.file.size,
+        url: `/uploads/assignments/${req.file.filename}`,
+      };
+    }
+
+    const rawType = (payload.assignmentType || 'mcq').toLowerCase();
+    payload.assignmentType = rawType === 'pdf' ? 'pdf' : 'mcq';
+
+    if (payload.assignmentType === 'mcq' && Array.isArray(payload.questions) && payload.questions.length > 0) {
+      const calculatedMax = payload.questions.reduce((sum, q) => sum + (Number(q.marks) || 1), 0);
+      payload.maxMarks = calculatedMax > 0 ? calculatedMax : (payload.maxMarks || 10);
+    } else if (!payload.maxMarks) {
+      payload.maxMarks = 50;
+    }
+
+    payload.faculty = req.user._id;
+    payload.published = true;
+    if (payload.courseId && !payload.course) {
+      payload.course = payload.courseId;
+    }
+
+    const assignment = await Assignment.create(payload);
+
+    // Notify targeted students
+    const studentQuery = { status: 'Active' };
+    if (assignment.targetSemester) studentQuery.semester = assignment.targetSemester;
+    const targetStudents = await Student.find(studentQuery).limit(200);
+
+    if (targetStudents.length > 0) {
+      const notifications = targetStudents.map((st) => ({
+        recipient: st._id,
+        studentId: st.studentId,
+        title: `New ${assignment.assignmentType.toUpperCase()} Assignment: ${assignment.title}`,
+        message: `A new ${assignment.assignmentType.toUpperCase()} assignment has been published for ${assignment.subject || 'your course'}. Deadline: ${new Date(assignment.dueDate).toLocaleDateString('en-IN')}. Max Marks: ${assignment.maxMarks}`,
+        category: 'Academic',
+        priority: 'Normal',
+        type: 'ASSIGNMENT_PUBLISHED',
+        metadata: {
+          assignmentId: assignment._id.toString(),
+          assignmentType: assignment.assignmentType,
+          deadline: assignment.dueDate,
+          title: assignment.title,
+        },
+      }));
+      await Notification.insertMany(notifications, { ordered: false }).catch(() => {});
+    }
+
+    res.status(201).json({ success: true, assignment, data: assignment });
   } catch (err) {
+    console.error('Faculty createAssignment error:', err);
     res.status(500).json({ success: false, error: err.message });
   }
 };
@@ -198,10 +281,23 @@ exports.createAssignment = async (req, res) => {
 exports.getSubmissions = async (req, res) => {
   try {
     const { assignmentId } = req.params;
+    const assignment = await Assignment.findById(assignmentId);
+    if (!assignment) {
+      return res.status(404).json({ success: false, error: 'Assignment not found' });
+    }
+
     const submissions = await AssignmentSubmission.find({ assignment: assignmentId })
-      .populate('student', 'studentId name email')
+      .populate('student', 'studentId name email semester department')
+      .populate('evaluatedBy', 'name email')
       .sort({ submittedAt: -1 });
-    res.json({ success: true, submissions });
+
+    res.json({
+      success: true,
+      submissions,
+      data: submissions,
+      assignment,
+      count: submissions.length,
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -210,17 +306,56 @@ exports.getSubmissions = async (req, res) => {
 exports.giveFeedback = async (req, res) => {
   try {
     const { feedback, marksObtained } = req.body;
-    const submission = await AssignmentSubmission.findByIdAndUpdate(
-      req.params.id,
-      { feedback, marksObtained, gradedBy: req.user._id, gradedAt: new Date() },
-      { new: true }
-    );
+    if (marksObtained === undefined || marksObtained === null || marksObtained === '') {
+      return res.status(400).json({ success: false, error: 'Marks obtained is required' });
+    }
+
+    const submission = await AssignmentSubmission.findById(req.params.id)
+      .populate('assignment')
+      .populate('student');
+
     if (!submission) return res.status(404).json({ success: false, error: 'Submission not found' });
-    res.json({ success: true, submission });
+
+    const maxMarks = submission.assignment?.maxMarks || 100;
+    const numMarks = Number(marksObtained);
+    if (isNaN(numMarks) || numMarks < 0 || numMarks > maxMarks) {
+      return res.status(400).json({
+        success: false,
+        error: `Marks obtained must be between 0 and maximum marks (${maxMarks}).`,
+      });
+    }
+
+    submission.marksObtained = numMarks;
+    submission.feedback = feedback || '';
+    submission.status = 'Evaluated';
+    submission.evaluatedAt = new Date();
+    submission.evaluatedBy = req.user._id;
+    await submission.save();
+
+    // Notify student of grading
+    if (submission.student) {
+      await Notification.create({
+        recipient: submission.student._id,
+        studentId: submission.student.studentId,
+        title: `Assignment Evaluated: ${submission.assignment?.title || 'Assignment'}`,
+        message: `Your submission for "${submission.assignment?.title}" has been evaluated by faculty. Marks: ${numMarks}/${maxMarks}. Feedback: ${feedback || 'Evaluated.'}`,
+        category: 'Academic',
+        priority: 'High',
+        type: 'ASSIGNMENT_EVALUATION',
+        metadata: {
+          assignmentId: submission.assignment?._id?.toString(),
+          marksObtained: numMarks,
+          maxMarks,
+        },
+      }).catch(() => {});
+    }
+
+    res.json({ success: true, submission, message: 'Submission evaluated successfully.' });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
 };
+
 
 // Exams
 exports.getMyExams = async (req, res) => {
@@ -395,3 +530,49 @@ exports.createNotice = async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 };
+
+// ─────────────────── FACULTY NOTIFICATIONS ───────────────────
+
+exports.getFacultyNotifications = async (req, res) => {
+  try {
+    const notifications = await Notification.find({ recipientUser: req.user._id })
+      .sort({ createdAt: -1 })
+      .limit(50);
+    const unreadCount = await Notification.countDocuments({ recipientUser: req.user._id, read: false });
+    res.json({
+      success: true,
+      notifications,
+      data: notifications,
+      unreadCount,
+      count: notifications.length,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+exports.markFacultyNotificationRead = async (req, res) => {
+  try {
+    const notif = await Notification.findOneAndUpdate(
+      { _id: req.params.id, recipientUser: req.user._id },
+      { $set: { read: true, readAt: new Date() } },
+      { new: true }
+    );
+    res.json({ success: true, notification: notif });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+exports.markAllFacultyNotificationsRead = async (req, res) => {
+  try {
+    await Notification.updateMany(
+      { recipientUser: req.user._id, read: false },
+      { $set: { read: true, readAt: new Date() } }
+    );
+    res.json({ success: true, message: 'All notifications marked as read' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+

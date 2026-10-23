@@ -22,29 +22,29 @@ export const Badge = ({
   };
 
   const variantClasses = {
-    success: 'bg-[#DCFCE7] text-[#16A34A] border border-[#86EFAC]',
-    teal: 'bg-[#FFF8E6] text-[#D99A00] border border-[#F1E7CF]',
-    gold: 'bg-[#D99A00] text-white border border-[#D99A00]',
-    yellow: 'bg-[#FFC107] text-[#111827] border border-[#FFC107]',
-    warning: 'bg-[#FFF8E6] text-[#D99A00] border border-[#F1E7CF] font-bold',
-    danger: 'bg-[#FEF2F2] text-[#EF4444] border border-[#FECACA]',
-    info: 'bg-[#FFF8E6] text-[#B45309] border border-[#F1E7CF]',
-    navy: 'bg-[#111827] text-white border border-[#111827]',
+    success: 'bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0]',
+    teal: 'bg-[#FFF8E6] text-[#B45309] border border-[#FDE68A]',
+    gold: 'bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white border border-[#D97706] shadow-xs',
+    yellow: 'bg-[#FEF9C3] text-[#854D0E] border border-[#FDE047]',
+    warning: 'bg-[#FFFBEB] text-[#B45309] border border-[#FDE68A] font-bold',
+    danger: 'bg-[#FEF2F2] text-[#E11D48] border border-[#FECDD3]',
+    info: 'bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE]',
+    navy: 'bg-[#0B132B] text-white border border-[#1E293B]',
     neutral: 'bg-[#FFFDF5] text-[#4B5563] border border-[#F1E7CF]',
-    demo: 'bg-[#FFF8E6] text-[#D99A00] border border-[#F1E7CF] font-bold uppercase',
+    demo: 'bg-[#FFF8E6] text-[#B45309] border border-[#FDE68A] font-bold uppercase',
   };
 
   const dotClasses = {
-    success: 'bg-[#16A34A]',
-    teal: 'bg-[#D99A00]',
+    success: 'bg-[#059669]',
+    teal: 'bg-[#D97706]',
     gold: 'bg-white',
-    yellow: 'bg-[#111827]',
-    warning: 'bg-[#D99A00]',
-    danger: 'bg-[#EF4444]',
-    info: 'bg-[#D99A00]',
-    navy: 'bg-[#FFC107]',
-    neutral: 'bg-[#D99A00]',
-    demo: 'bg-[#D99A00]',
+    yellow: 'bg-[#CA8A04]',
+    warning: 'bg-[#D97706]',
+    danger: 'bg-[#E11D48]',
+    info: 'bg-[#2563EB]',
+    navy: 'bg-[#FACC15]',
+    neutral: 'bg-[#64748B]',
+    demo: 'bg-[#D97706]',
   };
 
   return (
