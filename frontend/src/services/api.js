@@ -4,7 +4,28 @@ import axios from 'axios';
  * CampusVerse AI - Central Axios API Client
  * Configured for Part 2 Node.js/Express (Port 5001) + MongoDB authentication and session management.
  */
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api';
+// Live Render Production Backend URL
+const LIVE_BACKEND_API = 'https://campusverse-20h5.onrender.com/api';
+const LOCAL_BACKEND_API = 'http://localhost:5001/api';
+
+export const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.PROD ? LIVE_BACKEND_API : LOCAL_BACKEND_API);
+
+export const BACKEND_URL = API_BASE_URL.replace(/\/api\/?$/, '');
+
+/**
+ * Returns an absolute URL for backend static assets (resumes, PDF assignments, etc.)
+ */
+export const getBackendFileUrl = (pathOrUrl) => {
+  if (!pathOrUrl) return '';
+  if (typeof pathOrUrl !== 'string') return '';
+  if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://')) {
+    return pathOrUrl;
+  }
+  const cleanPath = pathOrUrl.startsWith('/') ? pathOrUrl : `/${pathOrUrl}`;
+  return `${BACKEND_URL}${cleanPath}`;
+};
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,

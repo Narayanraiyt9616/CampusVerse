@@ -22,15 +22,24 @@ const createApp = () => {
   const app = express();
 
   // CORS configuration (credentialed requests)
-  const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const configuredOrigin = process.env.FRONTEND_URL || 'https://campusverse-1-oi4y.onrender.com';
+  const allowedOrigins = [
+    configuredOrigin,
+    'https://campusverse-1-oi4y.onrender.com',
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:3000',
+  ].filter(Boolean);
+
   app.use(
     cors({
       origin: (origin, callback) => {
         if (!origin) return callback(null, true);
         if (
-          origin === allowedOrigin ||
+          allowedOrigins.includes(origin) ||
           origin.startsWith('http://localhost:') ||
-          origin.startsWith('http://127.0.0.1:')
+          origin.startsWith('http://127.0.0.1:') ||
+          origin.endsWith('.onrender.com')
         ) {
           return callback(null, true);
         }

@@ -113,10 +113,11 @@ exports.register = async (req, res) => {
       { expiresIn }
     );
 
+    const isProd = process.env.NODE_ENV === 'production';
     res.cookie(COOKIE_NAME, token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
       maxAge: 60 * 60 * 1000,
     });
 
@@ -305,10 +306,11 @@ exports.login = async (req, res) => {
       { expiresIn }
     );
 
+    const isProd = process.env.NODE_ENV === 'production';
     res.cookie(COOKIE_NAME, token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
       maxAge: 60 * 60 * 1000,
     });
 
@@ -560,10 +562,11 @@ exports.logout = async (req, res) => {
       details: 'User logged out',
     });
   }
+  const isProd = process.env.NODE_ENV === 'production';
   res.clearCookie(COOKIE_NAME, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
   });
   return res.json({ success: true, message: 'Logged out successfully.' });
 };

@@ -1,0 +1,46 @@
+services:
+  # =========================================================================
+  # CampusVerse AI - Backend Web Service
+  # Live URL: https://campusverse-20h5.onrender.com
+  # =========================================================================
+  - type: web
+    name: campusverse-backend
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: FRONTEND_URL
+        value: https://campusverse-1-oi4y.onrender.com
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 1h
+      - key: MONGODB_URI
+        sync: false
+      - key: ALLOW_DEV_WRITES
+        value: "false"
+
+  # =========================================================================
+  # CampusVerse AI - Frontend Static Site
+  # Live URL: https://campusverse-1-oi4y.onrender.com
+  # =========================================================================
+  - type: web
+    name: campusverse-frontend
+    runtime: static
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://campusverse-20h5.onrender.com/api

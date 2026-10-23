@@ -27,14 +27,9 @@ import Badge from '../../../components/common/Badge';
 import Button from '../../../components/common/Button';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import AlertBanner from '../../../components/common/AlertBanner';
-import { placementService } from '../../../services/api';
+import { placementService, getBackendFileUrl } from '../../../services/api';
 
-const getFullFileUrl = (url) => {
-  if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  const backendBase = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api').replace(/\/api\/?$/, '');
-  return `${backendBase}${url.startsWith('/') ? '' : '/'}${url}`;
-};
+const getFullFileUrl = (url) => getBackendFileUrl(url);
 
 const handleDownloadResume = async (resumeUrl, studentName) => {
   if (!resumeUrl) return;

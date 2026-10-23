@@ -38,16 +38,11 @@ import Card from '../../../components/common/Card';
 import Badge from '../../../components/common/Badge';
 import Button from '../../../components/common/Button';
 import Modal from '../../../components/common/Modal';
-import { assignmentService, studentService } from '../../../services/api';
+import { assignmentService, studentService, getBackendFileUrl } from '../../../services/api';
 import { formatDate } from '../../../utils/formatters';
 
 // Helper to construct absolute URL for file downloads and previews
-const getFullFileUrl = (url) => {
-  if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  const base = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api').replace(/\/api\/?$/, '');
-  return `${base}${url.startsWith('/') ? '' : '/'}${url}`;
-};
+const getFullFileUrl = (url) => getBackendFileUrl(url);
 
 // Helper for readable date and time
 const formatDateTime = (dateStr) => {
