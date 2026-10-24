@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { 
   Home,
   LayoutGrid,
@@ -14,6 +14,8 @@ import {
 export const LandingNavbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('platform');
+  const navContainerRef = useRef(null);
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -35,9 +37,40 @@ export const LandingNavbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Close mobile drawer on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+      }
+    };
+    if (mobileMenuOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [mobileMenuOpen]);
+
+  // Close mobile drawer when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (navContainerRef.current && !navContainerRef.current.contains(e.target)) {
+        setMobileMenuOpen(false);
+      }
+    };
+    if (mobileMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [mobileMenuOpen]);
+
+  // Close mobile drawer on route/hash changes
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname, location.hash]);
+
   return (
     <header className="sticky top-0 z-50 w-full pt-2 sm:pt-3 pb-2 px-3 sm:px-5 lg:px-8 transition-all">
-      <div className="max-w-[1740px] 2xl:max-w-[1780px] w-full mx-auto bg-[#FFFDF7]/95 backdrop-blur-md rounded-2xl lg:rounded-full border border-[#EFE5C8] shadow-[0_4px_24px_rgba(0,0,0,0.03)] px-3.5 sm:px-6 lg:px-7 py-2 sm:py-2.5 transition-all">
+      <div ref={navContainerRef} className="max-w-[1740px] 2xl:max-w-[1780px] w-full mx-auto bg-[#FFFDF7]/95 backdrop-blur-md rounded-2xl lg:rounded-full border border-[#EFE5C8] shadow-[0_4px_24px_rgba(0,0,0,0.03)] px-3.5 sm:px-6 lg:px-7 py-2 sm:py-2.5 transition-all">
         <div className="flex items-center justify-between">
           
           {/* Left: Brand Logo */}
@@ -146,14 +179,15 @@ export const LandingNavbar = () => {
 
             {/* Notification Bell Button */}
             <div className="relative">
-              <button
-                type="button"
+              <Link
+                to="/login"
                 aria-label="Campus Alerts & Notifications"
+                title="Campus Alerts & Notifications - Sign in to view alerts"
                 className="w-9 h-9 xl:w-10 xl:h-10 rounded-full bg-white border border-[#E5E7EB] hover:border-[#D1D5DB] flex items-center justify-center text-[#475569] hover:text-[#0F172A] shadow-2xs hover:bg-[#FAF9F5] transition-all hover:scale-105 active:scale-95 cursor-pointer"
               >
                 <Bell className="w-4 h-4" />
                 <span className="w-2.5 h-2.5 rounded-full bg-[#EAB308] border-2 border-white absolute top-2 right-2" />
-              </button>
+              </Link>
             </div>
           </div>
 

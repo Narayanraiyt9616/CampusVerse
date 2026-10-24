@@ -77,8 +77,13 @@ const placementDriveSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['Upcoming', 'Registration Open', 'In Progress', 'Completed', 'Cancelled'],
+      enum: ['Upcoming', 'Registration Open', 'In Progress', 'Completed', 'Cancelled', 'Applications Closed'],
       default: 'Registration Open',
+    },
+    cancellationReason: {
+      type: String,
+      trim: true,
+      default: '',
     },
     totalApplicationsCount: {
       type: Number,
@@ -102,7 +107,24 @@ const placementDriveSchema = new mongoose.Schema(
         return ret;
       },
     },
+    toObject: {
+      virtuals: true,
+    },
   }
 );
+
+// Virtual for dynamic deadline status
+placementDriveSchema.virtual('deadlineStatus').get(function () {
+  if (this.status === 'Cancelled' || this.status === 'Applications Closed' || this.status === 'Completed') {
+    return 'Applications Closed';
+  }
+  if (!this.applicationDeadline) return 'Open';
+  const now = new Date();
+  const deadline = new Date(this.applicationDeadline);
+  if (deadline < now) return 'Deadline Expired';
+  const diffMs = deadline.getTime() - now.getTime();
+  if (diffMs <= 48 * 60 * 60 * 1000) return 'Closing Soon';
+  return 'Open';
+});
 
 module.exports = mongoose.model('PlacementDrive', placementDriveSchema);

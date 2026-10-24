@@ -20,6 +20,8 @@ router.patch('/me', fc.updateMyProfile);
 router.get('/notifications', requireFaculty, fc.getFacultyNotifications);
 router.patch('/notifications/read-all', requireFaculty, fc.markAllFacultyNotificationsRead);
 router.patch('/notifications/:id/read', requireFaculty, fc.markFacultyNotificationRead);
+router.delete('/notifications/clear-all', requireFaculty, fc.clearAllFacultyNotifications);
+router.delete('/notifications/:id', requireFaculty, fc.deleteFacultyNotification);
 
 // ── Student Management
 router.get('/students', requireFaculty, fc.getAssignedStudents);

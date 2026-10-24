@@ -29,6 +29,11 @@ const studentSchema = new mongoose.Schema(
       unique: true,
       match: [EMAIL_REGEX, 'Please provide a valid email address'],
     },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      index: true,
+    },
     department: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Department',

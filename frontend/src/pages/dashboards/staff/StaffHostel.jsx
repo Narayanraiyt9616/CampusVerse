@@ -109,6 +109,23 @@ export const StaffHostel = () => {
     fetchData();
   }, []);
 
+  // Close modals on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        if (showAllocateModal) setShowAllocateModal(false);
+        if (showAddRoomModal) {
+          setShowAddRoomModal(false);
+          setRoomErrors({});
+        }
+      }
+    };
+    if (showAllocateModal || showAddRoomModal) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showAllocateModal, showAddRoomModal]);
+
   // Compute active allocations by student ID for duplicate prevention
   const activeAllocatedStudentIds = new Set(
     allocations
@@ -819,8 +836,14 @@ export const StaffHostel = () => {
 
       {/* MODAL: ALLOCATE BED TO STUDENT */}
       {showAllocateModal && (
-        <div className="fixed inset-0 z-50 bg-[#111827]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#F1E7CF] relative animate-in fade-in zoom-in-95 duration-200">
+        <div
+          className="fixed inset-0 z-50 bg-[#111827]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
+          onClick={() => setShowAllocateModal(false)}
+        >
+          <div
+            className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#F1E7CF] relative animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               onClick={() => setShowAllocateModal(false)}
               className="absolute top-4 right-4 p-2 rounded-xl text-[#4B5563] hover:text-[#111827] hover:bg-[#FFF8E6] transition-colors"
@@ -1029,8 +1052,14 @@ export const StaffHostel = () => {
 
       {/* MODAL: ADD NEW ROOM */}
       {showAddRoomModal && (
-        <div className="fixed inset-0 z-50 bg-[#111827]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#F1E7CF] relative animate-in fade-in zoom-in-95 duration-200">
+        <div
+          className="fixed inset-0 z-50 bg-[#111827]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
+          onClick={() => { setShowAddRoomModal(false); setRoomErrors({}); }}
+        >
+          <div
+            className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#F1E7CF] relative animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               onClick={() => { setShowAddRoomModal(false); setRoomErrors({}); }}
               className="absolute top-4 right-4 p-2 rounded-xl text-[#4B5563] hover:text-[#111827] hover:bg-[#FFF8E6] transition-colors"

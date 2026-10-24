@@ -74,6 +74,7 @@ const createApp = () => {
         results: '/api/results',
         fees: '/api/fees',
         assignments: '/api/assignments',
+        onlineClasses: '/api/online-classes',
         auth: '/api/auth',
       },
       documentation: 'See /docs/architecture-and-roadmap.md for schema and integration details.',
@@ -103,6 +104,8 @@ const createApp = () => {
   app.use('/api/admit-cards', authMiddleware, require('./routes/admitCardRoutes'));
   app.use('/api/search', authMiddleware, require('./routes/searchRoutes'));
   app.use('/api/projects', authMiddleware, require('./routes/projectRoutes'));
+  app.use('/api/notifications', authMiddleware, require('./routes/notificationRoutes'));
+  app.use('/api/online-classes', authMiddleware, require('./routes/onlineClassRoutes'));
 
   // Static uploads for assignment files and resumes
   app.use('/uploads', express.static(path.join(__dirname, '../uploads')));

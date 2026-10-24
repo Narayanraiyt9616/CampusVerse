@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   Menu,
   Search,
@@ -21,20 +21,26 @@ import {
   Settings,
   Building2,
   FileSpreadsheet,
+  Trash2,
+  AlertTriangle,
 } from 'lucide-react';
 import { ROLE_CONFIGS } from './roleConfigs';
 import { useAuth } from '../../context/AuthContext';
-import { searchService, studentService, facultyService } from '../../services/api';
+import { searchService, studentService, facultyService, notificationService } from '../../services/api';
 
 export const Topbar = ({
   role = 'student',
   onMenuToggle,
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showRoleMenu, setShowRoleMenu] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const [deletingId, setDeletingId] = useState(null);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [isClearingAll, setIsClearingAll] = useState(false);
   const config = ROLE_CONFIGS[role] || ROLE_CONFIGS.student;
 
   // Search state
@@ -47,6 +53,8 @@ export const Topbar = ({
   const searchInputRef = useRef(null);
   const mobileSearchInputRef = useRef(null);
   const searchContainerRef = useRef(null);
+  const notificationsRef = useRef(null);
+  const roleMenuRef = useRef(null);
 
   const handleLogout = async () => {
     await logout();
@@ -56,24 +64,61 @@ export const Topbar = ({
   const isFacultyUser = role === 'faculty' || user?.role === 'faculty';
   const isStudentUser = role === 'student' || user?.role === 'student';
 
+  const formatNotificationDate = (d) => {
+    if (!d) return 'Just now';
+    try {
+      const date = new Date(d);
+      const diffMs = Date.now() - date.getTime();
+      const diffMins = Math.floor(diffMs / (1000 * 60));
+      if (diffMins < 1) return 'Just now';
+      if (diffMins < 60) return `${diffMins}m ago`;
+      const diffHours = Math.floor(diffMins / 60);
+      if (diffHours < 24) return `${diffHours}h ago`;
+      return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+    } catch {
+      return 'Recent';
+    }
+  };
+
+  const getRemainingHours = (notif) => {
+    try {
+      const created = notif.createdAt ? new Date(notif.createdAt).getTime() : Date.now();
+      const expiresAt = notif.expiresAt ? new Date(notif.expiresAt).getTime() : created + 48 * 3600 * 1000;
+      const remainingMs = expiresAt - Date.now();
+      if (remainingMs <= 0) return 'Expired';
+      const hours = Math.floor(remainingMs / (1000 * 3600));
+      if (hours >= 1) return `${hours}h left`;
+      const mins = Math.max(1, Math.floor(remainingMs / (1000 * 60)));
+      return `${mins}m left`;
+    } catch {
+      return '48h auto-delete';
+    }
+  };
+
   const fetchLiveNotifications = async () => {
-    if (isStudentUser) {
-      try {
-        const res = await studentService.getMyNotifications({ limit: 10 });
-        if (res && res.success && Array.isArray(res.data)) {
-          setNotifications(res.data);
-        }
-      } catch {
-        // Fallback silently
+    try {
+      // Unified notification service works across ALL portals (student, faculty, admin, parent, hostel, placement)
+      const res = await notificationService.getMyNotifications({ limit: 25 });
+      if (res && res.success && Array.isArray(res.data || res.notifications)) {
+        setNotifications(res.data || res.notifications);
+        return;
       }
-    } else if (isFacultyUser) {
-      try {
-        const res = await facultyService.getNotifications();
-        if (res && res.success && Array.isArray(res.data || res.notifications)) {
-          setNotifications(res.data || res.notifications);
-        }
-      } catch {
-        // Fallback silently
+    } catch {
+      // Graceful fallback to legacy endpoints if necessary
+      if (isStudentUser) {
+        try {
+          const res = await studentService.getMyNotifications({ limit: 25 });
+          if (res && res.success && Array.isArray(res.data)) {
+            setNotifications(res.data);
+          }
+        } catch {}
+      } else if (isFacultyUser) {
+        try {
+          const res = await facultyService.getNotifications();
+          if (res && res.success && Array.isArray(res.data || res.notifications)) {
+            setNotifications(res.data || res.notifications);
+          }
+        } catch {}
       }
     }
   };
@@ -86,30 +131,85 @@ export const Topbar = ({
 
   const handleMarkAllRead = async () => {
     try {
-      if (isFacultyUser) {
-        await facultyService.markAllNotificationsRead();
-      } else {
-        await studentService.markAllNotificationsRead();
-      }
+      await notificationService.markAllNotificationsRead();
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     } catch {
-      // Ignore
+      if (isFacultyUser) {
+        await facultyService.markAllNotificationsRead().catch(() => {});
+      } else {
+        await studentService.markAllNotificationsRead().catch(() => {});
+      }
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    }
+  };
+
+  const handleDeleteNotification = async (e, id) => {
+    e.stopPropagation();
+    if (!id) return;
+    setDeletingId(id);
+    try {
+      await notificationService.deleteNotification(id);
+      setNotifications((prev) => prev.filter((n) => (n._id || n.id) !== id));
+    } catch (err) {
+      console.error('Failed to delete notification:', err);
+      if (isStudentUser) {
+        try {
+          await studentService.deleteNotification(id);
+          setNotifications((prev) => prev.filter((n) => (n._id || n.id) !== id));
+        } catch {}
+      } else if (isFacultyUser) {
+        try {
+          await facultyService.deleteNotification(id);
+          setNotifications((prev) => prev.filter((n) => (n._id || n.id) !== id));
+        } catch {}
+      }
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleClearAll = async () => {
+    setIsClearingAll(true);
+    try {
+      await notificationService.clearAllNotifications();
+      setNotifications([]);
+      setShowClearConfirm(false);
+    } catch (err) {
+      console.error('Failed to clear notifications:', err);
+      if (isStudentUser) {
+        try {
+          await studentService.clearAllNotifications();
+          setNotifications([]);
+          setShowClearConfirm(false);
+        } catch {}
+      } else if (isFacultyUser) {
+        try {
+          await facultyService.clearAllNotifications();
+          setNotifications([]);
+          setShowClearConfirm(false);
+        } catch {}
+      }
+    } finally {
+      setIsClearingAll(false);
     }
   };
 
   const handleNotificationClick = async (notif) => {
     if (!notif.isRead && notif._id) {
       try {
-        if (isFacultyUser) {
-          await facultyService.markNotificationRead(notif._id);
-        } else {
-          await studentService.markNotificationRead(notif._id);
-        }
+        await notificationService.markNotificationRead(notif._id);
         setNotifications((prev) =>
           prev.map((n) => (n._id === notif._id ? { ...n, isRead: true } : n))
         );
       } catch {
-        // Ignore
+        if (isFacultyUser) {
+          await facultyService.markNotificationRead(notif._id).catch(() => {});
+        } else {
+          await studentService.markNotificationRead(notif._id).catch(() => {});
+        }
+        setNotifications((prev) =>
+          prev.map((n) => (n._id === notif._id ? { ...n, isRead: true } : n))
+        );
       }
     }
     setShowNotifications(false);
@@ -121,7 +221,6 @@ export const Topbar = ({
       navigate('/faculty/assignments');
     }
   };
-
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
@@ -138,11 +237,38 @@ export const Topbar = ({
       )
     : [];
 
-  // Global keyboard shortcut: Ctrl+K / Cmd+K to focus search, Escape to close
+  // Mutually exclusive toggle handlers
+  const handleToggleNotifications = () => {
+    if (showNotifications) {
+      setShowNotifications(false);
+      setShowClearConfirm(false);
+    } else {
+      setShowRoleMenu(false);
+      setShowSearchResults(false);
+      setIsMobileSearchOpen(false);
+      setShowNotifications(true);
+    }
+  };
+
+  const handleToggleRoleMenu = () => {
+    if (showRoleMenu) {
+      setShowRoleMenu(false);
+    } else {
+      setShowNotifications(false);
+      setShowClearConfirm(false);
+      setShowSearchResults(false);
+      setIsMobileSearchOpen(false);
+      setShowRoleMenu(true);
+    }
+  };
+
+  // Global keyboard shortcut: Ctrl+K / Cmd+K to focus search, Escape to close all panels
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
+        setShowNotifications(false);
+        setShowRoleMenu(false);
         if (searchInputRef.current) {
           searchInputRef.current.focus();
           setShowSearchResults(true);
@@ -153,6 +279,9 @@ export const Topbar = ({
       } else if (e.key === 'Escape') {
         setShowSearchResults(false);
         setIsMobileSearchOpen(false);
+        setShowNotifications(false);
+        setShowRoleMenu(false);
+        setShowClearConfirm(false);
       }
     };
 
@@ -160,16 +289,32 @@ export const Topbar = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Click outside to dismiss search dropdown
+  // Click outside to dismiss search, notifications, or role menu dropdown
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (searchContainerRef.current && !searchContainerRef.current.contains(e.target)) {
         setShowSearchResults(false);
       }
+      if (notificationsRef.current && !notificationsRef.current.contains(e.target)) {
+        setShowNotifications(false);
+        setShowClearConfirm(false);
+      }
+      if (roleMenuRef.current && !roleMenuRef.current.contains(e.target)) {
+        setShowRoleMenu(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Auto-close all open floating dropdowns and panels whenever route or section changes
+  useEffect(() => {
+    setShowNotifications(false);
+    setShowRoleMenu(false);
+    setShowSearchResults(false);
+    setIsMobileSearchOpen(false);
+    setShowClearConfirm(false);
+  }, [location.pathname, location.search]);
 
   // Debounced database search query
   useEffect(() => {
@@ -249,6 +394,8 @@ export const Topbar = ({
         <button
           type="button"
           onClick={() => {
+            setShowNotifications(false);
+            setShowRoleMenu(false);
             setIsMobileSearchOpen(true);
             setTimeout(() => mobileSearchInputRef.current?.focus(), 150);
           }}
@@ -271,6 +418,8 @@ export const Topbar = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => {
+                setShowNotifications(false);
+                setShowRoleMenu(false);
                 if (searchQuery.trim().length >= 2) setShowSearchResults(true);
               }}
               placeholder="Search courses, roll numbers, fees, admit cards..."
@@ -494,10 +643,10 @@ export const Topbar = ({
         </div>
 
         {/* Role Switcher Dropdown */}
-        <div className="relative">
+        <div ref={roleMenuRef} className="relative">
           <button
             type="button"
-            onClick={() => setShowRoleMenu(!showRoleMenu)}
+            onClick={handleToggleRoleMenu}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-[#F1E7CF] bg-white hover:bg-[#FFF8E6] hover:border-[#FDE68A] text-xs font-bold text-[#0F172A] transition-all duration-150 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#F59E0B]"
             aria-expanded={showRoleMenu}
             aria-label="Switch portal view"
@@ -592,10 +741,10 @@ export const Topbar = ({
         </div>
 
         {/* Notifications Dropdown */}
-        <div className="relative">
+        <div ref={notificationsRef} className="relative">
           <button
             type="button"
-            onClick={() => setShowNotifications(!showNotifications)}
+            onClick={handleToggleNotifications}
             className="p-2.5 rounded-xl border border-[#F1E7CF] bg-white text-[#111827] hover:bg-[#FFF8E6] focus:outline-none focus:ring-2 focus:ring-[#D99A00] relative"
             aria-expanded={showNotifications}
             aria-label="View notifications"
@@ -612,58 +761,127 @@ export const Topbar = ({
 
           {showNotifications && (
             <div
-              className="absolute right-0 mt-2 w-84 rounded-2xl bg-white border border-[#F1E7CF] shadow-elevation py-2 z-50 text-xs"
+              className="absolute right-0 mt-2 w-88 sm:w-96 rounded-2xl bg-white border border-[#F1E7CF] shadow-elevation py-2 z-50 text-xs"
             >
-              <div className="px-4 py-2.5 border-b border-[#F1E7CF] flex items-center justify-between">
-                <span className="font-bold text-[#111827] text-sm">Campus Alerts</span>
-                {unreadCount > 0 && (
-                  <button
-                    type="button"
-                    onClick={handleMarkAllRead}
-                    className="text-xs text-[#D99A00] font-bold hover:underline cursor-pointer"
-                  >
-                    Mark all as read
-                  </button>
-                )}
+              <div className="px-4 py-2.5 border-b border-[#F1E7CF] flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-bold text-[#111827] text-sm">Campus Alerts</span>
+                  {notifications.length > 0 && (
+                    <span className="px-1.5 py-0.5 rounded-full bg-[#FFF8E6] text-[#D99A00] font-bold text-[10px] border border-[#F1E7CF]">
+                      {notifications.length}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-3">
+                  {unreadCount > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleMarkAllRead}
+                      className="text-[11px] text-[#D99A00] font-bold hover:underline cursor-pointer"
+                    >
+                      Mark all read
+                    </button>
+                  )}
+                  {notifications.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setShowClearConfirm(true)}
+                      className="text-[11px] text-red-600 font-bold hover:underline cursor-pointer flex items-center gap-1"
+                      title="Clear all alerts"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      Clear all
+                    </button>
+                  )}
+                </div>
               </div>
-              <div className="divide-y divide-[#F1E7CF] max-h-72 overflow-y-auto">
+
+              {/* Clear All Confirmation Banner */}
+              {showClearConfirm && (
+                <div className="p-3 bg-red-50/80 border-b border-red-200 text-xs">
+                  <div className="flex items-start gap-2 text-red-900 font-semibold mb-2">
+                    <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                    <span>Are you sure you want to delete all notifications? This action cannot be undone.</span>
+                  </div>
+                  <div className="flex items-center justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowClearConfirm(false)}
+                      disabled={isClearingAll}
+                      className="px-2.5 py-1 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleClearAll}
+                      disabled={isClearingAll}
+                      className="px-2.5 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold text-xs flex items-center gap-1 cursor-pointer"
+                    >
+                      {isClearingAll ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                      {isClearingAll ? 'Clearing...' : 'Yes, Clear All'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="divide-y divide-[#F1E7CF] max-h-80 overflow-y-auto">
                 {notifications.length > 0 ? (
                   notifications.map((n) => (
                     <div
-                      key={n._id}
+                      key={n._id || n.id}
                       onClick={() => handleNotificationClick(n)}
-                      className={`p-3.5 hover:bg-[#FFF8E6]/50 transition-colors cursor-pointer ${
+                      className={`p-3.5 hover:bg-[#FFF8E6]/50 transition-colors cursor-pointer group relative ${
                         !n.isRead ? 'bg-[#FFFDF5]' : ''
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <p className="font-bold text-[#111827] text-xs leading-snug">{n.title}</p>
-                        {!n.isRead && <span className="w-2 h-2 rounded-full bg-[#D99A00] shrink-0 mt-1" />}
+                        <div className="flex items-center gap-1.5 min-w-0 pr-1">
+                          {!n.isRead && <span className="w-2 h-2 rounded-full bg-[#D99A00] shrink-0" />}
+                          <p className="font-bold text-[#111827] text-xs leading-snug truncate">{n.title}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => handleDeleteNotification(e, n._id || n.id)}
+                          disabled={deletingId === (n._id || n.id)}
+                          className="p-1 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 opacity-70 group-hover:opacity-100 transition-all shrink-0 cursor-pointer"
+                          title="Delete notification"
+                          aria-label="Delete notification"
+                        >
+                          {deletingId === (n._id || n.id) ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin text-red-500" />
+                          ) : (
+                            <Trash2 className="w-3.5 h-3.5" />
+                          )}
+                        </button>
                       </div>
                       <p className="text-[11px] text-[#4B5563] mt-1 line-clamp-2 leading-relaxed">
                         {n.message}
                       </p>
-                      <span className="text-[10px] text-[#D99A00] font-bold mt-1.5 block">
-                        {n.companyName ? `${n.companyName} • ${n.jobRole || 'Opportunity'}` : new Date(n.createdAt).toLocaleDateString('en-IN')}
-                      </span>
+                      <div className="flex items-center justify-between mt-1.5 text-[10px]">
+                        <span className="text-[#D99A00] font-bold">
+                          {n.companyName
+                            ? `${n.companyName} • ${n.jobRole || 'Opportunity'}`
+                            : formatNotificationDate(n.createdAt)}
+                        </span>
+                        <span className="text-[#64748B] flex items-center gap-1 font-medium bg-[#FFFDF5] px-1.5 py-0.5 rounded border border-[#F1E7CF]">
+                          <Clock className="w-2.5 h-2.5 text-[#D99A00]" />
+                          {getRemainingHours(n)}
+                        </span>
+                      </div>
                     </div>
                   ))
                 ) : (
-                  mockNotifications.map((n) => (
-                    <div key={n.id} className="p-3.5 hover:bg-[#FFF8E6]/50 transition-colors cursor-pointer">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="font-bold text-[#111827] text-xs">{n.title}</p>
-                        {n.unread && <span className="w-2 h-2 rounded-full bg-[#D99A00] shrink-0 mt-1" />}
-                      </div>
-                      <span className="text-[11px] text-[#64748B] font-medium mt-1 block">{n.time}</span>
-                    </div>
-                  ))
+                  <div className="p-8 text-center text-[#64748B]">
+                    <Bell className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                    <p className="font-bold text-[#111827] text-xs">No active alerts</p>
+                    <p className="text-[11px] mt-0.5">All notifications auto-delete 48 hours after creation.</p>
+                  </div>
                 )}
               </div>
-              <div className="p-2.5 border-t border-[#F1E7CF] text-center bg-[#FFFDF5] rounded-b-2xl">
-                <span className="text-[11px] text-[#64748B] font-medium">
-                  Real-time CampusVerse AI Alerts
-                </span>
+              <div className="p-2.5 border-t border-[#F1E7CF] text-center bg-[#FFFDF5] rounded-b-2xl flex items-center justify-center gap-1 text-[11px] text-[#64748B] font-medium">
+                <Clock className="w-3 h-3 text-[#D99A00]" />
+                <span>Auto-deletes after 48 hours • Real-time CampusVerse AI Alerts</span>
               </div>
             </div>
           )}

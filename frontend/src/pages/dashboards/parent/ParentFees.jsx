@@ -51,6 +51,19 @@ export const ParentFees = ({ selectedStudentId }) => {
     fetchData();
   }, [selectedStudentId]);
 
+  // Close receipt modal on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && activeReceipt) {
+        setActiveReceipt(null);
+      }
+    };
+    if (activeReceipt) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeReceipt]);
+
   if (loading && !data) {
     return (
       <div className="flex flex-col items-center justify-center p-16">
@@ -462,8 +475,14 @@ export const ParentFees = ({ selectedStudentId }) => {
 
       {/* OFFICIAL RECEIPT MODAL */}
       {activeReceipt && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-8 shadow-2xl border border-slate-200 relative animate-in fade-in zoom-in-95 duration-200">
+        <div
+          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
+          onClick={() => setActiveReceipt(null)}
+        >
+          <div
+            className="bg-white rounded-2xl max-w-lg w-full p-8 shadow-2xl border border-slate-200 relative animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               onClick={() => setActiveReceipt(null)}
               className="absolute top-4 right-4 p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"

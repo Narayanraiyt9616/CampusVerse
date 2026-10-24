@@ -79,6 +79,19 @@ export const StaffStudents = () => {
     fetchStudents();
   }, [filterType]);
 
+  // Close student modal on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && selectedStudent) {
+        setSelectedStudent(null);
+      }
+    };
+    if (selectedStudent) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedStudent]);
+
   // Client-side search
   const filteredStudents = students.filter((s) => {
     const q = searchQuery.toLowerCase();
@@ -332,8 +345,14 @@ export const StaffStudents = () => {
 
       {/* STUDENT LOGISTICS MODAL */}
       {selectedStudent && (
-        <div className="fixed inset-0 z-50 bg-[#111827]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#F1E7CF] relative animate-in fade-in zoom-in-95 duration-200 space-y-5">
+        <div
+          className="fixed inset-0 z-50 bg-[#111827]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
+          onClick={() => setSelectedStudent(null)}
+        >
+          <div
+            className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#F1E7CF] relative animate-in fade-in zoom-in-95 duration-200 space-y-5"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               onClick={() => setSelectedStudent(null)}
               className="absolute top-4 right-4 p-2 rounded-xl text-[#4B5563] hover:text-[#111827] hover:bg-[#FFF8E6] transition-colors"

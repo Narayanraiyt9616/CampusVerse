@@ -2,6 +2,8 @@ require('dotenv').config();
 const createApp = require('./app');
 const { connectDB, disconnectDB } = require('./config/db');
 const { initializeAccounts } = require('./config/initAdmin');
+const { startCleanupJob, stopCleanupJob } = require('./services/notificationCleanupService');
+const { startClassReminderJob, stopClassReminderJob } = require('./services/onlineClassNotificationService');
 
 const PORT = parseInt(process.env.PORT, 10) || 5000;
 const app = createApp();
@@ -16,6 +18,8 @@ const startServer = async () => {
   const conn = await connectDB();
   if (conn && conn.success) {
     await initializeAccounts();
+    startCleanupJob();
+    startClassReminderJob();
   }
 
   server = app.listen(PORT, () => {
@@ -48,6 +52,8 @@ const shutdown = async (signal) => {
   console.log(`\n[Server] Received ${signal}. Starting graceful shutdown...`);
 
   if (server) {
+    stopCleanupJob();
+    stopClassReminderJob();
     server.close(async () => {
       console.log('[Server] HTTP server closed.');
       await disconnectDB();

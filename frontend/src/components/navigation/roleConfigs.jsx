@@ -25,6 +25,7 @@ import {
   IndianRupee,
   Code,
   TrendingUp,
+  Video,
 } from 'lucide-react';
 
 export const ROLE_CONFIGS = {
@@ -39,6 +40,7 @@ export const ROLE_CONFIGS = {
       { label: 'My Profile', to: '/student/profile', icon: <User className="w-4 h-4" /> },
       { label: 'Attendance Report', to: '/student/attendance', icon: <CalendarCheck className="w-4 h-4" /> },
       { label: 'Progress Report', to: '/student/progress-report', icon: <TrendingUp className="w-4 h-4" /> },
+      { label: 'Online Classes', to: '/student/online-classes', icon: <Video className="w-4 h-4" /> },
       { label: 'Assignments & Exams', to: '/student/assignments', icon: <ClipboardList className="w-4 h-4" /> },
       { label: 'Live Projects', to: '/student/projects', icon: <Code className="w-4 h-4" /> },
       { label: 'Admit Card', to: '/student/admit-card', icon: <FileCheck2 className="w-4 h-4" /> },
@@ -57,6 +59,7 @@ export const ROLE_CONFIGS = {
       { label: 'My Profile', to: '/faculty/profile', icon: <User className="w-4 h-4" /> },
       { label: 'Student Management', to: '/faculty/students', icon: <Users className="w-4 h-4" /> },
       { label: 'Attendance', to: '/faculty/attendance', icon: <CalendarCheck className="w-4 h-4" /> },
+      { label: 'Online Classes', to: '/faculty/online-classes', icon: <Video className="w-4 h-4" /> },
       { label: 'Assignments & Exams', to: '/faculty/assignments', icon: <ClipboardList className="w-4 h-4" /> },
       { label: 'Results Management', to: '/faculty/results', icon: <Award className="w-4 h-4" /> },
       { label: 'Timetable', to: '/faculty/timetable', icon: <Clock className="w-4 h-4" /> },

@@ -54,6 +54,19 @@ export const StudentAdmitCardSection = ({ profile }) => {
     fetchMyAdmitCards();
   }, [fetchMyAdmitCards]);
 
+  // Close preview modal on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && previewCard) {
+        setPreviewCard(null);
+      }
+    };
+    if (previewCard) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [previewCard]);
+
   const formatDate = (dateStr) => {
     if (!dateStr) return '—';
     try {
@@ -359,8 +372,14 @@ export const StudentAdmitCardSection = ({ profile }) => {
           5. In-App PDF Preview Modal
       ────────────────────────────────────────────────────────────────────────── */}
       {previewCard && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/70 backdrop-blur-sm">
-          <div className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] border border-[#F1E7CF]">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/70 backdrop-blur-sm"
+          onClick={() => setPreviewCard(null)}
+        >
+          <div
+            className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] border border-[#F1E7CF]"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Modal Header */}
             <div className="flex items-center justify-between px-5 py-3.5 bg-[#111827] text-white border-b border-[#F1E7CF]">
               <div className="flex items-center gap-2.5">

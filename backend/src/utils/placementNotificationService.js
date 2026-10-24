@@ -127,9 +127,10 @@ const syncDriveNotifications = async (drive) => {
         {
           $set: {
             title: `[CANCELLED] Placement Drive - ${drive.companyName}`,
-            message: `The scheduled recruitment drive for ${drive.companyName} (${drive.jobTitle}) has been cancelled.`,
+            message: `The scheduled recruitment drive for ${drive.companyName} (${drive.jobTitle}) has been cancelled.${drive.cancellationReason ? ` Reason: ${drive.cancellationReason}` : ''}`,
             priority: 'Normal',
             'metadata.status': 'Cancelled',
+            'metadata.cancellationReason': drive.cancellationReason || '',
           },
         }
       );

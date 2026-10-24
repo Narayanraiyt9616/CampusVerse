@@ -57,6 +57,13 @@ const errorMiddleware = (err, req, res, next) => {
     message = 'Malformed JSON request body received. Please verify JSON syntax.';
   }
 
+  // Handle Multer upload errors
+  if (err.name === 'MulterError') {
+    statusCode = 400;
+    errorCode = err.code || 'FILE_UPLOAD_ERROR';
+    message = err.message || 'File upload failed.';
+  }
+
   // Log server errors internally (only in non-test mode)
   if (statusCode >= 500 && process.env.NODE_ENV !== 'test') {
     console.error(`[Error] [${req.method}] ${req.originalUrl} - ${err.stack || err.message}`);

@@ -368,7 +368,24 @@ const getMyNotifications = async (req, res, next) => {
     }
 
     const { unreadOnly } = req.query;
-    const filter = { recipient: student._id };
+    const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000);
+    const filter = {
+      $and: [
+        {
+          $or: [
+            { recipient: student._id },
+            { recipientUser: req.user._id },
+          ],
+        },
+        {
+          createdAt: { $gt: cutoff },
+          $or: [
+            { expiresAt: { $exists: false } },
+            { expiresAt: { $gt: new Date() } },
+          ],
+        },
+      ],
+    };
     if (unreadOnly === 'true') filter.read = false;
 
     const notifications = await Notification.find(filter)
@@ -376,7 +393,10 @@ const getMyNotifications = async (req, res, next) => {
       .sort({ createdAt: -1 })
       .limit(50);
 
-    const unreadCount = await Notification.countDocuments({ recipient: student._id, read: false });
+    const unreadCount = await Notification.countDocuments({
+      ...filter,
+      read: false,
+    });
 
     return res.status(200).json({
       success: true,
@@ -395,12 +415,24 @@ const markNotificationRead = async (req, res, next) => {
   try {
     if (!checkDBReady(res)) return;
     const Notification = require('../models/Notification');
-    const notif = await Notification.findByIdAndUpdate(
-      req.params.id,
+    const student = await Student.findOne({
+      $or: [
+        { email: req.user.email },
+        { studentId: (req.user.username || '').toUpperCase() },
+      ],
+    });
+    const conditions = [{ recipientUser: req.user._id }];
+    if (student) conditions.push({ recipient: student._id });
+
+    const notif = await Notification.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        $or: conditions,
+      },
       { $set: { read: true, readAt: new Date() } },
       { new: true }
     );
-    if (!notif) return res.status(404).json({ success: false, error: 'Notification not found.' });
+    if (!notif) return res.status(404).json({ success: false, error: 'Notification not found or access denied.' });
     return res.json({ success: true, notification: notif, data: notif });
   } catch (error) {
     next(error);
@@ -418,13 +450,66 @@ const markAllNotificationsRead = async (req, res, next) => {
         { studentId: (req.user.username || '').toUpperCase() },
       ],
     });
-    if (student) {
-      await Notification.updateMany(
-        { recipient: student._id, read: false },
-        { $set: { read: true, readAt: new Date() } }
-      );
-    }
+    const conditions = [{ recipientUser: req.user._id }];
+    if (student) conditions.push({ recipient: student._id });
+
+    await Notification.updateMany(
+      { $or: conditions, read: false },
+      { $set: { read: true, readAt: new Date() } }
+    );
     return res.json({ success: true, message: 'All notifications marked as read.' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// DELETE /api/students/notifications/:id – permanently delete single student notification
+const deleteStudentNotification = async (req, res, next) => {
+  try {
+    if (!checkDBReady(res)) return;
+    const Notification = require('../models/Notification');
+    const student = await Student.findOne({
+      $or: [
+        { email: req.user.email },
+        { studentId: (req.user.username || '').toUpperCase() },
+      ],
+    });
+    const conditions = [{ recipientUser: req.user._id }];
+    if (student) conditions.push({ recipient: student._id });
+
+    const deleted = await Notification.findOneAndDelete({
+      _id: req.params.id,
+      $or: conditions,
+    });
+
+    if (!deleted) {
+      return res.status(404).json({ success: false, error: 'Notification not found or access denied.' });
+    }
+    return res.json({ success: true, message: 'Notification deleted permanently.', id: req.params.id });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// DELETE /api/students/notifications/clear-all – permanently delete all student notifications
+const clearAllStudentNotifications = async (req, res, next) => {
+  try {
+    if (!checkDBReady(res)) return;
+    const Notification = require('../models/Notification');
+    const student = await Student.findOne({
+      $or: [
+        { email: req.user.email },
+        { studentId: (req.user.username || '').toUpperCase() },
+      ],
+    });
+    const conditions = [{ recipientUser: req.user._id }];
+    if (student) conditions.push({ recipient: student._id });
+
+    const result = await Notification.deleteMany({
+      $or: conditions,
+    });
+
+    return res.json({ success: true, message: 'All notifications cleared permanently.', deletedCount: result.deletedCount });
   } catch (error) {
     next(error);
   }
@@ -762,6 +847,8 @@ module.exports = {
   getMyNotifications,
   markNotificationRead,
   markAllNotificationsRead,
+  deleteStudentNotification,
+  clearAllStudentNotifications,
   getStudentExams,
   getAttendanceReport,
   getAcademicProgressReport,

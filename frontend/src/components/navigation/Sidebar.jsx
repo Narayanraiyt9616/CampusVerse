@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   GraduationCap,
@@ -22,6 +22,26 @@ export const Sidebar = ({
     await logout();
     navigate('/login');
   };
+
+  // Close mobile sidebar on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isOpen && onClose) {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
+  // Close mobile sidebar whenever route navigation occurs
+  useEffect(() => {
+    if (isOpen && onClose) {
+      onClose();
+    }
+  }, [location.pathname, location.search]);
 
   return (
     <>

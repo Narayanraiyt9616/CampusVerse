@@ -141,6 +141,19 @@ export const AdminAdmitCards = ({ createTrigger = 0 }) => {
     fetchAdmitCards();
   }, [semesterFilter, statusFilter, sessionFilter]);
 
+  // Close preview modal on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && previewTarget) {
+        setPreviewTarget(null);
+      }
+    };
+    if (previewTarget) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [previewTarget]);
+
   // Open creation modal when triggered from top PageHeader
   useEffect(() => {
     if (createTrigger > 0) {
@@ -928,8 +941,14 @@ export const AdminAdmitCards = ({ createTrigger = 0 }) => {
           4. In-App PDF Preview Modal
       ────────────────────────────────────────────────────────────────────────── */}
       {previewTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/70 backdrop-blur-sm">
-          <div className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] border border-[#F1E7CF]">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/70 backdrop-blur-sm"
+          onClick={() => setPreviewTarget(null)}
+        >
+          <div
+            className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] border border-[#F1E7CF]"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Modal Header */}
             <div className="flex items-center justify-between px-5 py-3.5 bg-[#111827] text-white border-b border-[#F1E7CF]">
               <div className="flex items-center gap-2.5">

@@ -48,6 +48,17 @@ apiClient.interceptors.request.use(
     } catch (e) {
       // Storage access may be restricted in private browsing
     }
+    // Automatically delete Content-Type for FormData requests so the browser adds boundary
+    if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+      if (config.headers) {
+        if (typeof config.headers.delete === 'function') {
+          config.headers.delete('Content-Type');
+          config.headers.delete('content-type');
+        }
+        delete config.headers['Content-Type'];
+        delete config.headers['content-type'];
+      }
+    }
     return config;
   },
   (error) => Promise.reject(error)
@@ -138,6 +149,12 @@ export const studentService = {
   },
   markAllNotificationsRead: async () => {
     return apiClient.patch('/students/notifications/read-all');
+  },
+  deleteNotification: async (id) => {
+    return apiClient.delete(`/students/notifications/${id}`);
+  },
+  clearAllNotifications: async () => {
+    return apiClient.delete('/students/notifications/clear-all');
   },
   // Student: examination schedule
   getExams: async (params = {}) => {
@@ -243,6 +260,8 @@ export const facultyService = {
   getNotifications: () => apiClient.get('/faculty/notifications'),
   markNotificationRead: (id) => apiClient.patch(`/faculty/notifications/${id}/read`),
   markAllNotificationsRead: () => apiClient.patch('/faculty/notifications/read-all'),
+  deleteNotification: (id) => apiClient.delete(`/faculty/notifications/${id}`),
+  clearAllNotifications: () => apiClient.delete('/faculty/notifications/clear-all'),
 
   // Student Management
   getAssignedStudents: (params = {}) => apiClient.get('/faculty/students', { params }),
@@ -464,9 +483,9 @@ export const placementService = {
   updateStudentProfile: async (id, data) => apiClient.put(`/placement/students/${id}`, data),
   getApplications: async (params = {}) => apiClient.get('/placement/applications', { params }),
   createApplication: async (data) => {
-    if (data instanceof FormData) {
+    if (typeof FormData !== 'undefined' && data instanceof FormData) {
       return apiClient.post('/placement/applications', data, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: { 'Content-Type': undefined },
       });
     }
     return apiClient.post('/placement/applications', data);
@@ -533,5 +552,60 @@ export const newsletterService = {
   },
 };
 
+export const notificationService = {
+  getMyNotifications: async (params = {}) => {
+    return apiClient.get('/notifications', { params });
+  },
+  markNotificationRead: async (id) => {
+    return apiClient.patch(`/notifications/${id}/read`);
+  },
+  markAllNotificationsRead: async () => {
+    return apiClient.patch('/notifications/read-all');
+  },
+  deleteNotification: async (id) => {
+    return apiClient.delete(`/notifications/${id}`);
+  },
+  clearAllNotifications: async () => {
+    return apiClient.delete('/notifications/clear-all');
+  },
+};
+
+export const onlineClassService = {
+  list: async (params = {}) => {
+    const res = await apiClient.get('/online-classes', { params });
+    return res.data;
+  },
+  getById: async (id) => {
+    const res = await apiClient.get(`/online-classes/${id}`);
+    return res.data;
+  },
+  create: async (data) => {
+    const res = await apiClient.post('/online-classes', data);
+    return res.data;
+  },
+  update: async (id, data) => {
+    const res = await apiClient.put(`/online-classes/${id}`, data);
+    return res.data;
+  },
+  cancel: async (id, data) => {
+    const res = await apiClient.patch(`/online-classes/${id}/cancel`, data);
+    return res.data;
+  },
+  addAnnouncement: async (id, data) => {
+    const res = await apiClient.post(`/online-classes/${id}/announcements`, data);
+    return res.data;
+  },
+  delete: async (id) => {
+    const res = await apiClient.delete(`/online-classes/${id}`);
+    return res.data;
+  },
+  triggerRemindersSweep: async () => {
+    const res = await apiClient.post('/online-classes/reminders/sweep');
+    return res.data;
+  },
+};
+
 export default apiClient;
+
+
 

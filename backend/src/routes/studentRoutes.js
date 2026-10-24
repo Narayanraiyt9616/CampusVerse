@@ -10,6 +10,8 @@ const {
   getMyNotifications,
   markNotificationRead,
   markAllNotificationsRead,
+  deleteStudentNotification,
+  clearAllStudentNotifications,
   getStudentExams,
   getAttendanceReport,
   getAcademicProgressReport,
@@ -28,6 +30,8 @@ const router = express.Router();
 router.get('/notifications', auth, authorize('student'), getMyNotifications);
 router.patch('/notifications/read-all', auth, authorize('student'), markAllNotificationsRead);
 router.patch('/notifications/:id/read', auth, authorize('student'), markNotificationRead);
+router.delete('/notifications/clear-all', auth, authorize('student'), clearAllStudentNotifications);
+router.delete('/notifications/:id', auth, authorize('student'), deleteStudentNotification);
 
 // GET /api/students/exams – authenticated student fetches published examination schedules
 router.get('/exams', auth, authorize('student', 'faculty', 'admin', 'superadmin', 'super_admin'), getStudentExams);

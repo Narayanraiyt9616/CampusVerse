@@ -14,6 +14,12 @@ const notificationSchema = new mongoose.Schema(
       required: false,
       index: true,
     },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: false,
+      index: true,
+    },
     studentId: {
       type: String,
       required: false,
@@ -46,6 +52,10 @@ const notificationSchema = new mongoose.Schema(
       enum: [
         'PLACEMENT_DRIVE',
         'PLACEMENT_UPDATE',
+        'PLACEMENT_APPLICATION',
+        'PLACEMENT_ACCEPTED',
+        'PLACEMENT_REJECTED',
+        'PLACEMENT_CANCELLED',
         'PLACEMENT_SELECTED',
         'PLACEMENT_SHORTLISTED',
         'PLACEMENT_INTERVIEW',
@@ -53,8 +63,15 @@ const notificationSchema = new mongoose.Schema(
         'ASSIGNMENT_PUBLISHED',
         'ASSIGNMENT_SUBMISSION',
         'ASSIGNMENT_EVALUATION',
+        'ONLINE_CLASS_SCHEDULED',
+        'ONLINE_CLASS_RESCHEDULED',
+        'ONLINE_CLASS_CANCELLED',
+        'ONLINE_CLASS_REMINDER',
+        'ONLINE_CLASS_LINK_UPDATED',
+        'ONLINE_CLASS_ANNOUNCEMENT',
         'SYSTEM_ALERT',
         'GENERAL',
+        'INFO',
       ],
       default: 'PLACEMENT_DRIVE',
     },
@@ -64,15 +81,8 @@ const notificationSchema = new mongoose.Schema(
       index: true,
     },
     metadata: {
-      companyName: { type: String, trim: true },
-      jobTitle: { type: String, trim: true },
-      jobField: { type: String, trim: true },
-      eligibleCourses: { type: [String], default: [] },
-      driveDate: { type: Date },
-      applicationDeadline: { type: Date },
-      displayPackage: { type: String },
-      venue: { type: String },
-      status: { type: String, default: 'Registration Open' },
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
     },
     read: {
       type: Boolean,
@@ -80,6 +90,12 @@ const notificationSchema = new mongoose.Schema(
     },
     readAt: {
       type: Date,
+    },
+    expiresAt: {
+      type: Date,
+      default: function () {
+        return new Date(Date.now() + 48 * 60 * 60 * 1000);
+      },
     },
   },
   {
@@ -99,6 +115,21 @@ const notificationSchema = new mongoose.Schema(
 
 notificationSchema.virtual('isRead').get(function () {
   return this.read;
+});
+
+notificationSchema.virtual('isExpired').get(function () {
+  if (this.expiresAt) return new Date() > this.expiresAt;
+  if (this.createdAt) return Date.now() - new Date(this.createdAt).getTime() > 48 * 60 * 60 * 1000;
+  return false;
+});
+
+notificationSchema.virtual('expiresInHours').get(function () {
+  const expireTime = this.expiresAt
+    ? this.expiresAt.getTime()
+    : this.createdAt
+    ? this.createdAt.getTime() + 48 * 60 * 60 * 1000
+    : Date.now() + 48 * 60 * 60 * 1000;
+  return Math.max(0, Math.round((expireTime - Date.now()) / (1000 * 60 * 60)));
 });
 
 notificationSchema.virtual('companyName').get(function () {
@@ -121,10 +152,32 @@ notificationSchema.virtual('applicationDeadline').get(function () {
   return this.metadata?.applicationDeadline;
 });
 
+// Pre-save hook: ensure expiresAt is strictly set to 48 hours after creation time
+notificationSchema.pre('save', function (next) {
+  if (!this.expiresAt) {
+    const baseTime = this.createdAt ? new Date(this.createdAt).getTime() : Date.now();
+    this.expiresAt = new Date(baseTime + 48 * 60 * 60 * 1000);
+  }
+  next();
+});
+
+// Pre-validate hook for documents
+notificationSchema.pre('validate', function (next) {
+  if (!this.expiresAt) {
+    const baseTime = this.createdAt ? new Date(this.createdAt).getTime() : Date.now();
+    this.expiresAt = new Date(baseTime + 48 * 60 * 60 * 1000);
+  }
+  next();
+});
+
 // Compound index to ensure uniqueness per student & drive to prevent duplicate alerts
 notificationSchema.index({ recipient: 1, drive: 1 });
 notificationSchema.index({ recipient: 1, createdAt: -1 });
 notificationSchema.index({ recipientUser: 1, createdAt: -1 });
+
+// MongoDB TTL Indexes for reliable server-side 48-hour auto-deletion
+notificationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+notificationSchema.index({ createdAt: 1 }, { expireAfterSeconds: 48 * 60 * 60 });
 
 module.exports = mongoose.model('Notification', notificationSchema);
 

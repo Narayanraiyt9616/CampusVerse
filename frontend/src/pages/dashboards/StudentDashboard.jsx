@@ -6,8 +6,9 @@ import {
   BookOpen, TrendingUp, AlertTriangle, CheckCircle2, Clock, FileText,
   Download, Eye, ChevronDown, ChevronUp, Award, Percent, BarChart3,
   ArrowLeft, RefreshCw, Loader2, Heart, Users2, CreditCard,
-  AlertCircle, Check, PlusCircle, Calendar, Star, FileCheck2, Briefcase, Code,
+  AlertCircle, Check, PlusCircle, Calendar, Star, FileCheck2, Briefcase, Code, Video,
 } from 'lucide-react';
+import StudentOnlineClassesSection from './student/StudentOnlineClassesSection';
 import StudentAdmitCardSection from './student/StudentAdmitCardSection';
 import StudentPlacementSection from './student/StudentPlacementSection';
 import StudentAttendanceSection from './student/StudentAttendanceSection';
@@ -895,6 +896,7 @@ const OverviewSection = ({ profile, results, fees, notifications = [] }) => {
           { to: '/student/profile', label: 'My Profile', icon: <User className="w-5 h-5" />, desc: 'Personal details & contact info', iconBg: 'bg-[#FFF8E6] text-[#D97706] border-[#FDE68A]' },
           { to: '/student/attendance', label: 'Attendance Report', icon: <CalendarCheck className="w-5 h-5" />, desc: 'Subject-wise attendance & PDF report', iconBg: 'bg-[#EFF6FF] text-[#2563EB] border-[#BFDBFE]' },
           { to: '/student/progress-report', label: 'Progress Report', icon: <TrendingUp className="w-5 h-5" />, desc: 'Assignments, midterms, lab marks & report', iconBg: 'bg-[#ECFDF5] text-[#059669] border-[#A7F3D0]' },
+          { to: '/student/online-classes', label: 'Online Classes', icon: <Video className="w-5 h-5" />, desc: 'Virtual lectures, meeting links & live rooms', iconBg: 'bg-[#FFF8E6] text-[#D97706] border-[#FDE68A]' },
           { to: '/student/assignments', label: 'Assignments & Exams', icon: <ClipboardList className="w-5 h-5" />, desc: 'Active tasks, submissions & exam schedule', iconBg: 'bg-[#FAF5FF] text-[#7C3AED] border-[#DDD6FE]' },
           { to: '/student/projects', label: 'Live Projects', icon: <Code className="w-5 h-5" />, desc: 'Project portfolio submission & reviews', iconBg: 'bg-[#FFF8E6] text-[#D97706] border-[#FDE68A]' },
           { to: '/student/admit-card', label: 'Admit Card', icon: <FileCheck2 className="w-5 h-5" />, desc: 'Examination hall tickets & schedule', iconBg: 'bg-[#EFF6FF] text-[#2563EB] border-[#BFDBFE]' },
@@ -1002,6 +1004,7 @@ export const StudentDashboard = () => {
     attendance: 'Attendance Report',
     academics: 'Academic Progress Report',
     'progress-report': 'Academic Progress Report',
+    'online-classes': 'Online Classes & Live Lectures',
     assignments: 'Assignments & Examination Timetable',
     projects: 'Live Project Portfolio',
     'live-projects': 'Live Project Portfolio',
@@ -1060,7 +1063,7 @@ export const StudentDashboard = () => {
         </div>
       ) : (
         <>
-          {!currentSection && (
+          {(!currentSection || currentSection === 'overview') && (
             <OverviewSection
               profile={profile}
               results={results}
@@ -1068,19 +1071,22 @@ export const StudentDashboard = () => {
               notifications={notifications}
             />
           )}
-          {(!currentSection || currentSection === 'profile') && (
+          {currentSection === 'profile' && (
             <ProfileSection user={user} profile={profile} onSave={handleSaveProfile} saving={saving} />
           )}
-          {(!currentSection || currentSection === 'attendance') && (
+          {currentSection === 'attendance' && (
             <StudentAttendanceSection profile={profile} />
           )}
-          {(!currentSection || currentSection === 'progress-report' || currentSection === 'academics') && (
+          {currentSection === 'online-classes' && (
+            <StudentOnlineClassesSection profile={profile} />
+          )}
+          {(currentSection === 'progress-report' || currentSection === 'academics') && (
             <StudentProgressReportSection profile={profile} />
           )}
-          {(!currentSection || currentSection === 'assignments') && (
+          {currentSection === 'assignments' && (
             <StudentAssignmentSection profile={profile} />
           )}
-          {(!currentSection || currentSection === 'projects' || currentSection === 'live-projects') && (
+          {(currentSection === 'projects' || currentSection === 'live-projects') && (
             <StudentLiveProjectSection profile={profile} />
           )}
           {currentSection === 'admit-card' && (
@@ -1089,7 +1095,7 @@ export const StudentDashboard = () => {
           {currentSection === 'placement' && (
             <StudentPlacementSection profile={profile} />
           )}
-          {(!currentSection || currentSection === 'fees') && (
+          {currentSection === 'fees' && (
             <FeesSection fees={fees} />
           )}
         </>

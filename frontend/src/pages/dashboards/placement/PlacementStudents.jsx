@@ -63,6 +63,19 @@ export const PlacementStudents = () => {
     fetchStudents();
   }, []);
 
+  // Close modal on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && editProfile) {
+        setEditProfile(null);
+      }
+    };
+    if (editProfile) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [editProfile]);
+
   // Filter profiles
   const filteredProfiles = profiles.filter((p) => {
     const matchesStatus = statusFilter === 'ALL' || p.placementStatus === statusFilter;
@@ -376,8 +389,14 @@ export const PlacementStudents = () => {
 
       {/* MODAL: EDIT CANDIDATE PROFILE */}
       {editProfile && (
-        <div className="fixed inset-0 z-50 bg-[#111827]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#F1E7CF] relative animate-in fade-in zoom-in-95 duration-200">
+        <div
+          className="fixed inset-0 z-50 bg-[#111827]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
+          onClick={() => setEditProfile(null)}
+        >
+          <div
+            className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#F1E7CF] relative animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               onClick={() => setEditProfile(null)}
               className="absolute top-4 right-4 p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"

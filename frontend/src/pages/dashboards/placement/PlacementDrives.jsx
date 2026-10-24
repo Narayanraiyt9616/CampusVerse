@@ -20,7 +20,10 @@ import {
   Edit,
   Check,
   AlertCircle,
+  AlertTriangle,
   Layers,
+  Ban,
+  RotateCcw,
 } from 'lucide-react';
 import Card from '../../../components/common/Card';
 import Badge from '../../../components/common/Badge';
@@ -53,6 +56,18 @@ export const JOB_FIELDS = [
   'Quality Assurance & Test Automation',
 ];
 
+const formatForDateTimeLocal = (dateStr) => {
+  if (!dateStr) return '';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '';
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  } catch {
+    return '';
+  }
+};
+
 const DEFAULT_DRIVE_FORM = {
   companyName: '',
   jobTitle: '',
@@ -68,6 +83,8 @@ const DEFAULT_DRIVE_FORM = {
   applicationDeadline: '',
   venue: 'Auditorium 2 & Online HackerEarth Labs',
   evaluationRounds: 'Online Coding Test, Technical Interview 1, HR Discussion',
+  status: 'Registration Open',
+  cancellationReason: '',
 };
 
 export const PlacementDrives = () => {
@@ -79,6 +96,7 @@ export const PlacementDrives = () => {
   const [successMsg, setSuccessMsg] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [deadlineFilter, setDeadlineFilter] = useState('ALL');
 
   // Modals
   const [showAddDriveModal, setShowAddDriveModal] = useState(false);
@@ -86,6 +104,10 @@ export const PlacementDrives = () => {
   const [editingDriveId, setEditingDriveId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [customCourseInput, setCustomCourseInput] = useState('');
+
+  // Cancellation Modal
+  const [cancellingDrive, setCancellingDrive] = useState(null);
+  const [cancellationReason, setCancellationReason] = useState('');
 
   // Forms
   const [driveForm, setDriveForm] = useState(DEFAULT_DRIVE_FORM);
@@ -124,9 +146,25 @@ export const PlacementDrives = () => {
     fetchData();
   }, []);
 
+  // Close modals on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        if (showAddDriveModal) setShowAddDriveModal(false);
+        if (showAddCompanyModal) setShowAddCompanyModal(false);
+        if (cancellingDrive) setCancellingDrive(null);
+      }
+    };
+    if (showAddDriveModal || showAddCompanyModal || cancellingDrive) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showAddDriveModal, showAddCompanyModal, cancellingDrive]);
+
   // Filter drives
   const filteredDrives = drives.filter((d) => {
     const matchesStatus = statusFilter === 'ALL' || d.status === statusFilter;
+    const matchesDeadline = deadlineFilter === 'ALL' || d.deadlineStatus === deadlineFilter;
     const q = searchQuery.toLowerCase();
     const matchesSearch =
       (d.companyName || '').toLowerCase().includes(q) ||
@@ -134,7 +172,7 @@ export const PlacementDrives = () => {
       (d.jobField || '').toLowerCase().includes(q) ||
       (d.venue || '').toLowerCase().includes(q) ||
       (d.eligibleCourses || []).some((c) => c.toLowerCase().includes(q));
-    return matchesStatus && matchesSearch;
+    return matchesStatus && matchesDeadline && matchesSearch;
   });
 
   // Filter companies
@@ -206,9 +244,43 @@ export const PlacementDrives = () => {
       requiredSkills: (drive.requiredSkills || []).join(', '),
       eligibleCourses: existingCourses,
       driveDate: drive.driveDate ? new Date(drive.driveDate).toISOString().slice(0, 10) : '',
-      applicationDeadline: drive.applicationDeadline ? new Date(drive.applicationDeadline).toISOString().slice(0, 10) : '',
+      applicationDeadline: drive.applicationDeadline ? formatForDateTimeLocal(drive.applicationDeadline) : '',
       venue: drive.venue || 'Auditorium 2 & Online HackerEarth Labs',
       evaluationRounds: (drive.evaluationRounds || []).join(', '),
+      status: drive.status || 'Registration Open',
+      cancellationReason: drive.cancellationReason || '',
+    });
+    setShowAddDriveModal(true);
+  };
+
+  // Quick action to reopen an expired or cancelled drive
+  const handleReopenDrive = (drive) => {
+    const futureDeadline = new Date();
+    futureDeadline.setDate(futureDeadline.getDate() + 7);
+    futureDeadline.setHours(23, 59, 0, 0);
+
+    setEditingDriveId(drive._id);
+    const existingCourses = drive.eligibleCourses?.length > 0
+      ? drive.eligibleCourses
+      : drive.eligibilityCriteria?.eligibleCourses || ['Computer Science & Engineering', 'Information Technology'];
+
+    setDriveForm({
+      companyName: drive.companyName || '',
+      jobTitle: drive.jobTitle || '',
+      jobField: drive.jobField || 'Software Development',
+      jobType: drive.jobType || 'Full-Time',
+      description: drive.description || '',
+      displayPackage: drive.salaryPackage?.displayPackage || '₹ 24.0 LPA (CTC)',
+      minCgpa: drive.eligibilityCriteria?.minCgpa ?? 7.5,
+      maxBacklogs: drive.eligibilityCriteria?.maxBacklogs ?? 0,
+      requiredSkills: (drive.requiredSkills || []).join(', '),
+      eligibleCourses: existingCourses,
+      driveDate: drive.driveDate ? new Date(drive.driveDate).toISOString().slice(0, 10) : '',
+      applicationDeadline: formatForDateTimeLocal(futureDeadline),
+      venue: drive.venue || 'Auditorium 2 & Online HackerEarth Labs',
+      evaluationRounds: (drive.evaluationRounds || []).join(', '),
+      status: 'Registration Open',
+      cancellationReason: '',
     });
     setShowAddDriveModal(true);
   };
@@ -246,6 +318,8 @@ export const PlacementDrives = () => {
         applicationDeadline: driveForm.applicationDeadline,
         venue: driveForm.venue,
         evaluationRounds: roundsArr,
+        status: driveForm.status || 'Registration Open',
+        cancellationReason: driveForm.cancellationReason || '',
       };
 
       if (editingDriveId) {
@@ -265,6 +339,39 @@ export const PlacementDrives = () => {
       }
     } catch (err) {
       alert(err.message || 'Failed to save drive.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Handle Cancel Drive Action
+  const handleOpenCancelModal = (drive) => {
+    setCancellingDrive(drive);
+    setCancellationReason('');
+  };
+
+  const handleCancelDriveSubmit = async (e) => {
+    e.preventDefault();
+    if (!cancellingDrive) return;
+    if (!cancellationReason.trim()) {
+      alert('Please provide a reason for cancelling this recruitment drive.');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const res = await placementService.updateDrive(cancellingDrive._id, {
+        status: 'Cancelled',
+        cancellationReason: cancellationReason.trim(),
+      });
+      if (res && res.success) {
+        setSuccessMsg(`Placement drive for ${cancellingDrive.companyName} cancelled. All student applicants have been notified.`);
+        setCancellingDrive(null);
+        setCancellationReason('');
+        fetchData();
+      }
+    } catch (err) {
+      alert(err.message || 'Failed to cancel drive.');
     } finally {
       setSubmitting(false);
     }
@@ -422,6 +529,20 @@ export const PlacementDrives = () => {
                 <option value="Upcoming">Upcoming</option>
                 <option value="In Progress">In Progress</option>
                 <option value="Completed">Completed</option>
+                <option value="Applications Closed">Applications Closed</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+
+              <select
+                value={deadlineFilter}
+                onChange={(e) => setDeadlineFilter(e.target.value)}
+                className="px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-700"
+              >
+                <option value="ALL">All Deadlines</option>
+                <option value="Open">Deadline: Open</option>
+                <option value="Closing Soon">Deadline: Closing Soon</option>
+                <option value="Deadline Expired">Deadline: Expired</option>
+                <option value="Applications Closed">Deadline: Closed</option>
               </select>
             </div>
           }
@@ -435,7 +556,13 @@ export const PlacementDrives = () => {
               {filteredDrives.map((d) => (
                 <div
                   key={d._id}
-                  className="p-5 rounded-2xl border border-slate-200 bg-white hover:border-[#F1E7CF] transition-all shadow-2xs space-y-3"
+                  className={`p-5 rounded-2xl border bg-white transition-all shadow-2xs space-y-3 ${
+                    d.status === 'Cancelled'
+                      ? 'border-red-200 bg-red-50/20'
+                      : d.deadlineStatus === 'Deadline Expired'
+                      ? 'border-rose-200'
+                      : 'border-slate-200 hover:border-[#F1E7CF]'
+                  }`}
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
                     <div className="flex items-start gap-3">
@@ -463,14 +590,39 @@ export const PlacementDrives = () => {
                         <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Compensation</span>
                         <span className="text-base font-bold font-mono text-slate-900">{d.salaryPackage?.displayPackage}</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant={d.status === 'Registration Open' ? 'success' : 'neutral'}
-                          size="sm"
-                          hasDot
-                        >
-                          {d.status}
-                        </Badge>
+                      <div className="flex flex-wrap items-center justify-end gap-1.5">
+                        {/* Status badge */}
+                        {d.status === 'Cancelled' ? (
+                          <Badge variant="danger" size="sm" hasDot>Drive Cancelled</Badge>
+                        ) : (
+                          <Badge
+                            variant={d.status === 'Registration Open' ? 'success' : 'neutral'}
+                            size="sm"
+                            hasDot
+                          >
+                            {d.status}
+                          </Badge>
+                        )}
+
+                        {/* Deadline Status badge */}
+                        {d.status !== 'Cancelled' && (
+                          <Badge
+                            variant={
+                              d.deadlineStatus === 'Deadline Expired'
+                                ? 'danger'
+                                : d.deadlineStatus === 'Closing Soon'
+                                ? 'warning'
+                                : d.deadlineStatus === 'Applications Closed'
+                                ? 'neutral'
+                                : 'success'
+                            }
+                            size="sm"
+                            hasDot
+                          >
+                            {d.deadlineStatus || 'Open'}
+                          </Badge>
+                        )}
+
                         <Button
                           variant="outline"
                           size="sm"
@@ -480,9 +632,44 @@ export const PlacementDrives = () => {
                         >
                           Edit
                         </Button>
+
+                        {(d.status === 'Cancelled' || d.deadlineStatus === 'Deadline Expired') && (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            leftIcon={<RotateCcw className="w-3 h-3 text-emerald-600" />}
+                            onClick={() => handleReopenDrive(d)}
+                            className="!py-1 !px-2.5 !text-xs font-medium !text-emerald-700 !bg-emerald-50 !border-emerald-200 hover:!bg-emerald-100"
+                          >
+                            Reopen Drive
+                          </Button>
+                        )}
+
+                        {d.status !== 'Cancelled' && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            leftIcon={<Ban className="w-3 h-3 text-red-600" />}
+                            onClick={() => handleOpenCancelModal(d)}
+                            className="!py-1 !px-2.5 !text-xs font-medium !text-red-600 hover:!bg-red-50 !border-red-200"
+                          >
+                            Cancel
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>
+
+                  {/* Cancellation Reason Alert Banner */}
+                  {d.status === 'Cancelled' && (
+                    <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-900 flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-bold">Drive Cancelled:</span>{' '}
+                        {d.cancellationReason || 'Recruitment drive cancelled by placement administration. All applicants have been notified.'}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Course Eligibility & Academic Criteria */}
                   <div className="p-3 rounded-xl bg-amber-50/40 border border-amber-100/80">
@@ -557,12 +744,14 @@ export const PlacementDrives = () => {
                   {/* Evaluation Rounds & Deadlines */}
                   <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500 pt-1">
                     <div className="flex items-center gap-1.5 font-mono">
-                      <Clock className="w-3.5 h-3.5 text-amber-600" />
-                      <span>
-                        Deadline: {new Date(d.applicationDeadline).toLocaleDateString('en-IN', {
+                      <Clock className={`w-3.5 h-3.5 ${d.deadlineStatus === 'Deadline Expired' ? 'text-red-600' : d.deadlineStatus === 'Closing Soon' ? 'text-amber-600' : 'text-slate-500'}`} />
+                      <span className={d.deadlineStatus === 'Deadline Expired' ? 'text-red-700 font-bold' : d.deadlineStatus === 'Closing Soon' ? 'text-amber-700 font-bold' : ''}>
+                        Application Deadline: {new Date(d.applicationDeadline).toLocaleString('en-IN', {
                           day: 'numeric',
                           month: 'short',
                           year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
                         })}
                       </span>
                     </div>
@@ -647,8 +836,14 @@ export const PlacementDrives = () => {
 
       {/* MODAL: SCHEDULE / EDIT DRIVE */}
       {showAddDriveModal && (
-        <div className="fixed inset-0 z-50 bg-[#111827]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#FFFFFF] rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-[#F1E7CF] relative animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+        <div
+          className="fixed inset-0 z-50 bg-[#111827]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
+          onClick={() => setShowAddDriveModal(false)}
+        >
+          <div
+            className="bg-[#FFFFFF] rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-[#F1E7CF] relative animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               onClick={() => setShowAddDriveModal(false)}
               className="absolute top-4 right-4 p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
@@ -883,14 +1078,17 @@ export const PlacementDrives = () => {
                   />
                 </div>
                 <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Application Deadline *</label>
+                  <label className="font-semibold text-slate-700 block mb-1">Application Deadline (Date & Time) *</label>
                   <input
                     required
-                    type="date"
+                    type="datetime-local"
                     value={driveForm.applicationDeadline}
                     onChange={(e) => setDriveForm({ ...driveForm, applicationDeadline: e.target.value })}
                     className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800"
                   />
+                  <span className="text-[10px] text-slate-400 mt-0.5 block">
+                    Server automatically marks expired once this timestamp passes
+                  </span>
                 </div>
               </div>
 
@@ -918,6 +1116,25 @@ export const PlacementDrives = () => {
                 </div>
               </div>
 
+              {/* Row 8: Status Selector (When editing) */}
+              {editingDriveId && (
+                <div>
+                  <label className="font-semibold text-slate-700 block mb-1">Recruitment Drive Status</label>
+                  <select
+                    value={driveForm.status}
+                    onChange={(e) => setDriveForm({ ...driveForm, status: e.target.value })}
+                    className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-medium"
+                  >
+                    <option value="Registration Open">Registration Open (Accepting Applications)</option>
+                    <option value="Upcoming">Upcoming (Scheduled)</option>
+                    <option value="In Progress">In Progress (Assessments Underway)</option>
+                    <option value="Completed">Completed (Recruitment Concluded)</option>
+                    <option value="Applications Closed">Applications Closed (Manual Close)</option>
+                    <option value="Cancelled">Cancelled (Drive Withdrawn)</option>
+                  </select>
+                </div>
+              )}
+
               {/* Actions */}
               <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
                 <Button variant="secondary" size="sm" onClick={() => setShowAddDriveModal(false)}>
@@ -934,10 +1151,97 @@ export const PlacementDrives = () => {
         </div>
       )}
 
+      {/* MODAL: CANCEL PLACEMENT DRIVE */}
+      {cancellingDrive && (
+        <div
+          className="fixed inset-0 z-50 bg-[#111827]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
+          onClick={() => setCancellingDrive(null)}
+        >
+          <div
+            className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-red-200 relative animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setCancellingDrive(null)}
+              className="absolute top-4 right-4 p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center shrink-0">
+                <Ban className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-900">
+                  Cancel Recruitment Drive
+                </h3>
+                <p className="text-xs text-slate-500">
+                  {cancellingDrive.companyName} &bull; {cancellingDrive.jobTitle}
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3 my-4 rounded-xl bg-red-50 border border-red-200 text-xs text-red-900 space-y-1">
+              <p className="font-semibold flex items-center gap-1.5">
+                <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+                Cancellation will notify all applicants
+              </p>
+              <p className="text-red-700 leading-relaxed">
+                Cancelling this placement drive will immediately close applications and dispatch real-time cancellation alerts to all students who submitted applications for this opportunity.
+              </p>
+            </div>
+
+            <form onSubmit={handleCancelDriveSubmit} className="space-y-3 text-xs">
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">
+                  Reason for Drive Cancellation *
+                </label>
+                <textarea
+                  required
+                  rows={3}
+                  value={cancellationReason}
+                  onChange={(e) => setCancellationReason(e.target.value)}
+                  placeholder="e.g. Corporate recruiter postponed hiring cycle to next quarter / hiring quota fulfilled."
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  type="button"
+                  onClick={() => setCancellingDrive(null)}
+                  disabled={submitting}
+                >
+                  Go Back
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  type="submit"
+                  className="!bg-red-600 hover:!bg-red-700 !text-white"
+                  disabled={submitting}
+                >
+                  {submitting ? 'Cancelling...' : 'Confirm Drive Cancellation'}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* MODAL: REGISTER COMPANY */}
       {showAddCompanyModal && (
-        <div className="fixed inset-0 z-50 bg-[#111827]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#F1E7CF] relative animate-in fade-in zoom-in-95 duration-200">
+        <div
+          className="fixed inset-0 z-50 bg-[#111827]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
+          onClick={() => setShowAddCompanyModal(false)}
+        >
+          <div
+            className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#F1E7CF] relative animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               onClick={() => setShowAddCompanyModal(false)}
               className="absolute top-4 right-4 p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"

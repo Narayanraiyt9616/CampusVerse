@@ -178,6 +178,7 @@ exports.getMyAssignments = async (req, res) => {
 
     const statsMap = {};
     submissions.forEach((s) => {
+      if (!s.assignment) return;
       const key = s.assignment.toString();
       if (!statsMap[key]) statsMap[key] = { totalSubmissions: 0, evaluatedCount: 0 };
       statsMap[key].totalSubmissions++;
@@ -535,10 +536,20 @@ exports.createNotice = async (req, res) => {
 
 exports.getFacultyNotifications = async (req, res) => {
   try {
-    const notifications = await Notification.find({ recipientUser: req.user._id })
+    const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000);
+    const filter = {
+      recipientUser: req.user._id,
+      createdAt: { $gt: cutoff },
+      $or: [
+        { expiresAt: { $exists: false } },
+        { expiresAt: { $gt: new Date() } },
+      ],
+    };
+
+    const notifications = await Notification.find(filter)
       .sort({ createdAt: -1 })
       .limit(50);
-    const unreadCount = await Notification.countDocuments({ recipientUser: req.user._id, read: false });
+    const unreadCount = await Notification.countDocuments({ ...filter, read: false });
     res.json({
       success: true,
       notifications,
@@ -558,6 +569,9 @@ exports.markFacultyNotificationRead = async (req, res) => {
       { $set: { read: true, readAt: new Date() } },
       { new: true }
     );
+    if (!notif) {
+      return res.status(404).json({ success: false, error: 'Notification not found or access denied.' });
+    }
     res.json({ success: true, notification: notif });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -571,6 +585,32 @@ exports.markAllFacultyNotificationsRead = async (req, res) => {
       { $set: { read: true, readAt: new Date() } }
     );
     res.json({ success: true, message: 'All notifications marked as read' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+exports.deleteFacultyNotification = async (req, res) => {
+  try {
+    const deleted = await Notification.findOneAndDelete({
+      _id: req.params.id,
+      recipientUser: req.user._id,
+    });
+    if (!deleted) {
+      return res.status(404).json({ success: false, error: 'Notification not found or access denied.' });
+    }
+    res.json({ success: true, message: 'Notification deleted permanently.', id: req.params.id });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+exports.clearAllFacultyNotifications = async (req, res) => {
+  try {
+    const result = await Notification.deleteMany({
+      recipientUser: req.user._id,
+    });
+    res.json({ success: true, message: 'All notifications cleared permanently.', deletedCount: result.deletedCount });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

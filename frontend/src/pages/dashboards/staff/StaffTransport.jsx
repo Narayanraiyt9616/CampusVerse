@@ -104,6 +104,21 @@ export const StaffTransport = () => {
     fetchData();
   }, []);
 
+  // Close modals on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        if (showAddVehicleModal) setShowAddVehicleModal(false);
+        if (showAddRouteModal) setShowAddRouteModal(false);
+        if (showIssuePassModal) setShowIssuePassModal(false);
+      }
+    };
+    if (showAddVehicleModal || showAddRouteModal || showIssuePassModal) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showAddVehicleModal, showAddRouteModal, showIssuePassModal]);
+
   // Filtered vehicles
   const filteredVehicles = vehicles.filter((v) => {
     const q = searchQuery.toLowerCase();
@@ -669,8 +684,14 @@ export const StaffTransport = () => {
 
       {/* MODAL: ADD VEHICLE */}
       {showAddVehicleModal && (
-        <div className="fixed inset-0 z-50 bg-[#111827]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#F1E7CF] relative animate-in fade-in zoom-in-95 duration-200">
+        <div
+          className="fixed inset-0 z-50 bg-[#111827]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
+          onClick={() => setShowAddVehicleModal(false)}
+        >
+          <div
+            className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#F1E7CF] relative animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               onClick={() => setShowAddVehicleModal(false)}
               className="absolute top-4 right-4 p-2 rounded-xl text-[#4B5563] hover:text-[#111827] hover:bg-[#FFF8E6] transition-colors"
@@ -789,8 +810,14 @@ export const StaffTransport = () => {
 
       {/* MODAL: CREATE ROUTE */}
       {showAddRouteModal && (
-        <div className="fixed inset-0 z-50 bg-[#111827]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#F1E7CF] relative animate-in fade-in zoom-in-95 duration-200">
+        <div
+          className="fixed inset-0 z-50 bg-[#111827]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
+          onClick={() => setShowAddRouteModal(false)}
+        >
+          <div
+            className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#F1E7CF] relative animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               onClick={() => setShowAddRouteModal(false)}
               className="absolute top-4 right-4 p-2 rounded-xl text-[#4B5563] hover:text-[#111827] hover:bg-[#FFF8E6] transition-colors"
@@ -882,8 +909,14 @@ export const StaffTransport = () => {
 
       {/* MODAL: ISSUE STUDENT PASS */}
       {showIssuePassModal && (
-        <div className="fixed inset-0 z-50 bg-[#111827]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#F1E7CF] relative animate-in fade-in zoom-in-95 duration-200">
+        <div
+          className="fixed inset-0 z-50 bg-[#111827]/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
+          onClick={() => setShowIssuePassModal(false)}
+        >
+          <div
+            className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#F1E7CF] relative animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               onClick={() => setShowIssuePassModal(false)}
               className="absolute top-4 right-4 p-2 rounded-xl text-[#4B5563] hover:text-[#111827] hover:bg-[#FFF8E6] transition-colors"

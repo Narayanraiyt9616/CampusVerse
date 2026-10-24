@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../components/navigation/Sidebar';
 import Topbar from '../components/navigation/Topbar';
@@ -9,6 +9,11 @@ import Topbar from '../components/navigation/Topbar';
 export const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+
+  // Auto-close mobile sidebar whenever route changes
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
 
   // Determine active role from pathname
   const getRoleFromPath = (path) => {

@@ -7,8 +7,9 @@ import {
   Loader2, RefreshCw, Eye, Star, Briefcase, GraduationCap, Phone,
   Mail, MapPin, BadgeCheck, Building2, Pencil, Save, Trash2,
   FileCheck, AlertTriangle, Info, BookMarked, TrendingUp, Activity,
-  HelpCircle, UploadCloud, CheckSquare, ArrowUp, ArrowDown, FileUp, Sparkles
+  HelpCircle, UploadCloud, CheckSquare, ArrowUp, ArrowDown, FileUp, Sparkles, Video
 } from 'lucide-react';
+import FacultyOnlineClassesSection from './faculty/FacultyOnlineClassesSection';
 
 import PageHeader from '../../components/common/PageHeader';
 import StatCard from '../../components/common/StatCard';
@@ -120,6 +121,20 @@ export const FacultyDashboard = () => {
     requiresPdfSubmission: true,
   });
 
+  const [examForm, setExamForm] = useState({
+    title: '',
+    subject: 'Computer Science & Engineering',
+    className: 'CS-7A',
+    semester: 7,
+    examDate: '',
+    startTime: '10:00',
+    duration: 120,
+    venue: 'LH-301',
+    maxMarks: 100,
+    examType: 'Mid-Term',
+    instructions: '',
+  });
+
   const [mcqQuestions, setMcqQuestions] = useState([
     {
       questionText: '',
@@ -205,7 +220,8 @@ export const FacultyDashboard = () => {
     setLoad('assignments', true);
     try {
       const res = await facultyService.getMyAssignments();
-      setAssignments(res?.assignments || res || []);
+      const list = res?.assignments || res?.data || (Array.isArray(res) ? res : []);
+      setAssignments(Array.isArray(list) ? list : []);
     } catch { setAssignments([]); }
     finally { setLoad('assignments', false); }
   }, []);
@@ -213,7 +229,8 @@ export const FacultyDashboard = () => {
   const loadExams = useCallback(async () => {
     try {
       const res = await facultyService.getMyExams();
-      setExams(res?.exams || res || []);
+      const list = res?.exams || res?.data || (Array.isArray(res) ? res : []);
+      setExams(Array.isArray(list) ? list : []);
     } catch { setExams([]); }
   }, []);
 
@@ -661,6 +678,7 @@ export const FacultyDashboard = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { to: '/faculty/students', label: 'Student Management', icon: <Users className="w-5 h-5" />, desc: 'Class rosters & student progress', iconBg: 'bg-[#EFF6FF] text-[#2563EB] border-[#BFDBFE]' },
+          { to: '/faculty/online-classes', label: 'Online Classes', icon: <Video className="w-5 h-5" />, desc: 'Virtual classrooms & scheduled meetings', iconBg: 'bg-[#FFF8E6] text-[#D97706] border-[#FDE68A]' },
           { to: '/faculty/attendance', label: 'Attendance Management', icon: <CalendarCheck className="w-5 h-5" />, desc: 'Session mark sheets & shortage logs', iconBg: 'bg-[#FFF8E6] text-[#D97706] border-[#FDE68A]' },
           { to: '/faculty/assignments', label: 'Assignments & Exams', icon: <ClipboardList className="w-5 h-5" />, desc: 'Create tasks & schedule mid-terms', iconBg: 'bg-[#FAF5FF] text-[#7C3AED] border-[#DDD6FE]' },
           { to: '/faculty/results', label: 'Results Management', icon: <Award className="w-5 h-5" />, desc: 'Assessment scores & grade registry', iconBg: 'bg-[#ECFDF5] text-[#059669] border-[#A7F3D0]' },
@@ -963,7 +981,11 @@ export const FacultyDashboard = () => {
   );
 
   // ASSIGNMENTS & EXAMS
-  const renderAssignments = () => (
+  const renderAssignments = () => {
+    const assignmentsList = Array.isArray(assignments) ? assignments : [];
+    const examsList = Array.isArray(exams) ? exams : [];
+
+    return (
     <div className="space-y-6">
       <div className="flex gap-2">
         {[['assignments', 'Assignments & Tasks'], ['exams', 'Examinations']].map(([v, l]) => (
@@ -985,7 +1007,7 @@ export const FacultyDashboard = () => {
         <Card
           title="Smart Assignment Central"
           subtitle="Publish multiple-choice assessments or PDF question papers and manage evaluations"
-          badge={<Badge variant="teal" size="sm">{assignments.length} Total Assignments</Badge>}
+          badge={<Badge variant="teal" size="sm">{assignmentsList.length} Total Assignments</Badge>}
           action={
             <div className="flex items-center gap-2">
               <Button
@@ -1005,7 +1027,7 @@ export const FacultyDashboard = () => {
         >
           {loading.assignments ? (
             <div className="space-y-2">{[1, 2, 3].map(i => <Skeleton key={i} className="h-16" />)}</div>
-          ) : assignments.length === 0 ? (
+          ) : assignmentsList.length === 0 ? (
             <div className="text-center py-16 text-slate-400">
               <ClipboardList className="w-12 h-12 mx-auto mb-3 text-[#D99A00] opacity-40" />
               <p className="text-sm font-bold text-slate-700">No assignments published yet.</p>
@@ -1026,7 +1048,7 @@ export const FacultyDashboard = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#F1E7CF]">
-                  {assignments.map((asgn) => {
+                  {assignmentsList.map((asgn) => {
                     const isMcq = (asgn.assignmentType || 'mcq').toLowerCase() === 'mcq';
                     const hasSubmissions = (asgn.totalSubmissions || 0) > 0;
                     return (
@@ -1118,7 +1140,7 @@ export const FacultyDashboard = () => {
 
       {assignmentTab === 'exams' && (
         <Card title="Examination Schedule" subtitle="Schedule exams and enter marks" action={<Button variant="teal" size="sm" leftIcon={<Plus className="w-3.5 h-3.5" />} onClick={() => setScheduleExamOpen(true)}>Schedule Exam</Button>}>
-          {exams.length === 0 ? (
+          {examsList.length === 0 ? (
             <div className="text-center py-12 text-slate-400"><Award className="w-10 h-10 mx-auto mb-2 opacity-30" /><p>No exams scheduled yet.</p></div>
           ) : (
             <Table keyField="_id"
@@ -1131,7 +1153,7 @@ export const FacultyDashboard = () => {
                 { key: 'maxMarks', header: 'Max Marks', render: v => <span className="font-mono text-xs font-bold">{v}</span> },
                 { key: 'venue', header: 'Venue', render: v => <span className="text-xs text-slate-500">{v || '—'}</span> },
               ]}
-              data={exams}
+              data={examsList}
             />
           )}
         </Card>
@@ -1599,12 +1621,12 @@ export const FacultyDashboard = () => {
           {[{ label: 'Exam Title', field: 'title', colSpan: 2 }, { label: 'Subject', field: 'subject' }, { label: 'Class', field: 'className' }, { label: 'Exam Date', field: 'examDate', type: 'date' }, { label: 'Start Time', field: 'startTime', type: 'time' }, { label: 'Duration (min)', field: 'duration', type: 'number' }, { label: 'Max Marks', field: 'maxMarks', type: 'number' }, { label: 'Venue', field: 'venue' }].map(({ label, field, type, colSpan }) => (
             <div key={field} className={colSpan === 2 ? 'col-span-2' : ''}>
               <label className="block text-xs font-semibold text-slate-600 mb-1">{label}</label>
-              <input type={type || 'text'} value={examForm[field]} onChange={e => setExamForm(p => ({ ...p, [field]: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30 focus:border-[#D99A00]" />
+              <input type={type || 'text'} value={examForm[field] || ''} onChange={e => setExamForm(p => ({ ...p, [field]: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30 focus:border-[#D99A00]" />
             </div>
           ))}
           <div>
             <label className="block text-xs font-semibold text-slate-600 mb-1">Exam Type</label>
-            <select value={examForm.examType} onChange={e => setExamForm(p => ({ ...p, examType: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30">
+            <select value={examForm.examType || 'Mid-Term'} onChange={e => setExamForm(p => ({ ...p, examType: e.target.value }))} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#D99A00]/30">
               {['Mid-Term', 'End-Term', 'Unit Test', 'Practical', 'Viva', 'Other'].map(t => <option key={t}>{t}</option>)}
             </select>
           </div>
@@ -1834,6 +1856,7 @@ export const FacultyDashboard = () => {
       </Modal>
     </div>
   );
+};
 
 
   // RESULTS
@@ -2045,6 +2068,7 @@ export const FacultyDashboard = () => {
     profile: { title: 'Faculty Profile', subtitle: 'Personal details, contact, and professional information' },
     students: { title: 'Student Management', subtitle: 'Assigned students, profiles, attendance, and academic progress' },
     attendance: { title: 'Attendance Management', subtitle: 'Mark, edit, and view attendance records saved in MongoDB' },
+    'online-classes': { title: 'Online Classes & Live Lectures', subtitle: 'Schedule, broadcast, and manage virtual class meetings' },
     assignments: { title: 'Assignments & Exams', subtitle: 'Create assignments, schedule exams, review submissions, and grade' },
     results: { title: 'Results Management', subtitle: 'Enter and update subject-wise marks and results' },
     timetable: { title: 'Timetable', subtitle: 'Assigned classes, subjects, and examination schedules' },
@@ -2080,6 +2104,7 @@ export const FacultyDashboard = () => {
       {currentSection === 'profile' && renderProfile()}
       {currentSection === 'students' && renderStudents()}
       {currentSection === 'attendance' && renderAttendance()}
+      {currentSection === 'online-classes' && <FacultyOnlineClassesSection showToast={showToast} />}
       {currentSection === 'assignments' && renderAssignments()}
       {currentSection === 'results' && renderResults()}
       {currentSection === 'timetable' && renderTimetable()}

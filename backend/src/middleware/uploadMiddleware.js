@@ -134,11 +134,27 @@ const uploadStudentSubmissionMiddleware = (req, res, next) => {
   }
 };
 
+// Middleware for resume upload (handles multipart/form-data with resume file or JSON)
+const uploadResumeMiddleware = (req, res, next) => {
+  const contentType = req.headers['content-type'] || '';
+  if (contentType.includes('multipart/form-data')) {
+    uploadResume.single('resume')(req, res, (err) => {
+      if (err) {
+        return res.status(400).json({ success: false, error: err.message, message: err.message });
+      }
+      next();
+    });
+  } else {
+    next();
+  }
+};
+
 module.exports = {
   uploadAssignmentFile: uploadAssignment.single('file'),
   uploadQuestionPaperMiddleware,
   uploadStudentSubmissionMiddleware,
-  uploadResumeFile: uploadResume.single('resume'),
+  uploadResumeFile: uploadResumeMiddleware,
+  uploadResume,
   ASSIGNMENTS_DIR,
   RESUMES_DIR,
 };

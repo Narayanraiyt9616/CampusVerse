@@ -22,8 +22,46 @@ const placementApplicationSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['Applied', 'Shortlisted', 'Interview Scheduled', 'Selected / Offered', 'Rejected'],
+      enum: [
+        'Applied',
+        'Under Review',
+        'Shortlisted',
+        'Accepted',
+        'Interview Scheduled',
+        'Selected',
+        'Selected / Offered',
+        'Rejected',
+        'Not Selected',
+        'Withdrawn',
+      ],
       default: 'Applied',
+    },
+    rejectionReason: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: 1000,
+    },
+    githubLink: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    portfolioLink: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    liveProjectLink: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    coverNote: {
+      type: String,
+      trim: true,
+      maxlength: 2000,
+      default: '',
     },
     currentRound: {
       type: String,
@@ -34,6 +72,7 @@ const placementApplicationSchema = new mongoose.Schema(
       date: { type: Date },
       time: { type: String, trim: true },
       venueOrLink: { type: String, trim: true },
+      instructions: { type: String, trim: true, default: '' },
       interviewerNotes: { type: String, trim: true },
     },
     offerDetails: {
