@@ -571,38 +571,14 @@ export const notificationService = {
 };
 
 export const onlineClassService = {
-  list: async (params = {}) => {
-    const res = await apiClient.get('/online-classes', { params });
-    return res.data;
-  },
-  getById: async (id) => {
-    const res = await apiClient.get(`/online-classes/${id}`);
-    return res.data;
-  },
-  create: async (data) => {
-    const res = await apiClient.post('/online-classes', data);
-    return res.data;
-  },
-  update: async (id, data) => {
-    const res = await apiClient.put(`/online-classes/${id}`, data);
-    return res.data;
-  },
-  cancel: async (id, data) => {
-    const res = await apiClient.patch(`/online-classes/${id}/cancel`, data);
-    return res.data;
-  },
-  addAnnouncement: async (id, data) => {
-    const res = await apiClient.post(`/online-classes/${id}/announcements`, data);
-    return res.data;
-  },
-  delete: async (id) => {
-    const res = await apiClient.delete(`/online-classes/${id}`);
-    return res.data;
-  },
-  triggerRemindersSweep: async () => {
-    const res = await apiClient.post('/online-classes/reminders/sweep');
-    return res.data;
-  },
+  list: async (params = {}) => apiClient.get('/online-classes', { params }),
+  getById: async (id) => apiClient.get(`/online-classes/${id}`),
+  create: async (data) => apiClient.post('/online-classes', data),
+  update: async (id, data) => apiClient.put(`/online-classes/${id}`, data),
+  cancel: async (id, data) => apiClient.patch(`/online-classes/${id}/cancel`, data),
+  addAnnouncement: async (id, data) => apiClient.post(`/online-classes/${id}/announcements`, data),
+  delete: async (id) => apiClient.delete(`/online-classes/${id}`),
+  triggerRemindersSweep: async () => apiClient.post('/online-classes/reminders/sweep'),
 };
 
 export default apiClient;

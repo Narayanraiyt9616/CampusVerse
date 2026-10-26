@@ -108,6 +108,7 @@ const notifyStudentsNewClass = async (onlineClass) => {
           subject: onlineClass.subject,
           facultyName: onlineClass.facultyName,
           meetingUrl: onlineClass.meetingUrl,
+          meetingCode: onlineClass.meetingCode || '',
           scheduledDate: onlineClass.scheduledDate,
           startTime: onlineClass.startTime,
           endTime: onlineClass.endTime,

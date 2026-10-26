@@ -15,11 +15,20 @@ const {
  * Parses date string (YYYY-MM-DD or ISO) and HH:mm time string into a valid Date object.
  */
 const combineDateAndTime = (dateInput, timeStr) => {
+  if (!dateInput || !timeStr) return null;
+  const parts = String(timeStr).split(':').map(Number);
+  if (parts.length < 2 || isNaN(parts[0]) || isNaN(parts[1])) return null;
+  const [hours, minutes] = parts;
+
+  // Handle YYYY-MM-DD cleanly without timezone shift
+  if (typeof dateInput === 'string' && /^\d{4}-\d{2}-\d{2}/.test(dateInput)) {
+    const [y, m, d] = dateInput.split('T')[0].split('-').map(Number);
+    const combined = new Date(y, m - 1, d, hours, minutes, 0, 0);
+    return isNaN(combined.getTime()) ? null : combined;
+  }
+
   const d = new Date(dateInput);
   if (isNaN(d.getTime())) return null;
-
-  const [hours, minutes] = timeStr.split(':').map(Number);
-  if (isNaN(hours) || isNaN(minutes)) return null;
 
   const combined = new Date(d);
   combined.setHours(hours, minutes, 0, 0);
@@ -50,10 +59,12 @@ exports.createOnlineClass = async (req, res) => {
       title,
       subject,
       description,
+      instructions,
       scheduledDate,
       startTime,
       endTime,
       meetingUrl,
+      meetingCode,
       platform,
       passcode,
       semester,
@@ -66,11 +77,11 @@ exports.createOnlineClass = async (req, res) => {
       externalMeetingId,
     } = req.body;
 
-    // 1. Validation: Required fields
-    if (!title || !subject || !scheduledDate || !startTime || !endTime || !meetingUrl) {
+    // 1. Validation: Required core fields
+    if (!title || !subject || !scheduledDate || !startTime) {
       return res.status(400).json({
         success: false,
-        error: 'Title, subject, scheduled date, start time, end time, and meeting URL are required.',
+        error: 'Title, subject, scheduled date, and start time are required.',
       });
     }
 
@@ -81,9 +92,20 @@ exports.createOnlineClass = async (req, res) => {
       });
     }
 
+    // Default endTime if omitted (default to 1 hour after startTime)
+    let finalEndTime = endTime;
+    if (!finalEndTime) {
+      const [h, m] = String(startTime).split(':').map(Number);
+      if (!isNaN(h) && !isNaN(m)) {
+        const nextH = (h + 1) % 24;
+        const pad = (n) => String(n).padStart(2, '0');
+        finalEndTime = `${pad(nextH)}:${pad(m)}`;
+      }
+    }
+
     // 2. Validation: Time format
     const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
-    if (!timeRegex.test(startTime) || !timeRegex.test(endTime)) {
+    if (!timeRegex.test(startTime) || !timeRegex.test(finalEndTime)) {
       return res.status(400).json({
         success: false,
         error: 'Invalid time format. Please provide times in 24-hour HH:mm format (e.g. 09:30 or 14:00).',
@@ -92,7 +114,7 @@ exports.createOnlineClass = async (req, res) => {
 
     // 3. Validation: Start and End time sequence
     const startDateTime = combineDateAndTime(scheduledDate, startTime);
-    const endDateTime = combineDateAndTime(scheduledDate, endTime);
+    const endDateTime = combineDateAndTime(scheduledDate, finalEndTime);
 
     if (!startDateTime || !endDateTime) {
       return res.status(400).json({
@@ -108,8 +130,20 @@ exports.createOnlineClass = async (req, res) => {
       });
     }
 
-    // 4. Validation: Meeting URL
-    if (!isValidMeetingUrl(meetingUrl)) {
+    const isPublished = published !== undefined ? Boolean(published) : true;
+    const cleanUrl = meetingUrl ? String(meetingUrl).trim() : '';
+    const cleanCode = meetingCode ? String(meetingCode).trim() : '';
+
+    // If published, require at least one valid joining method (Meeting URL or Meeting Code)
+    if (isPublished && !cleanUrl && !cleanCode) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide at least one valid joining method (Meeting URL or Meeting Code) before publishing.',
+      });
+    }
+
+    // 4. Validation: Meeting URL (if provided)
+    if (cleanUrl && !isValidMeetingUrl(cleanUrl)) {
       return res.status(400).json({
         success: false,
         error: 'Invalid meeting URL. Please provide a secure URL starting with https://',
@@ -117,7 +151,7 @@ exports.createOnlineClass = async (req, res) => {
     }
 
     // 5. Detect platform
-    const detectedPlatform = platform || OnlineClass.detectPlatform(meetingUrl);
+    const detectedPlatform = platform || (cleanUrl ? OnlineClass.detectPlatform(cleanUrl) : 'Custom Website');
 
     // 6. Faculty identity
     const facultyUser = req.user;
@@ -127,6 +161,7 @@ exports.createOnlineClass = async (req, res) => {
       title: title.trim(),
       subject: subject.trim(),
       description: description ? description.trim() : '',
+      instructions: instructions ? instructions.trim() : '',
       faculty: facultyUser._id,
       facultyName,
       departmentName: departmentName ? departmentName.trim() : 'Computer Science & Engineering',
@@ -134,15 +169,16 @@ exports.createOnlineClass = async (req, res) => {
       semester: Number(semester),
       section: section ? section.trim() : 'All',
       studentGroup: studentGroup ? studentGroup.trim() : 'All',
-      meetingUrl: meetingUrl.trim(),
+      meetingUrl: cleanUrl,
+      meetingCode: cleanCode,
       platform: detectedPlatform,
       passcode: passcode ? passcode.trim() : '',
       scheduledDate: new Date(scheduledDate),
       startTime,
-      endTime,
+      endTime: finalEndTime,
       startDateTime,
       endDateTime,
-      published: published !== undefined ? Boolean(published) : true,
+      published: isPublished,
       allowPastLinks: allowPastLinks !== undefined ? Boolean(allowPastLinks) : true,
       externalMeetingId: externalMeetingId ? String(externalMeetingId).trim() : '',
     });
@@ -154,7 +190,7 @@ exports.createOnlineClass = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: 'Online class scheduled successfully.',
+      message: isPublished ? 'Online class scheduled successfully.' : 'Online class saved as draft.',
       class: onlineClass.formatForClient(true),
     });
   } catch (err) {
@@ -193,20 +229,52 @@ exports.getOnlineClasses = async (req, res) => {
         ],
       }).populate('department');
 
-      if (!student) {
+      if (!student && user.username === 'studentdemo') {
         // Fallback for demo student account
         student = await Student.findOne({ studentId: 'CS21B1042' }).populate('department');
       }
 
       if (student) {
         filter.semester = student.semester;
-        // Department / branch filter
-        const deptName = student.department?.name || student.course || 'Computer Science & Engineering';
-        filter.$or = [
-          { departmentName: { $regex: new RegExp(deptName.split(' ')[0], 'i') } },
+        
+        const deptName = (student.department?.name || student.course || '').toLowerCase();
+        const deptCode = (student.department?.code || '').toLowerCase();
+
+        const deptConditions = [
           { departmentName: 'All' },
+          { departmentName: '' },
+          { departmentName: { $exists: false } },
           { courseName: 'All' },
         ];
+
+        if (deptName) {
+          const primaryTokens = deptName.replace(/[^a-zA-Z0-9\s]/g, ' ').split(/\s+/).filter((w) => w.length > 2);
+          if (primaryTokens.length > 0) {
+            deptConditions.push({ departmentName: { $regex: new RegExp(primaryTokens[0], 'i') } });
+          }
+          if (deptName.includes('computer') || deptCode.includes('cse')) {
+            deptConditions.push({ departmentName: { $regex: /computer|cse/i } });
+            deptConditions.push({ courseName: { $regex: /computer|cse/i } });
+          }
+          if (deptName.includes('mech') || deptCode.includes('mech')) {
+            deptConditions.push({ departmentName: { $regex: /mech/i } });
+            deptConditions.push({ courseName: { $regex: /mech/i } });
+          }
+          if (deptName.includes('electronic') || deptCode.includes('ece')) {
+            deptConditions.push({ departmentName: { $regex: /electronic|ece/i } });
+            deptConditions.push({ courseName: { $regex: /electronic|ece/i } });
+          }
+        }
+        if (deptCode) {
+          deptConditions.push({ departmentName: { $regex: new RegExp(deptCode, 'i') } });
+        }
+
+        filter.$or = deptConditions;
+      } else {
+        const userSem = user.metadata?.semester || user.semester;
+        if (userSem && !isNaN(Number(userSem))) {
+          filter.semester = Number(userSem);
+        }
       }
     }
 
@@ -282,7 +350,10 @@ exports.getOnlineClassById = async (req, res) => {
     if (user.role === 'student') {
       const eligibleStudents = await getEligibleStudentsForClass(onlineClass);
       const isEligible = eligibleStudents.some(
-        (s) => (s.user && s.user.toString() === user._id.toString()) || s.email === user.email
+        (s) =>
+          (s.user && s.user.toString() === user._id.toString()) ||
+          s.email === user.email ||
+          (s.studentId && s.studentId.toUpperCase() === (user.username || '').toUpperCase())
       );
 
       // If demo student CS21B1042 and class is semester 7 CSE
@@ -332,10 +403,12 @@ exports.updateOnlineClass = async (req, res) => {
       title,
       subject,
       description,
+      instructions,
       scheduledDate,
       startTime,
       endTime,
       meetingUrl,
+      meetingCode,
       platform,
       passcode,
       semester,
@@ -354,6 +427,8 @@ exports.updateOnlineClass = async (req, res) => {
     if (title) onlineClass.title = title.trim();
     if (subject) onlineClass.subject = subject.trim();
     if (description !== undefined) onlineClass.description = description.trim();
+    if (instructions !== undefined) onlineClass.instructions = instructions.trim();
+    if (meetingCode !== undefined) onlineClass.meetingCode = meetingCode.trim();
     if (passcode !== undefined) onlineClass.passcode = passcode.trim();
     if (semester) onlineClass.semester = Number(semester);
     if (departmentName) onlineClass.departmentName = departmentName.trim();
@@ -362,18 +437,33 @@ exports.updateOnlineClass = async (req, res) => {
     if (published !== undefined) onlineClass.published = Boolean(published);
     if (allowPastLinks !== undefined) onlineClass.allowPastLinks = Boolean(allowPastLinks);
 
-    // Validate meeting URL if changed
+    // Validate meeting URL if changed or provided
     let urlChanged = false;
-    if (meetingUrl && meetingUrl !== oldMeetingUrl) {
-      if (!isValidMeetingUrl(meetingUrl)) {
-        return res.status(400).json({
-          success: false,
-          error: 'Invalid meeting URL. Please provide a secure URL starting with https://',
-        });
+    if (meetingUrl !== undefined && meetingUrl !== oldMeetingUrl) {
+      const cleanUrl = String(meetingUrl).trim();
+      if (cleanUrl) {
+        if (!isValidMeetingUrl(cleanUrl)) {
+          return res.status(400).json({
+            success: false,
+            error: 'Invalid meeting URL. Please provide a secure URL starting with https://',
+          });
+        }
+        onlineClass.meetingUrl = cleanUrl;
+        onlineClass.platform = platform || OnlineClass.detectPlatform(cleanUrl);
+        urlChanged = true;
+      } else {
+        onlineClass.meetingUrl = '';
       }
-      onlineClass.meetingUrl = meetingUrl.trim();
-      onlineClass.platform = platform || OnlineClass.detectPlatform(meetingUrl);
-      urlChanged = true;
+    } else if (platform) {
+      onlineClass.platform = platform;
+    }
+
+    // Require at least one joining method if published
+    if (onlineClass.published && !onlineClass.meetingUrl && !onlineClass.meetingCode) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide at least one valid joining method (Meeting URL or Meeting Code) before publishing.',
+      });
     }
 
     // Handle rescheduling (date or time changed)

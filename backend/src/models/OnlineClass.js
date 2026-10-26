@@ -30,6 +30,12 @@ const onlineClassSchema = new mongoose.Schema(
       maxlength: [3000, 'Description cannot exceed 3000 characters'],
       default: '',
     },
+    instructions: {
+      type: String,
+      trim: true,
+      maxlength: [3000, 'Instructions cannot exceed 3000 characters'],
+      default: '',
+    },
     faculty: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
@@ -80,11 +86,11 @@ const onlineClassSchema = new mongoose.Schema(
     },
     meetingUrl: {
       type: String,
-      required: [true, 'Online meeting URL is required'],
       trim: true,
+      default: '',
       validate: {
         validator: function (v) {
-          if (!v) return false;
+          if (!v) return true; // Optional if meetingCode is provided or draft
           try {
             const url = new URL(v);
             return url.protocol === 'https:' || (process.env.NODE_ENV !== 'production' && url.protocol === 'http:');
@@ -94,6 +100,11 @@ const onlineClassSchema = new mongoose.Schema(
         },
         message: 'Please provide a valid secure meeting URL (must begin with https://)',
       },
+    },
+    meetingCode: {
+      type: String,
+      trim: true,
+      default: '',
     },
     platform: {
       type: String,
@@ -117,8 +128,7 @@ const onlineClassSchema = new mongoose.Schema(
     },
     endTime: {
       type: String,
-      required: [true, 'End time is required (HH:mm)'],
-      match: [/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid end time format. Use 24-hour format HH:mm (e.g. 11:30)'],
+      default: '',
     },
     startDateTime: {
       type: Date,
@@ -232,6 +242,7 @@ onlineClassSchema.methods.formatForClient = function (isAuthorized = true) {
   obj.isUpcoming = obj.computedStatus === 'Upcoming' || obj.computedStatus === 'Rescheduled';
   obj.isCompleted = obj.computedStatus === 'Completed';
   obj.isCancelled = obj.computedStatus === 'Cancelled';
+  obj.publicationStatus = this.published ? 'Published' : 'Draft';
 
   // If completed and faculty disallowed past meeting links, mask link
   if (obj.isCompleted && !this.allowPastLinks) {
@@ -239,9 +250,10 @@ onlineClassSchema.methods.formatForClient = function (isAuthorized = true) {
     obj.linkMasked = true;
   }
 
-  // If unauthorized caller, don't expose private meeting links or passcodes
+  // If unauthorized caller, don't expose private meeting links, codes, or passcodes
   if (!isAuthorized) {
     delete obj.meetingUrl;
+    delete obj.meetingCode;
     delete obj.passcode;
   }
 
