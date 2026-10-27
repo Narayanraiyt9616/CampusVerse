@@ -579,6 +579,10 @@ export const onlineClassService = {
   addAnnouncement: async (id, data) => apiClient.post(`/online-classes/${id}/announcements`, data),
   delete: async (id) => apiClient.delete(`/online-classes/${id}`),
   triggerRemindersSweep: async () => apiClient.post('/online-classes/reminders/sweep'),
+  getSavedLinks: async () => apiClient.get('/online-classes/saved-links'),
+  saveLink: async (data) => apiClient.post('/online-classes/saved-links', data),
+  updateSavedLink: async (id, data) => apiClient.put(`/online-classes/saved-links/${id}`, data),
+  deleteSavedLink: async (id) => apiClient.delete(`/online-classes/saved-links/${id}`),
 };
 
 export default apiClient;

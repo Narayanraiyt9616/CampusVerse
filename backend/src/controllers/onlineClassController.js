@@ -1,4 +1,5 @@
 const OnlineClass = require('../models/OnlineClass');
+const SavedMeetingLink = require('../models/SavedMeetingLink');
 const Student = require('../models/Student');
 const Notification = require('../models/Notification');
 const {
@@ -662,3 +663,174 @@ exports.triggerRemindersSweep = async (req, res) => {
     return res.status(500).json({ success: false, error: err.message });
   }
 };
+
+/**
+ * Platform helper to detect platform name if not explicitly set
+ */
+const detectPlatformFromUrl = (urlStr, fallback = 'CampusVerse Live') => {
+  if (!urlStr) return fallback;
+  const lower = urlStr.toLowerCase();
+  if (lower.includes('meet.google.com')) return 'Google Meet';
+  if (lower.includes('zoom.us')) return 'Zoom';
+  if (lower.includes('teams.microsoft.com') || lower.includes('teams.live.com')) return 'Microsoft Teams';
+  return fallback;
+};
+
+/**
+ * GET /api/online-classes/saved-links
+ * Fetch all saved meeting links for current faculty
+ */
+exports.getSavedMeetingLinks = async (req, res) => {
+  try {
+    const facultyId = req.user._id || req.user.id;
+    const query = ['admin', 'superadmin', 'super_admin'].includes(req.user.role) && req.query.all === 'true'
+      ? {}
+      : { faculty: facultyId };
+
+    const savedLinks = await SavedMeetingLink.find(query).sort({ updatedAt: -1, createdAt: -1 });
+    return res.json({
+      success: true,
+      count: savedLinks.length,
+      savedLinks,
+    });
+  } catch (err) {
+    console.error('[OnlineClassController] getSavedMeetingLinks error:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+/**
+ * POST /api/online-classes/saved-links
+ * Save a new generated or custom meeting link permanently
+ */
+exports.createSavedMeetingLink = async (req, res) => {
+  try {
+    const { name, meetingUrl, meetingCode, platform, passcode, description } = req.body;
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({ success: false, error: 'Custom link name is required.' });
+    }
+    if (!meetingUrl || !meetingUrl.trim()) {
+      return res.status(400).json({ success: false, error: 'Meeting URL is required.' });
+    }
+
+    let normalizedUrl = meetingUrl.trim();
+    if (!/^https?:\/\//i.test(normalizedUrl)) {
+      normalizedUrl = `https://${normalizedUrl}`;
+    }
+
+    if (!isValidMeetingUrl(normalizedUrl)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide a valid secure meeting URL (must begin with https://).',
+      });
+    }
+
+    const detectedPlatform = platform && platform !== 'Custom Website' && platform !== 'Other'
+      ? platform
+      : detectPlatformFromUrl(normalizedUrl, platform || 'CampusVerse Live');
+
+    const facultyId = req.user._id || req.user.id;
+    const savedLink = await SavedMeetingLink.create({
+      faculty: facultyId,
+      facultyName: req.user.name || 'Faculty',
+      name: name.trim(),
+      meetingUrl: normalizedUrl,
+      meetingCode: (meetingCode || '').trim(),
+      platform: detectedPlatform,
+      passcode: (passcode || '').trim(),
+      description: (description || '').trim(),
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: 'Meeting link saved successfully.',
+      savedLink,
+    });
+  } catch (err) {
+    console.error('[OnlineClassController] createSavedMeetingLink error:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+/**
+ * PUT /api/online-classes/saved-links/:id
+ * Update an existing saved meeting link
+ */
+exports.updateSavedMeetingLink = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const savedLink = await SavedMeetingLink.findById(id);
+    if (!savedLink) {
+      return res.status(404).json({ success: false, error: 'Saved meeting link not found.' });
+    }
+
+    const userId = (req.user._id || req.user.id).toString();
+    const isOwner = savedLink.faculty.toString() === userId;
+    const isAdmin = ['admin', 'superadmin', 'super_admin'].includes(req.user.role);
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({ success: false, error: 'Not authorized to update this saved link.' });
+    }
+
+    const { name, meetingUrl, meetingCode, platform, passcode, description } = req.body;
+    if (name !== undefined) {
+      if (!name.trim()) return res.status(400).json({ success: false, error: 'Link name cannot be empty.' });
+      savedLink.name = name.trim();
+    }
+    if (meetingUrl !== undefined) {
+      let normalizedUrl = meetingUrl.trim();
+      if (!/^https?:\/\//i.test(normalizedUrl)) normalizedUrl = `https://${normalizedUrl}`;
+      if (!isValidMeetingUrl(normalizedUrl)) {
+        return res.status(400).json({ success: false, error: 'Invalid meeting URL.' });
+      }
+      savedLink.meetingUrl = normalizedUrl;
+    }
+    if (meetingCode !== undefined) savedLink.meetingCode = meetingCode.trim();
+    if (platform !== undefined) savedLink.platform = platform;
+    if (passcode !== undefined) savedLink.passcode = passcode.trim();
+    if (description !== undefined) savedLink.description = description.trim();
+
+    await savedLink.save();
+
+    return res.json({
+      success: true,
+      message: 'Saved meeting link updated successfully.',
+      savedLink,
+    });
+  } catch (err) {
+    console.error('[OnlineClassController] updateSavedMeetingLink error:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+/**
+ * DELETE /api/online-classes/saved-links/:id
+ * Delete a saved meeting link permanently
+ */
+exports.deleteSavedMeetingLink = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const savedLink = await SavedMeetingLink.findById(id);
+    if (!savedLink) {
+      return res.status(404).json({ success: false, error: 'Saved meeting link not found.' });
+    }
+
+    const userId = (req.user._id || req.user.id).toString();
+    const isOwner = savedLink.faculty.toString() === userId;
+    const isAdmin = ['admin', 'superadmin', 'super_admin'].includes(req.user.role);
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({ success: false, error: 'Not authorized to delete this saved link.' });
+    }
+
+    await SavedMeetingLink.findByIdAndDelete(id);
+
+    return res.json({
+      success: true,
+      message: 'Saved meeting link deleted permanently.',
+    });
+  } catch (err) {
+    console.error('[OnlineClassController] deleteSavedMeetingLink error:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+};
+

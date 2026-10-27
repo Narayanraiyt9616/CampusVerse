@@ -14,6 +14,28 @@ router.post(
   onlineClassController.triggerRemindersSweep
 );
 
+// Saved Meeting Links endpoints (must be before :id routes)
+router.get(
+  '/saved-links',
+  authorize('faculty', 'admin', 'superadmin', 'super_admin'),
+  onlineClassController.getSavedMeetingLinks
+);
+router.post(
+  '/saved-links',
+  authorize('faculty', 'admin', 'superadmin', 'super_admin'),
+  onlineClassController.createSavedMeetingLink
+);
+router.put(
+  '/saved-links/:id',
+  authorize('faculty', 'admin', 'superadmin', 'super_admin'),
+  onlineClassController.updateSavedMeetingLink
+);
+router.delete(
+  '/saved-links/:id',
+  authorize('faculty', 'admin', 'superadmin', 'super_admin'),
+  onlineClassController.deleteSavedMeetingLink
+);
+
 // List classes – scoped by role in controller
 router.get(
   '/',
