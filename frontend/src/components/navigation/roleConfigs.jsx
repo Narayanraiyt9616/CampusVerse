@@ -44,6 +44,7 @@ export const ROLE_CONFIGS = {
       { label: 'Assignments & Exams', to: '/student/assignments', icon: <ClipboardList className="w-4 h-4" /> },
       { label: 'Live Projects', to: '/student/projects', icon: <Code className="w-4 h-4" /> },
       { label: 'Admit Card', to: '/student/admit-card', icon: <FileCheck2 className="w-4 h-4" /> },
+      { label: 'Certificates & Resume', to: '/student/certificates', icon: <Award className="w-4 h-4" /> },
       { label: 'Fees', to: '/student/fees', icon: <IndianRupee className="w-4 h-4" /> },
       { label: 'Placement Drives', to: '/student/placement', icon: <Briefcase className="w-4 h-4" /> },
     ],

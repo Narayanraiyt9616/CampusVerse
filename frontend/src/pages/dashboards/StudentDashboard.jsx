@@ -15,6 +15,7 @@ import StudentAttendanceSection from './student/StudentAttendanceSection';
 import StudentProgressReportSection from './student/StudentProgressReportSection';
 import StudentAssignmentSection from './student/StudentAssignmentSection';
 import StudentLiveProjectSection from './student/StudentLiveProjectSection';
+import StudentCertificateSection from './student/StudentCertificateSection';
 import PageHeader from '../../components/common/PageHeader';
 import StatCard from '../../components/common/StatCard';
 import Card from '../../components/common/Card';
@@ -900,6 +901,7 @@ const OverviewSection = ({ profile, results, fees, notifications = [] }) => {
           { to: '/student/assignments', label: 'Assignments & Exams', icon: <ClipboardList className="w-5 h-5" />, desc: 'Active tasks, submissions & exam schedule', iconBg: 'bg-[#FAF5FF] text-[#7C3AED] border-[#DDD6FE]' },
           { to: '/student/projects', label: 'Live Projects', icon: <Code className="w-5 h-5" />, desc: 'Project portfolio submission & reviews', iconBg: 'bg-[#FFF8E6] text-[#D97706] border-[#FDE68A]' },
           { to: '/student/admit-card', label: 'Admit Card', icon: <FileCheck2 className="w-5 h-5" />, desc: 'Examination hall tickets & schedule', iconBg: 'bg-[#EFF6FF] text-[#2563EB] border-[#BFDBFE]' },
+          { to: '/student/certificates', label: 'Certificates & Resume', icon: <Award className="w-5 h-5" />, desc: 'Online tests, verified certificates & resume boost', iconBg: 'bg-[#FFF8E6] text-[#D97706] border-[#FDE68A]' },
           { to: '/student/fees', label: 'Fees & Invoices', icon: <IndianRupee className="w-5 h-5" />, desc: 'Semester invoices & payment receipts', iconBg: 'bg-[#ECFDF5] text-[#059669] border-[#A7F3D0]' },
           { to: '/student/placement', label: 'Placement Drives', icon: <Briefcase className="w-5 h-5" />, desc: 'Recruitment drives & resume application', iconBg: 'bg-[#FAF5FF] text-[#7C3AED] border-[#DDD6FE]' },
         ].map((item) => (
@@ -1009,6 +1011,8 @@ export const StudentDashboard = () => {
     projects: 'Live Project Portfolio',
     'live-projects': 'Live Project Portfolio',
     'admit-card': 'Admit Card & Hall Ticket',
+    certificates: 'Certificates & Resume Enhancement',
+    'certificate-enhancement': 'Certificates & Resume Enhancement',
     fees: 'Fees & Invoices',
     placement: 'Placement Drives & Recruitment',
   };
@@ -1091,6 +1095,9 @@ export const StudentDashboard = () => {
           )}
           {currentSection === 'admit-card' && (
             <StudentAdmitCardSection profile={profile} />
+          )}
+          {(currentSection === 'certificates' || currentSection === 'certificate-enhancement') && (
+            <StudentCertificateSection profile={profile} />
           )}
           {currentSection === 'placement' && (
             <StudentPlacementSection profile={profile} />

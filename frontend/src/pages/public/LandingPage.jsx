@@ -24,14 +24,19 @@ import {
   Zap,
   Layers,
   Landmark,
-  UserCheck
+  UserCheck,
+  Video,
+  ExternalLink,
+  FileCheck
 } from 'lucide-react';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
 import Card from '../../components/common/Card';
 import campusHeroBg from '../../assets/campus_hero_bg.jpg';
+import { VERSEMEET_URL, getCertificationPlatformUrl } from '../../utils/certificationConfig';
 
 export const LandingPage = () => {
+  const certDemoUrl = getCertificationPlatformUrl();
   const campusServices = [
     {
       icon: <GraduationCap className="w-5 h-5 text-[#D99A00]" />,
@@ -839,6 +844,177 @@ export const LandingPage = () => {
         </div>
       </section>
 
+      {/* Featured Innovations: Online Meeting & Certification Platform */}
+      <section id="innovations" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-24">
+        {/* Section Header */}
+        <div className="text-center max-w-3xl mx-auto space-y-3 mb-10">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FFFBEB] border border-[#FDE68A] text-xs font-bold text-[#B45309] shadow-2xs">
+            <Sparkles className="w-4 h-4 text-[#D97706]" />
+            <span>Interactive Campus Tools &amp; Career Acceleration</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#0F172A] tracking-tight">
+            Connect Live &amp; <span className="text-[#D97706]">Elevate Your Career</span>
+          </h2>
+          <p className="text-sm sm:text-base text-[#64748B] font-normal leading-relaxed">
+            Collaborate in real-time through seamless virtual meeting rooms, and unlock industry-recognized credentials with online skill assessments.
+          </p>
+        </div>
+
+        {/* 2 Modern, Visually Distinct Feature Cards */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+          
+          {/* Card 1: Online Meeting */}
+          <div className="relative flex flex-col justify-between bg-gradient-to-br from-[#FFFDF7] via-white to-[#F0F7FF] rounded-3xl border border-[#BFDBFE] p-6 sm:p-8 shadow-[0_4px_24px_rgba(37,99,235,0.06)] hover:shadow-[0_20px_40px_rgba(37,99,235,0.12)] transition-all duration-300 hover:-translate-y-1 group overflow-hidden">
+            {/* Ambient decorative tint */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-blue-100/50 via-sky-50/20 to-transparent rounded-full blur-2xl pointer-events-none" />
+
+            <div className="relative z-10 space-y-5">
+              {/* Top Row: Pill Badge + Status */}
+              <div className="flex items-center justify-between">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-xs font-bold text-blue-700 shadow-2xs">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Virtual Collaboration</span>
+                </div>
+                <span className="text-[11px] font-mono font-bold text-blue-600 bg-blue-50/80 px-2.5 py-0.5 rounded-full border border-blue-100">
+                  VerseMeet Live
+                </span>
+              </div>
+
+              {/* Icon & Title */}
+              <div className="flex items-start gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform shrink-0">
+                  <Video className="w-7 h-7 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-[#0F172A] text-xl sm:text-2xl tracking-tight">
+                    Online Meeting
+                  </h3>
+                  <p className="text-xs text-[#64748B] font-medium mt-0.5">
+                    Fast, secure HD video conferencing for classes and discussions
+                  </p>
+                </div>
+              </div>
+
+              {/* Short Description */}
+              <p className="text-sm text-[#475569] leading-relaxed font-normal">
+                Connect instantly with faculty, peers, and project teams. Jump directly into virtual classrooms and collaborative meeting spaces with zero configuration or complex downloads.
+              </p>
+
+              {/* Feature Highlights Pills */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+                <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/90 border border-blue-100/80 text-xs font-semibold text-[#1E293B]">
+                  <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
+                  <span>HD Video &amp; Audio</span>
+                </div>
+                <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/90 border border-blue-100/80 text-xs font-semibold text-[#1E293B]">
+                  <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
+                  <span>Screen Sharing</span>
+                </div>
+                <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/90 border border-blue-100/80 text-xs font-semibold text-[#1E293B]">
+                  <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
+                  <span>No Install Needed</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Actions */}
+            <div className="relative z-10 pt-6 mt-6 border-t border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <a
+                href={VERSEMEET_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                id="frontpage-open-meeting-btn"
+                aria-label="Open Meeting on VerseMeet directly"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs sm:text-sm font-bold shadow-md shadow-blue-600/25 hover:shadow-lg hover:shadow-blue-600/35 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+              >
+                <Video className="w-4 h-4 text-white" />
+                <span>Open Meeting</span>
+                <ExternalLink className="w-3.5 h-3.5 text-white/90" />
+              </a>
+
+              <span className="text-[11px] text-[#64748B] font-mono text-center sm:text-right">
+                Opens versemeet-1.onrender.com ↗
+              </span>
+            </div>
+          </div>
+
+          {/* Card 2: Online Certification & Resume Enhancement */}
+          <div className="relative flex flex-col justify-between bg-gradient-to-br from-[#FFFDF7] via-white to-[#FEF9EE] rounded-3xl border border-[#FDE68A] p-6 sm:p-8 shadow-[0_4px_24px_rgba(217,119,6,0.06)] hover:shadow-[0_20px_40px_rgba(217,119,6,0.12)] transition-all duration-300 hover:-translate-y-1 group overflow-hidden">
+            {/* Ambient decorative tint */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-amber-100/50 via-yellow-50/20 to-transparent rounded-full blur-2xl pointer-events-none" />
+
+            <div className="relative z-10 space-y-5">
+              {/* Top Row: Pill Badge + Status */}
+              <div className="flex items-center justify-between">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FFFBEB] border border-[#FDE68A] text-xs font-bold text-[#B45309] shadow-2xs">
+                  <Award className="w-3.5 h-3.5 text-[#D97706]" />
+                  <span>Accreditation &amp; Careers</span>
+                </div>
+                <span className="text-[11px] font-mono font-bold text-[#B45309] bg-[#FFF8E6] px-2.5 py-0.5 rounded-full border border-[#FDE68A]">
+                  Verified Certificates
+                </span>
+              </div>
+
+              {/* Icon & Title */}
+              <div className="flex items-start gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#F59E0B] to-[#D97706] flex items-center justify-center text-white shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform shrink-0">
+                  <Award className="w-7 h-7 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-[#0F172A] text-xl sm:text-2xl tracking-tight">
+                    Online Certification &amp; Resume Enhancement
+                  </h3>
+                  <p className="text-xs text-[#64748B] font-medium mt-0.5">
+                    Online tests, downloadable certificates &amp; verified resume credentials
+                  </p>
+                </div>
+              </div>
+
+              {/* Description explaining tests, certificates, resumes */}
+              <p className="text-sm text-[#475569] leading-relaxed font-normal">
+                Take online skill-based tests, earn verifiable downloadable certificates, and enhance your resume to showcase verified proof of competence to campus placement recruiters and industry leaders.
+              </p>
+
+              {/* Feature Highlights Pills */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+                <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/90 border border-amber-100/80 text-xs font-semibold text-[#1E293B]">
+                  <CheckCircle2 className="w-4 h-4 text-[#D97706] shrink-0" />
+                  <span>Online Tests</span>
+                </div>
+                <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/90 border border-amber-100/80 text-xs font-semibold text-[#1E293B]">
+                  <CheckCircle2 className="w-4 h-4 text-[#D97706] shrink-0" />
+                  <span>PDF Certificates</span>
+                </div>
+                <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/90 border border-amber-100/80 text-xs font-semibold text-[#1E293B]">
+                  <CheckCircle2 className="w-4 h-4 text-[#D97706] shrink-0" />
+                  <span>Resume Boost</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Actions */}
+            <div className="relative z-10 pt-6 mt-6 border-t border-[#F1E7CF] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <a
+                href={certDemoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                id="frontpage-cert-try-demo-btn"
+                aria-label="Try Demo for Online Certification & Resume Enhancement"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-[#F59E0B] to-[#D97706] hover:from-[#D97706] hover:to-[#B45309] text-white text-xs sm:text-sm font-bold shadow-md shadow-amber-600/25 hover:shadow-lg hover:shadow-amber-600/35 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+              >
+                <Sparkles className="w-4 h-4 text-white" />
+                <span>Try Demo</span>
+                <ExternalLink className="w-3.5 h-3.5 text-white/90" />
+              </a>
+
+              <span className="text-[11px] text-[#64748B] font-mono text-center sm:text-right">
+                Configurable Live / Demo URL ↗
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </section>
 
       {/* Feature Cards: Major Campus Services */}
       <section id="features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-24">

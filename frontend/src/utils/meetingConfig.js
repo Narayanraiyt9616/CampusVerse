@@ -5,7 +5,8 @@
  */
 
 const STORAGE_KEY = 'campusverse_external_meeting_platform_url';
-export const DEFAULT_FALLBACK_URL = 'https://meet.google.com/new';
+export const VERSEMEET_URL = 'https://versemeet-1.onrender.com/';
+export const DEFAULT_FALLBACK_URL = VERSEMEET_URL;
 
 /**
  * Returns the currently configured external meeting platform URL.
