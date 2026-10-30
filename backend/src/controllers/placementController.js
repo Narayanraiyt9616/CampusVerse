@@ -46,15 +46,16 @@ exports.formatDriveWithDeadline = formatDriveWithDeadline;
 exports.getPlacementDashboard = async (req, res) => {
   try {
     const [companies, drives, profiles, applications, notices, students] = await Promise.all([
-      Company.find().sort({ name: 1 }),
-      PlacementDrive.find().populate('company', 'name industry tier location').sort({ driveDate: 1 }),
-      PlacementProfile.find().populate('student', 'name studentId email department semester'),
+      Company.find().sort({ name: 1 }).lean(),
+      PlacementDrive.find().populate('company', 'name industry tier location').sort({ driveDate: 1 }).lean(),
+      PlacementProfile.find().populate('student', 'name studentId email department semester').lean(),
       PlacementApplication.find()
         .populate('student', 'name studentId email department')
         .populate('drive', 'jobTitle companyName salaryPackage driveDate')
-        .sort({ appliedAt: -1 }),
-      PlacementNotice.find().sort({ pinned: -1, publishedAt: -1 }).limit(5),
-      Student.find().populate('department', 'name code'),
+        .sort({ appliedAt: -1 })
+        .lean(),
+      PlacementNotice.find().sort({ pinned: -1, publishedAt: -1 }).limit(5).lean(),
+      Student.find().populate('department', 'name code').lean(),
     ]);
 
     const totalRegistered = profiles.filter((p) => p.isRegistered).length;

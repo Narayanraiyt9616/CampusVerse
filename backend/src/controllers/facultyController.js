@@ -59,7 +59,7 @@ exports.getAssignedStudents = async (req, res) => {
     const { semester } = req.query;
     const query = {};
     if (semester) query.semester = parseInt(semester);
-    const students = await Student.find(query).populate('department', 'name shortName');
+    const students = await Student.find(query).populate('department', 'name shortName').lean();
     res.json({ success: true, students });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -88,7 +88,8 @@ exports.getAttendanceRecords = async (req, res) => {
 
     const records = await Attendance.find(query)
       .populate('records.student', 'studentId name email semester')
-      .sort({ date: -1 });
+      .sort({ date: -1 })
+      .lean();
     res.json({ success: true, records });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -170,11 +171,13 @@ exports.getMyAssignments = async (req, res) => {
   try {
     const assignments = await Assignment.find({ faculty: req.user._id })
       .populate('course', 'name code title courseCode')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     const assignmentIds = assignments.map((a) => a._id);
     const submissions = await AssignmentSubmission.find({ assignment: { $in: assignmentIds } })
-      .select('assignment status marksObtained');
+      .select('assignment status marksObtained')
+      .lean();
 
     const statsMap = {};
     submissions.forEach((s) => {
@@ -188,7 +191,7 @@ exports.getMyAssignments = async (req, res) => {
     });
 
     const enriched = assignments.map((a) => {
-      const obj = a.toJSON();
+      const obj = a.toJSON ? a.toJSON() : a;
       const stat = statsMap[a._id.toString()] || { totalSubmissions: 0, evaluatedCount: 0 };
       return {
         ...obj,
@@ -361,7 +364,7 @@ exports.giveFeedback = async (req, res) => {
 // Exams
 exports.getMyExams = async (req, res) => {
   try {
-    const exams = await Exam.find({ faculty: req.user._id }).sort({ examDate: 1 });
+    const exams = await Exam.find({ faculty: req.user._id }).sort({ examDate: 1 }).lean();
     res.json({ success: true, exams });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -398,7 +401,8 @@ exports.getMyResults = async (req, res) => {
     const results = await Result.find({ faculty: req.user._id })
       .populate('student', 'studentId name email semester')
       .populate('course', 'name code')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
     res.json({ success: true, results });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -451,7 +455,8 @@ exports.getMyTimetable = async (req, res) => {
     const timetable = await Timetable.find({ faculty: req.user._id })
       .populate('department', 'name shortName')
       .populate('course', 'name code')
-      .sort({ dayOfWeek: 1, startTime: 1 });
+      .sort({ dayOfWeek: 1, startTime: 1 })
+      .lean();
     res.json({ success: true, timetable });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -475,7 +480,7 @@ exports.applyLeave = async (req, res) => {
 
 exports.getMyLeaves = async (req, res) => {
   try {
-    const leaves = await LeaveApplication.find({ faculty: req.user._id }).sort({ createdAt: -1 });
+    const leaves = await LeaveApplication.find({ faculty: req.user._id }).sort({ createdAt: -1 }).lean();
     res.json({ success: true, leaves });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -507,7 +512,8 @@ exports.getNotices = async (req, res) => {
     const notices = await Notice.find(query)
       .populate('author', 'name email')
       .sort({ pinned: -1, publishedAt: -1 })
-      .limit(50);
+      .limit(50)
+      .lean();
     res.json({ success: true, notices });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });

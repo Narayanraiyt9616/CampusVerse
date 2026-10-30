@@ -174,6 +174,8 @@ notificationSchema.pre('validate', function (next) {
 notificationSchema.index({ recipient: 1, drive: 1 });
 notificationSchema.index({ recipient: 1, createdAt: -1 });
 notificationSchema.index({ recipientUser: 1, createdAt: -1 });
+notificationSchema.index({ recipientUser: 1, read: 1, createdAt: -1 });
+notificationSchema.index({ user: 1, createdAt: -1 });
 
 // MongoDB TTL Indexes for reliable server-side 48-hour auto-deletion
 notificationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });

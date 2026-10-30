@@ -32,6 +32,11 @@ const connectDB = async () => {
   try {
     const conn = await mongoose.connect(uri.trim(), {
       serverSelectionTimeoutMS: 15000, // Allow 15s for Atlas initial handshake
+      maxPoolSize: 20,                 // Optimal pool size for Render container concurrency
+      minPoolSize: 2,                  // Warm pool to eliminate cold request latency
+      socketTimeoutMS: 45000,          // Prevent stalled socket queries from blocking threads
+      connectTimeoutMS: 15000,
+      family: 4,                       // Force IPv4 DNS lookup to prevent IPv6 timeout delays
     });
 
     console.log(`[Database] MongoDB connected successfully to database "${conn.connection.name}"`);

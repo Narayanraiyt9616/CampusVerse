@@ -117,5 +117,7 @@ const admitCardSchema = new mongoose.Schema(
 
 admitCardSchema.index({ student: 1, examSession: 1 });
 admitCardSchema.index({ studentId: 1, semester: 1 });
+admitCardSchema.index({ status: 1, createdAt: -1 });
+admitCardSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model('AdmitCard', admitCardSchema);

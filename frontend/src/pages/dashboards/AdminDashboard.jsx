@@ -32,20 +32,20 @@ import AlertBanner from '../../components/common/AlertBanner';
 import { useAuth } from '../../context/AuthContext';
 import { adminService } from '../../services/api';
 
-// Sub-components for all 10 Admin Portal modules
-import AdminOverview from './admin/AdminOverview';
-import AdminCredentials from './admin/AdminCredentials';
-import AdminStudents from './admin/AdminStudents';
-import AdminFaculty from './admin/AdminFaculty';
-import AdminAcademics from './admin/AdminAcademics';
-import AdminAttendance from './admin/AdminAttendance';
-import AdminExaminations from './admin/AdminExaminations';
-import AdminFees from './admin/AdminFees';
-import AdminSchedule from './admin/AdminSchedule';
-import AdminApprovals from './admin/AdminApprovals';
-import AdminReports from './admin/AdminReports';
-import AdminSettings from './admin/AdminSettings';
-import AdminAdmitCards from './admin/AdminAdmitCards';
+// Sub-components for Admin Portal modules (code-split for fast overview & module loading)
+const AdminOverview = React.lazy(() => import('./admin/AdminOverview'));
+const AdminCredentials = React.lazy(() => import('./admin/AdminCredentials'));
+const AdminStudents = React.lazy(() => import('./admin/AdminStudents'));
+const AdminFaculty = React.lazy(() => import('./admin/AdminFaculty'));
+const AdminAcademics = React.lazy(() => import('./admin/AdminAcademics'));
+const AdminAttendance = React.lazy(() => import('./admin/AdminAttendance'));
+const AdminExaminations = React.lazy(() => import('./admin/AdminExaminations'));
+const AdminFees = React.lazy(() => import('./admin/AdminFees'));
+const AdminSchedule = React.lazy(() => import('./admin/AdminSchedule'));
+const AdminApprovals = React.lazy(() => import('./admin/AdminApprovals'));
+const AdminReports = React.lazy(() => import('./admin/AdminReports'));
+const AdminSettings = React.lazy(() => import('./admin/AdminSettings'));
+const AdminAdmitCards = React.lazy(() => import('./admin/AdminAdmitCards'));
 
 const SECTIONS_NAV = [
   { id: '', label: 'Executive Overview', icon: LayoutDashboard },
@@ -257,19 +257,21 @@ export const AdminDashboard = () => {
 
       {/* Dynamic Section View Rendering */}
       <div>
-        {!currentSection && <AdminOverview onOpenCreateCreds={() => setIsCreateModalOpen(true)} />}
-        {currentSection === 'credentials' && <AdminCredentials />}
-        {currentSection === 'students' && <AdminStudents />}
-        {currentSection === 'faculty' && <AdminFaculty />}
-        {(currentSection === 'academics' || currentSection === 'departments') && <AdminAcademics />}
-        {currentSection === 'attendance' && <AdminAttendance />}
-        {currentSection === 'examinations' && <AdminExaminations />}
-        {currentSection === 'admit-cards' && <AdminAdmitCards createTrigger={admitCardModalTrigger} />}
-        {currentSection === 'fees' && <AdminFees />}
-        {currentSection === 'schedule' && <AdminSchedule />}
-        {(currentSection === 'approvals' || currentSection === 'complaints') && <AdminApprovals />}
-        {currentSection === 'reports' && <AdminReports />}
-        {currentSection === 'settings' && <AdminSettings />}
+        <React.Suspense fallback={<div className="h-44 rounded-2xl bg-[#FFF8E6]/30 animate-pulse border border-[#F1E7CF]" />}>
+          {!currentSection && <AdminOverview onOpenCreateCreds={() => setIsCreateModalOpen(true)} />}
+          {currentSection === 'credentials' && <AdminCredentials />}
+          {currentSection === 'students' && <AdminStudents />}
+          {currentSection === 'faculty' && <AdminFaculty />}
+          {(currentSection === 'academics' || currentSection === 'departments') && <AdminAcademics />}
+          {currentSection === 'attendance' && <AdminAttendance />}
+          {currentSection === 'examinations' && <AdminExaminations />}
+          {currentSection === 'admit-cards' && <AdminAdmitCards createTrigger={admitCardModalTrigger} />}
+          {currentSection === 'fees' && <AdminFees />}
+          {currentSection === 'schedule' && <AdminSchedule />}
+          {(currentSection === 'approvals' || currentSection === 'complaints') && <AdminApprovals />}
+          {currentSection === 'reports' && <AdminReports />}
+          {currentSection === 'settings' && <AdminSettings />}
+        </React.Suspense>
       </div>
 
       {/* Global Quick Create Credentials Modal */}

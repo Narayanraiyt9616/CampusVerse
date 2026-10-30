@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../components/navigation/Sidebar';
 import Topbar from '../components/navigation/Topbar';
@@ -10,13 +10,17 @@ export const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
+  const handleCloseSidebar = useCallback(() => setSidebarOpen(false), []);
+  const handleToggleSidebar = useCallback(() => setSidebarOpen((prev) => !prev), []);
+
   // Auto-close mobile sidebar whenever route changes
   useEffect(() => {
     setSidebarOpen(false);
   }, [location.pathname]);
 
   // Determine active role from pathname
-  const getRoleFromPath = (path) => {
+  const currentRole = useMemo(() => {
+    const path = location.pathname;
     if (path.startsWith('/faculty')) return 'faculty';
     if (path.startsWith('/admin')) return 'admin';
     if (path.startsWith('/parent')) return 'parent';
@@ -24,9 +28,7 @@ export const DashboardLayout = () => {
     if (path.startsWith('/hostel')) return 'hostel';
     if (path.startsWith('/staff')) return 'staff';
     return 'student';
-  };
-
-  const currentRole = getRoleFromPath(location.pathname);
+  }, [location.pathname]);
 
   return (
     <div className="min-h-screen bg-[#FFFEFA] text-[#4B5563] flex relative">
@@ -41,7 +43,7 @@ export const DashboardLayout = () => {
       <Sidebar
         role={currentRole}
         isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
+        onClose={handleCloseSidebar}
       />
 
       {/* Main Content Area */}
@@ -49,7 +51,7 @@ export const DashboardLayout = () => {
         {/* Top Header */}
         <Topbar
           role={currentRole}
-          onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
+          onMenuToggle={handleToggleSidebar}
         />
 
         {/* Dynamic Route Content */}

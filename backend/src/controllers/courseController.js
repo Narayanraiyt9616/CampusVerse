@@ -58,7 +58,8 @@ const getCourses = async (req, res, next) => {
         .populate('department', 'name code')
         .sort({ courseCode: 1 })
         .skip(skip)
-        .limit(limit),
+        .limit(limit)
+        .lean(),
       Course.countDocuments(query),
     ]);
 

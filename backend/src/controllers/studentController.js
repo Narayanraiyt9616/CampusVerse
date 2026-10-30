@@ -83,7 +83,8 @@ const getStudents = async (req, res, next) => {
         .populate('department', 'name code')
         .sort({ studentId: 1 })
         .skip(skip)
-        .limit(limit),
+        .limit(limit)
+        .lean(),
       Student.countDocuments(query),
     ]);
 
@@ -286,7 +287,9 @@ const deleteStudent = async (req, res, next) => {
 const getMyProfile = async (req, res, next) => {
   try {
     if (!checkDBReady(res)) return;
-    const student = await Student.findOne({ email: req.user.email }).populate('department', 'name code description');
+    const student = await Student.findOne({ email: req.user.email })
+      .populate('department', 'name code description')
+      .lean();
     if (!student) {
       return res.status(404).json({
         success: false,
@@ -391,7 +394,8 @@ const getMyNotifications = async (req, res, next) => {
     const notifications = await Notification.find(filter)
       .populate('drive')
       .sort({ createdAt: -1 })
-      .limit(50);
+      .limit(50)
+      .lean();
 
     const unreadCount = await Notification.countDocuments({
       ...filter,
@@ -551,7 +555,8 @@ const getStudentExams = async (req, res, next) => {
 
     const exams = await Exam.find(filter)
       .populate('faculty', 'name email')
-      .sort({ examDate: 1, startTime: 1 });
+      .sort({ examDate: 1, startTime: 1 })
+      .lean();
 
     return res.status(200).json({
       success: true,
@@ -576,7 +581,10 @@ const getAttendanceReport = async (req, res, next) => {
 
     const attendanceRecords = await Attendance.find({
       'records.student': student._id,
-    }).populate('faculty', 'name email').sort({ date: 1 });
+    })
+      .populate('faculty', 'name email')
+      .sort({ date: 1 })
+      .lean();
 
     const subjectMap = {};
 
@@ -682,9 +690,9 @@ const getAcademicProgressReport = async (req, res, next) => {
     }
 
     const [assignments, submissions, results] = await Promise.all([
-      Assignment.find({ published: true }).populate('course', 'courseCode title'),
-      AssignmentSubmission.find({ student: student._id }).populate('assignment'),
-      Result.find({ student: student._id }).populate('course', 'courseCode title').populate('faculty', 'name'),
+      Assignment.find({ published: true }).populate('course', 'courseCode title').lean(),
+      AssignmentSubmission.find({ student: student._id }).populate('assignment').lean(),
+      Result.find({ student: student._id }).populate('course', 'courseCode title').populate('faculty', 'name').lean(),
     ]);
 
     const subMap = new Map();

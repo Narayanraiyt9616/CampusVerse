@@ -22,4 +22,9 @@ const examSchema = new mongoose.Schema(
   { timestamps: true, toJSON: { virtuals: true, versionKey: false } }
 );
 
+// Performance indexes for semester exam schedules and faculty listings
+examSchema.index({ faculty: 1, examDate: 1 });
+examSchema.index({ semester: 1, examDate: 1 });
+examSchema.index({ examDate: 1 });
+
 module.exports = mongoose.model('Exam', examSchema);

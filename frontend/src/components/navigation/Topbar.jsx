@@ -123,11 +123,12 @@ export const Topbar = ({
     }
   };
 
+  const userId = user?._id || user?.id || user?.email;
   useEffect(() => {
     fetchLiveNotifications();
-    const interval = setInterval(fetchLiveNotifications, 20000);
+    const interval = setInterval(fetchLiveNotifications, 30000);
     return () => clearInterval(interval);
-  }, [role, user]);
+  }, [role, userId]);
 
   const handleMarkAllRead = async () => {
     try {
@@ -902,4 +903,4 @@ export const Topbar = ({
   );
 };
 
-export default Topbar;
+export default React.memo(Topbar);

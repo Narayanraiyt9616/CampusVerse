@@ -102,4 +102,8 @@ const placementApplicationSchema = new mongoose.Schema(
 // Compound index so a student cannot apply twice to the same drive
 placementApplicationSchema.index({ student: 1, drive: 1 }, { unique: true });
 
+// Performance indexes for drive applicant review and student placement history
+placementApplicationSchema.index({ drive: 1, status: 1 });
+placementApplicationSchema.index({ student: 1, createdAt: -1 });
+
 module.exports = mongoose.model('PlacementApplication', placementApplicationSchema);

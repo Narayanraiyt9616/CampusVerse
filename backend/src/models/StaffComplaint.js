@@ -97,4 +97,9 @@ const staffComplaintSchema = new mongoose.Schema(
   }
 );
 
+// Performance indexes for hostel/transport complaints queue
+staffComplaintSchema.index({ type: 1, status: 1 });
+staffComplaintSchema.index({ student: 1, createdAt: -1 });
+staffComplaintSchema.index({ createdAt: -1 });
+
 module.exports = mongoose.model('StaffComplaint', staffComplaintSchema);

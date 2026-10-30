@@ -70,10 +70,12 @@ exports.getAdmitCards = async (req, res) => {
 
     const [admitCards, total] = await Promise.all([
       AdmitCard.find(query)
+        .select('-file.dataBase64')
         .populate('department', 'name code')
         .sort({ createdAt: -1 })
         .skip(skip)
-        .limit(limitNum),
+        .limit(limitNum)
+        .lean(),
       AdmitCard.countDocuments(query),
     ]);
 
@@ -123,7 +125,7 @@ exports.getMyAdmitCards = async (req, res) => {
       });
     }
 
-    // Strictly fetch admit cards belonging ONLY to this student
+    // Strictly fetch admit cards belonging ONLY to this student (exclude heavy inline base64 for fast listing)
     const admitCards = await AdmitCard.find({
       $or: [
         { student: student._id },
@@ -131,8 +133,10 @@ exports.getMyAdmitCards = async (req, res) => {
       ],
       status: { $in: ['Issued', 'Reissued'] },
     })
+      .select('-file.dataBase64')
       .populate('department', 'name code')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     return res.json({
       success: true,

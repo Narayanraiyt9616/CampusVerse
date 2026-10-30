@@ -687,7 +687,7 @@ exports.getSavedMeetingLinks = async (req, res) => {
       ? {}
       : { faculty: facultyId };
 
-    const savedLinks = await SavedMeetingLink.find(query).sort({ updatedAt: -1, createdAt: -1 });
+    const savedLinks = await SavedMeetingLink.find(query).sort({ updatedAt: -1, createdAt: -1 }).lean();
     return res.json({
       success: true,
       count: savedLinks.length,

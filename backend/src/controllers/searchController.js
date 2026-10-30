@@ -58,6 +58,7 @@ exports.globalSearch = async (req, res) => {
       const admitCardsPromise = AdmitCard.find({
         $or: [{ studentId: regex }, { studentName: regex }, { examTitle: regex }, { examSession: regex }],
       })
+        .select('-file.dataBase64')
         .limit(6)
         .lean();
 

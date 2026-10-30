@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const compression = require('compression');
 const path = require('path');
 
 // Auth routes and middleware
@@ -50,6 +51,9 @@ const createApp = () => {
       credentials: true,
     })
   );
+
+  // HTTP response compression for fast API transfers over Render/CDN
+  app.use(compression({ threshold: 1024 }));
 
   // Parse cookies and request bodies
   app.use(cookieParser());

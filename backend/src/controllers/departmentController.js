@@ -45,7 +45,7 @@ const getDepartments = async (req, res, next) => {
     }
 
     const [departments, total] = await Promise.all([
-      Department.find(query).sort({ name: 1 }).skip(skip).limit(limit),
+      Department.find(query).sort({ name: 1 }).skip(skip).limit(limit).lean(),
       Department.countDocuments(query),
     ]);
 

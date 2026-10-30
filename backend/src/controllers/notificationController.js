@@ -78,7 +78,8 @@ const getNotifications = async (req, res) => {
         .populate('drive')
         .sort({ createdAt: -1 })
         .skip(skip)
-        .limit(limit),
+        .limit(limit)
+        .lean(),
       Notification.countDocuments({
         $and: [userQuery, notExpiredFilter, { read: false }],
       }),

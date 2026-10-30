@@ -22,4 +22,8 @@ const noticeSchema = new mongoose.Schema(
   { timestamps: true, toJSON: { virtuals: true, versionKey: false } }
 );
 
+// Performance indexes for announcement feeds and audience targeted broadcasts
+noticeSchema.index({ targetAudience: 1, pinned: -1, publishedAt: -1 });
+noticeSchema.index({ pinned: -1, publishedAt: -1 });
+
 module.exports = mongoose.model('Notice', noticeSchema);

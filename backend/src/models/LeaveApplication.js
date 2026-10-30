@@ -23,4 +23,8 @@ const leaveApplicationSchema = new mongoose.Schema(
   { timestamps: true, toJSON: { virtuals: true, versionKey: false } }
 );
 
+// Performance indexes for faculty leave history and admin approval queue
+leaveApplicationSchema.index({ faculty: 1, createdAt: -1 });
+leaveApplicationSchema.index({ status: 1, createdAt: -1 });
+
 module.exports = mongoose.model('LeaveApplication', leaveApplicationSchema);

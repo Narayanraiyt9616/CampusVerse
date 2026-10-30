@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { authService } from '../services/api';
 
 const AuthContext = createContext(null);
@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }) => {
    * @param {string} password
    * @param {string} portalRole
    */
-  const login = async (identifier, password, portalRole) => {
+  const login = useCallback(async (identifier, password, portalRole) => {
     const cleanId = String(identifier || '').trim();
     const res = await authService.login({
       identifier: cleanId,
@@ -93,12 +93,12 @@ export const AuthProvider = ({ children }) => {
     } else {
       throw new Error(res?.error || 'Authentication failed.');
     }
-  };
+  }, []);
 
   /**
    * Sign out and clear stored sessions
    */
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       await authService.logout();
     } catch (e) {
@@ -111,17 +111,20 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('token');
       } catch (e) {}
     }
-  };
+  }, []);
 
-  const value = {
-    user,
-    token,
-    isAuthenticated: Boolean(user),
-    loading,
-    login,
-    logout,
-    checkSession,
-  };
+  const value = useMemo(
+    () => ({
+      user,
+      token,
+      isAuthenticated: Boolean(user),
+      loading,
+      login,
+      logout,
+      checkSession,
+    }),
+    [user, token, loading, login, logout, checkSession]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

@@ -90,6 +90,12 @@ const userSchema = new mongoose.Schema(
   }
 );
 
+// Performance Indexes for fast auth lookups, role counting, and admin user filtering
+userSchema.index({ role: 1, status: 1 });
+userSchema.index({ status: 1 });
+userSchema.index({ createdAt: -1 });
+userSchema.index({ department: 1 });
+
 // Instance method to compare password
 userSchema.methods.comparePassword = function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.passwordHash);

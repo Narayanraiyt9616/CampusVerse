@@ -9,7 +9,7 @@ import {
   FileCheck, AlertTriangle, Info, BookMarked, TrendingUp, Activity,
   HelpCircle, UploadCloud, CheckSquare, ArrowUp, ArrowDown, FileUp, Sparkles, Video
 } from 'lucide-react';
-import FacultyOnlineClassesSection from './faculty/FacultyOnlineClassesSection';
+const FacultyOnlineClassesSection = React.lazy(() => import('./faculty/FacultyOnlineClassesSection'));
 
 import PageHeader from '../../components/common/PageHeader';
 import StatCard from '../../components/common/StatCard';
@@ -2104,7 +2104,11 @@ export const FacultyDashboard = () => {
       {currentSection === 'profile' && renderProfile()}
       {currentSection === 'students' && renderStudents()}
       {currentSection === 'attendance' && renderAttendance()}
-      {currentSection === 'online-classes' && <FacultyOnlineClassesSection showToast={showToast} />}
+      {currentSection === 'online-classes' && (
+        <React.Suspense fallback={<div className="h-40 rounded-2xl bg-[#FFF8E6]/30 animate-pulse border border-[#F1E7CF]" />}>
+          <FacultyOnlineClassesSection showToast={showToast} />
+        </React.Suspense>
+      )}
       {currentSection === 'assignments' && renderAssignments()}
       {currentSection === 'results' && renderResults()}
       {currentSection === 'timetable' && renderTimetable()}

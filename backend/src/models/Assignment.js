@@ -62,5 +62,11 @@ const assignmentSchema = new mongoose.Schema(
   { timestamps: true, toJSON: { virtuals: true, versionKey: false } }
 );
 
+// Performance indexes for student feed, faculty assignment management, and due-date tracking
+assignmentSchema.index({ faculty: 1, createdAt: -1 });
+assignmentSchema.index({ targetSemester: 1, targetSection: 1, published: 1, dueDate: 1 });
+assignmentSchema.index({ course: 1, dueDate: 1 });
+assignmentSchema.index({ dueDate: 1 });
+
 module.exports = mongoose.model('Assignment', assignmentSchema);
 

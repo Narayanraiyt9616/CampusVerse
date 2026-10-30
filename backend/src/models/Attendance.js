@@ -23,4 +23,10 @@ const attendanceSchema = new mongoose.Schema(
 // Prevent duplicate attendance for the same class, subject, and date
 attendanceSchema.index({ faculty: 1, className: 1, subject: 1, date: 1 }, { unique: true });
 
+// Performance indexes for student/parent attendance reports, faculty sessions, and admin shortage queries
+attendanceSchema.index({ 'records.student': 1 });
+attendanceSchema.index({ faculty: 1, date: -1 });
+attendanceSchema.index({ semester: 1, subject: 1 });
+attendanceSchema.index({ date: -1 });
+
 module.exports = mongoose.model('Attendance', attendanceSchema);

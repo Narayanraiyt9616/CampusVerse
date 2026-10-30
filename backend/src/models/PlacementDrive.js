@@ -127,4 +127,8 @@ placementDriveSchema.virtual('deadlineStatus').get(function () {
   return 'Open';
 });
 
+// Performance indexes for placement drive listings and deadline queries
+placementDriveSchema.index({ status: 1, applicationDeadline: 1 });
+placementDriveSchema.index({ createdAt: -1 });
+
 module.exports = mongoose.model('PlacementDrive', placementDriveSchema);

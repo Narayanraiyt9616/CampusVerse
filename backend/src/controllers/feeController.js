@@ -37,7 +37,8 @@ exports.listFees = async (req, res, next) => {
       .populate('createdBy', 'name email')
       .sort({ dueDate: -1 })
       .skip((Number(page) - 1) * Number(limit))
-      .limit(Number(limit));
+      .limit(Number(limit))
+      .lean();
 
     res.json({ success: true, meta: { total, page: Number(page), limit: Number(limit) }, data });
   } catch (err) {

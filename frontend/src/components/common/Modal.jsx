@@ -20,12 +20,7 @@ export const Modal = ({
   closeOnNavigate = true,
   id,
 }) => {
-  let location;
-  try {
-    location = useLocation();
-  } catch {
-    location = null;
-  }
+  const location = useLocation();
 
   const currentPath = location ? location.pathname + location.search : '';
   const initialPathRef = useRef(currentPath);

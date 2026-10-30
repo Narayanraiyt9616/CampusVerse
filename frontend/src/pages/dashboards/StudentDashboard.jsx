@@ -8,14 +8,16 @@ import {
   ArrowLeft, RefreshCw, Loader2, Heart, Users2, CreditCard,
   AlertCircle, Check, PlusCircle, Calendar, Star, FileCheck2, Briefcase, Code, Video,
 } from 'lucide-react';
-import StudentOnlineClassesSection from './student/StudentOnlineClassesSection';
-import StudentAdmitCardSection from './student/StudentAdmitCardSection';
-import StudentPlacementSection from './student/StudentPlacementSection';
-import StudentAttendanceSection from './student/StudentAttendanceSection';
-import StudentProgressReportSection from './student/StudentProgressReportSection';
-import StudentAssignmentSection from './student/StudentAssignmentSection';
-import StudentLiveProjectSection from './student/StudentLiveProjectSection';
-import StudentCertificateSection from './student/StudentCertificateSection';
+
+// Code-split heavy sub-sections for faster initial student dashboard load
+const StudentOnlineClassesSection = React.lazy(() => import('./student/StudentOnlineClassesSection'));
+const StudentAdmitCardSection = React.lazy(() => import('./student/StudentAdmitCardSection'));
+const StudentPlacementSection = React.lazy(() => import('./student/StudentPlacementSection'));
+const StudentAttendanceSection = React.lazy(() => import('./student/StudentAttendanceSection'));
+const StudentProgressReportSection = React.lazy(() => import('./student/StudentProgressReportSection'));
+const StudentAssignmentSection = React.lazy(() => import('./student/StudentAssignmentSection'));
+const StudentLiveProjectSection = React.lazy(() => import('./student/StudentLiveProjectSection'));
+const StudentCertificateSection = React.lazy(() => import('./student/StudentCertificateSection'));
 import PageHeader from '../../components/common/PageHeader';
 import StatCard from '../../components/common/StatCard';
 import Card from '../../components/common/Card';
@@ -1066,7 +1068,7 @@ export const StudentDashboard = () => {
           {[...Array(3)].map((_, i) => <div key={i} className="h-28 rounded-2xl bg-[#FFF8E6]/30 animate-pulse border border-[#F1E7CF]" />)}
         </div>
       ) : (
-        <>
+        <React.Suspense fallback={<div className="h-40 rounded-2xl bg-[#FFF8E6]/30 animate-pulse border border-[#F1E7CF]" />}>
           {(!currentSection || currentSection === 'overview') && (
             <OverviewSection
               profile={profile}
@@ -1105,7 +1107,7 @@ export const StudentDashboard = () => {
           {currentSection === 'fees' && (
             <FeesSection fees={fees} />
           )}
-        </>
+        </React.Suspense>
       )}
     </div>
   );

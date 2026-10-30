@@ -56,5 +56,9 @@ const submissionSchema = new mongoose.Schema(
 // Ensure a student can submit only once per assignment
 submissionSchema.index({ assignment: 1, student: 1 }, { unique: true });
 
+// Performance indexes for student submission history and faculty evaluation grading
+submissionSchema.index({ student: 1, createdAt: -1 });
+submissionSchema.index({ assignment: 1, status: 1 });
+
 module.exports = mongoose.model('AssignmentSubmission', submissionSchema);
 

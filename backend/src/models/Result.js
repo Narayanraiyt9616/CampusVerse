@@ -20,4 +20,10 @@ const resultSchema = new mongoose.Schema(
 // Unique per student + course + assessment name to avoid duplicate records
 resultSchema.index({ student: 1, course: 1, assessmentName: 1 }, { unique: true });
 
+// Performance indexes for student marksheets, faculty course results, and admin publishing
+resultSchema.index({ student: 1, semester: 1, published: 1 });
+resultSchema.index({ faculty: 1 });
+resultSchema.index({ course: 1 });
+resultSchema.index({ published: 1 });
+
 module.exports = mongoose.model('Result', resultSchema);

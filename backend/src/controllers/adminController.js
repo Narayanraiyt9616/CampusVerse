@@ -93,10 +93,12 @@ exports.getAdminStats = async (req, res) => {
       Result.countDocuments({ published: false }),
       User.find({}, 'name username email role status createdAt')
         .sort({ createdAt: -1 })
-        .limit(6),
+        .limit(6)
+        .lean(),
       AuditLog.find({})
         .sort({ createdAt: -1 })
-        .limit(8),
+        .limit(8)
+        .lean(),
       Fee.aggregate([
         {
           $group: {
@@ -115,7 +117,7 @@ exports.getAdminStats = async (req, res) => {
     ]);
 
     // Calculate real-time attendance shortage count (<75%)
-    const allAttendance = await Attendance.find({}, 'records');
+    const allAttendance = await Attendance.find({}, 'records').lean();
     const studentAttendanceMap = {};
     allAttendance.forEach((att) => {
       (att.records || []).forEach((r) => {
@@ -1233,7 +1235,8 @@ exports.adminGetAttendance = async (req, res) => {
       .populate('faculty', 'name email username')
       .populate('records.student', 'name studentId email')
       .sort({ date: -1, createdAt: -1 })
-      .limit(50);
+      .limit(50)
+      .lean();
 
     return res.json({ success: true, attendance: attendanceSessions });
   } catch (err) {
@@ -1243,7 +1246,9 @@ exports.adminGetAttendance = async (req, res) => {
 
 exports.adminGetAttendanceShortages = async (req, res) => {
   try {
-    const allAttendance = await Attendance.find({}).populate('records.student', 'name studentId email department semester');
+    const allAttendance = await Attendance.find({})
+      .populate('records.student', 'name studentId email department semester')
+      .lean();
     const studentMap = {};
 
     allAttendance.forEach((att) => {
@@ -2062,6 +2067,7 @@ async function fetchReportDataset(type = 'students') {
   // 6. Examination Admit Cards & Hall Tickets
   if (normType === 'admit-cards' || normType === 'admitcards') {
     const admitCards = await AdmitCard.find()
+      .select('-file.dataBase64')
       .populate('department', 'name code')
       .sort({ createdAt: -1 })
       .lean();
