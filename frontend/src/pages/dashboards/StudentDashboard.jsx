@@ -28,8 +28,7 @@ import Modal from '../../components/common/Modal';
 import Input from '../../components/common/Input';
 import PortalHeroBanner from '../../components/common/PortalHeroBanner';
 import { useAuth } from '../../context/AuthContext';
-import { DEMO_STUDENT } from '../../utils/demoData';
-import { studentService, resultService, feeService } from '../../services/api';
+import { studentService, resultService, feeService, assignmentService } from '../../services/api';
 import { formatCurrency, formatPercent, getStatusBadgeVariant } from '../../utils/formatters';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -102,13 +101,13 @@ const ProfileSection = ({ user, profile, onSave, saving }) => {
     if (errors[key]) setErrors((e) => { const n = { ...e }; delete n[key]; return n; });
   };
 
-  const displayName = profile?.name || profile?.userName || user?.name || DEMO_STUDENT.name;
-  const rollNo = profile?.studentId || DEMO_STUDENT.rollNumber;
-  const dept = profile?.department?.name || DEMO_STUDENT.department;
-  const sem = profile?.semester ? `Semester ${profile.semester}` : DEMO_STUDENT.semester;
-  const enrollYear = profile?.enrollmentYear || '2021';
+  const displayName = profile?.name || profile?.userName || user?.name || user?.username || 'Student';
+  const rollNo = profile?.studentId || '—';
+  const dept = profile?.department?.name || 'Computer Science & Engineering';
+  const sem = profile?.semester ? `Semester ${profile.semester}` : 'Semester 1';
+  const enrollYear = profile?.enrollmentYear || '—';
   const status = profile?.status || 'Active';
-  const email = profile?.email || user?.email || DEMO_STUDENT.email;
+  const email = profile?.email || user?.email || '—';
 
   const statusVariant = { Active: 'teal', Graduated: 'info', Suspended: 'danger', 'On Leave': 'warning' }[status] || 'neutral';
 
@@ -136,8 +135,8 @@ const ProfileSection = ({ user, profile, onSave, saving }) => {
         <Card className="lg:col-span-1">
           <div className="flex flex-col items-center text-center space-y-3.5 py-2">
             <div className="relative">
-              <div className="w-24 h-24 rounded-full overflow-hidden ring-4 ring-[#F1E7CF] bg-[#D99A00] flex items-center justify-center text-white">
-                <img src={DEMO_STUDENT.avatar} alt={displayName} className="w-full h-full object-cover" onError={(e) => { e.target.style.display='none'; }} />
+              <div className="w-24 h-24 rounded-full overflow-hidden ring-4 ring-[#F1E7CF] bg-[#D99A00] flex items-center justify-center text-white text-3xl font-extrabold">
+                {displayName.charAt(0).toUpperCase()}
               </div>
               {editing && (
                 <button className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-[#D99A00] text-white flex items-center justify-center shadow-lg hover:bg-[#D99A00]/90 transition-colors">
@@ -195,7 +194,7 @@ const ProfileSection = ({ user, profile, onSave, saving }) => {
                   { label: 'Department', value: dept },
                   { label: 'Semester', value: sem },
                   { label: 'Enrollment Year', value: enrollYear },
-                  { label: 'Course / Program', value: form.course || DEMO_STUDENT.degree },
+                  { label: 'Course / Program', value: form.course || profile?.course || profile?.degree || '—' },
                   { label: 'Blood Group', value: form.bloodGroup || '—' },
                   { label: 'Mobile / Phone', value: form.phone || '—' },
                   { label: 'Academic Status', value: status },
@@ -226,409 +225,12 @@ const ProfileSection = ({ user, profile, onSave, saving }) => {
   );
 };
 
-// ─── 2. Academic History Section ─────────────────────────────────────────────
-
-const AcademicsSection = ({ results }) => {
-  const [expandedSem, setExpandedSem] = useState(null);
-
-  const semMap = {};
-  (results || []).forEach((r) => {
-    const key = `Semester ${r.semester}`;
-    if (!semMap[key]) semMap[key] = { results: [], semester: r.semester };
-    semMap[key].results.push(r);
-  });
-
-  const hasApiData = Object.keys(semMap).length > 0;
-
-  const semData = hasApiData
-    ? Object.entries(semMap).map(([sem, d]) => {
-        const obtained = d.results.reduce((s, r) => s + (r.marksObtained || 0), 0);
-        const max = d.results.reduce((s, r) => s + r.maxMarks, 0);
-        const pct = max > 0 ? Math.round((obtained / max) * 100) : 0;
-        const backlogs = d.results.filter((r) => r.maxMarks > 0 && (r.marksObtained || 0) / r.maxMarks < 0.4).length;
-        return { sem, semester: d.semester, results: d.results, obtained, max, pct, backlogs };
-      }).sort((a, b) => a.semester - b.semester)
-    : DEMO_STUDENT.marks.map((m, i) => ({
-        sem: m.semester, semester: i + 1, results: [], obtained: Math.round(m.sgpa * 10),
-        max: 100, pct: Math.round(m.sgpa * 10), backlogs: 0, sgpa: m.sgpa, credits: m.credits, status: m.status,
-      }));
-
-  const cgpa = DEMO_STUDENT.cgpa;
-  const currentSgpa = DEMO_STUDENT.currentSgpa;
-  const totalCredits = DEMO_STUDENT.marks.reduce((s, m) => s + m.credits, 0);
-
-  return (
-    <section id="academics" className="scroll-mt-20 space-y-6">
-      <div>
-        <h2 className="text-xl font-bold text-[#111827]">Academic History</h2>
-        <p className="text-xs sm:text-sm text-[#4B5563] mt-0.5 font-medium">Semester-wise marks, grades, percentages and academic progress</p>
-      </div>
-
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="p-5 rounded-2xl bg-[#D99A00] text-white text-center shadow-sm">
-          <p className="text-xs font-bold text-[#F1E7CF] uppercase tracking-wider">Cumulative CGPA</p>
-          <p className="text-3xl font-extrabold font-mono mt-1.5">{cgpa.toFixed(2)}</p>
-          <p className="text-xs text-[#F1E7CF] mt-0.5 font-medium">/ 10.0</p>
-        </div>
-        <div className="p-5 rounded-2xl bg-white border border-[#F1E7CF] text-center shadow-sm">
-          <p className="text-xs font-bold text-[#4B5563] uppercase tracking-wider">Current SGPA</p>
-          <p className="text-3xl font-extrabold font-mono mt-1.5 text-[#111827]">{currentSgpa.toFixed(2)}</p>
-          <p className="text-xs text-[#4B5563] mt-0.5 font-medium">This Semester</p>
-        </div>
-        <div className="p-5 rounded-2xl bg-white border border-[#F1E7CF] text-center shadow-sm">
-          <p className="text-xs font-bold text-[#4B5563] uppercase tracking-wider">Credits Earned</p>
-          <p className="text-3xl font-extrabold font-mono mt-1.5 text-[#111827]">{totalCredits}</p>
-          <p className="text-xs text-[#4B5563] mt-0.5 font-medium">Total Credits</p>
-        </div>
-        <div className="p-5 rounded-2xl bg-white border border-[#F1E7CF] text-center shadow-sm">
-          <p className="text-xs font-bold text-[#4B5563] uppercase tracking-wider">Academic Standing</p>
-          <p className="text-lg font-extrabold mt-2 text-[#D99A00]">Dean's List</p>
-          <p className="text-xs text-[#4B5563] mt-0.5 font-medium">Top 5% Cohort</p>
-        </div>
-      </div>
-
-      <Card title="Semester-wise Performance" subtitle="Click a semester to view subject-level results">
-        <div className="space-y-3">
-          {semData.map((s, i) => {
-            const gradeInfo = getGradeLetter(s.pct);
-            const isOpen = expandedSem === s.sem;
-            return (
-              <div key={s.sem} className="rounded-2xl border border-[#F1E7CF] overflow-hidden">
-                <button
-                  className="w-full flex items-center gap-3.5 p-4 bg-white hover:bg-[#FFF8E6]/30 transition-colors text-left"
-                  onClick={() => setExpandedSem(isOpen ? null : s.sem)}
-                >
-                  <div className="w-8 h-8 rounded-xl bg-[#FFF8E6] flex items-center justify-center flex-shrink-0 text-[#D99A00]">
-                    <span className="text-xs font-bold">{i + 1}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2.5 flex-wrap">
-                      <span className="text-sm font-bold text-[#111827]">{s.sem}</span>
-                      {s.status && <Badge variant={s.status === 'In Progress' ? 'warning' : 'teal'} size="sm">{s.status}</Badge>}
-                      {s.backlogs > 0 && <Badge variant="danger" size="sm">{s.backlogs} Backlog{s.backlogs > 1 ? 's' : ''}</Badge>}
-                    </div>
-                    <div className="mt-2 flex items-center gap-2.5">
-                      <div className="flex-1 bg-[#FFF8E6] rounded-full h-2 overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all duration-500 bg-[#D99A00]"
-                          style={{ width: `${Math.min(s.pct, 100)}%` }}
-                        />
-                      </div>
-                      <span className="text-xs font-bold text-[#111827] font-mono w-10 text-right">{s.pct}%</span>
-                    </div>
-                  </div>
-                  <div className="text-right flex-shrink-0 mr-2">
-                    {s.sgpa !== undefined ? (
-                      <>
-                        <span className="text-xl font-bold text-[#111827] font-mono">{s.sgpa.toFixed(2)}</span>
-                        <span className="text-xs text-[#4B5563] font-semibold block">SGPA &bull; {s.credits} Cr</span>
-                      </>
-                    ) : (
-                      <>
-                        <span className={`text-xl font-bold font-mono ${gradeInfo.color}`}>{gradeInfo.grade}</span>
-                        <span className="text-xs text-[#4B5563] font-semibold block">{s.obtained}/{s.max}</span>
-                      </>
-                    )}
-                  </div>
-                  {isOpen ? <ChevronUp className="w-4 h-4 text-[#111827] flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-[#111827] flex-shrink-0" />}
-                </button>
-
-                {isOpen && (
-                  <div className="border-t border-[#F1E7CF] bg-[#FFFDF5] p-4">
-                    {s.results.length > 0 ? (
-                      <div className="space-y-2.5">
-                        {s.results.map((r) => {
-                          const subPct = r.maxMarks > 0 ? Math.round(((r.marksObtained || 0) / r.maxMarks) * 100) : 0;
-                          const subG = getGradeLetter(subPct);
-                          return (
-                            <div key={r._id || r.assessmentName} className="flex items-center gap-3 bg-white rounded-xl p-3 border border-[#F1E7CF] text-xs">
-                              <div className="flex-1 min-w-0">
-                                <p className="font-bold text-[#111827] truncate">{r.assessmentName}</p>
-                                <p className="text-[#4B5563] text-[11px] font-medium">{r.course?.courseCode || ''} &bull; {r.assessmentType}</p>
-                              </div>
-                              {r.feedback && <p className="text-[#4B5563] text-xs italic max-w-[140px] truncate">"{r.feedback}"</p>}
-                              <div className="text-right flex-shrink-0">
-                                <span className={`font-bold text-sm ${subG.color}`}>{subG.grade}</span>
-                                <span className="text-[#4B5563] block text-xs font-mono font-semibold">{r.marksObtained ?? '—'}/{r.maxMarks}</span>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <p className="text-xs text-[#4B5563] text-center py-3 font-semibold">Subject-level data will appear when results are published by faculty.</p>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </Card>
-    </section>
-  );
-};
-
-// ─── 3. Attendance Section ───────────────────────────────────────────────────
-
-const AttendanceSection = () => {
-  const summary = DEMO_STUDENT.attendanceSummary;
-  const overall = summary.overallPercentage;
-
-  const attendanceColumns = [
-    { key: 'code', header: 'Code', render: (v) => <span className="font-mono text-xs font-bold text-[#111827]">{v}</span> },
-    {
-      key: 'name',
-      header: 'Subject',
-      render: (v, r) => (
-        <div>
-          <p className="font-bold text-xs text-[#111827]">{v}</p>
-          <p className="text-[11px] text-[#4B5563] font-medium">{r.faculty}</p>
-        </div>
-      ),
-    },
-    {
-      key: 'attended',
-      header: 'Classes',
-      render: (v, r) => <span className="text-xs font-bold font-mono text-[#111827]">{r.attended}/{r.total}</span>,
-    },
-    {
-      key: 'percentage',
-      header: 'Attendance %',
-      render: (v) => {
-        return (
-          <div className="flex items-center gap-2.5">
-            <div className="w-24 bg-[#FFF8E6] rounded-full h-2 overflow-hidden">
-              <div className="h-full rounded-full bg-[#D99A00]" style={{ width: `${Math.min(v, 100)}%` }} />
-            </div>
-            <span className="text-xs font-bold font-mono text-[#111827]">{formatPercent(v)}</span>
-          </div>
-        );
-      },
-    },
-    {
-      key: 'status',
-      header: 'Eligibility',
-      render: (_, r) => (
-        <Badge variant={r.percentage >= 75 ? 'teal' : 'danger'} size="sm" hasDot>
-          {r.percentage >= 75 ? 'Eligible' : 'Shortage'}
-        </Badge>
-      ),
-    },
-  ];
-
-  const shortage = summary.courseBreakdown.filter((c) => c.percentage < 75);
-  const advisory = summary.courseBreakdown.filter((c) => c.percentage >= 75 && c.percentage < 85);
-
-  return (
-    <section id="attendance" className="scroll-mt-20 space-y-6">
-      <div>
-        <h2 className="text-xl font-bold text-[#111827]">Attendance</h2>
-        <p className="text-xs sm:text-sm text-[#4B5563] mt-0.5 font-medium">Overall and subject-wise attendance with shortage warnings</p>
-      </div>
-
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {[
-          { label: 'Overall Attendance', value: formatPercent(overall), sub: 'Min. 75% required', color: 'text-[#D99A00]' },
-          { label: 'Classes Attended', value: summary.attendedClasses, sub: `Out of ${summary.totalClasses}`, color: 'text-[#111827]' },
-          { label: 'Classes Missed', value: summary.missedClasses, sub: 'Total absences', color: 'text-[#111827]' },
-          { label: 'Enrolled Subjects', value: summary.courseBreakdown.length, sub: 'Active this semester', color: 'text-[#111827]' },
-        ].map((c) => (
-          <div key={c.label} className="p-5 rounded-2xl bg-white border border-[#F1E7CF] text-center shadow-sm">
-            <p className="text-xs text-[#4B5563] font-bold uppercase tracking-wider">{c.label}</p>
-            <p className={`text-2xl font-extrabold font-mono mt-1.5 ${c.color}`}>{c.value}</p>
-            <p className="text-xs text-[#4B5563] mt-0.5 font-medium">{c.sub}</p>
-          </div>
-        ))}
-      </div>
-
-      {shortage.length > 0 && (
-        <div className="p-4 rounded-2xl bg-[#FFF8E6] border border-[#D99A00] flex gap-3 text-[#111827]">
-          <AlertTriangle className="w-5 h-5 text-[#D99A00] flex-shrink-0 mt-0.5" />
-          <div className="text-sm">
-            <p className="font-bold text-[#111827]">Attendance Shortage Warning</p>
-            <p className="text-[#111827] text-xs sm:text-sm mt-0.5 font-medium">
-              You have below 75% attendance in <strong>{shortage.length}</strong> subject(s): <strong>{shortage.map((s) => s.code).join(', ')}</strong>.
-              Contact the department faculty coordinator immediately.
-            </p>
-          </div>
-        </div>
-      )}
-      {advisory.length > 0 && shortage.length === 0 && (
-        <div className="p-4 rounded-2xl bg-[#FFF8E6] border border-[#D99A00]/50 flex gap-3 text-[#111827]">
-          <AlertCircle className="w-5 h-5 text-[#D99A00] flex-shrink-0 mt-0.5" />
-          <div className="text-sm">
-            <p className="font-bold text-[#111827]">Attendance Advisory</p>
-            <p className="text-[#111827] text-xs sm:text-sm mt-0.5 font-medium">
-              {advisory.length} subject(s) between 75–85%: <strong>{advisory.map((s) => s.code).join(', ')}</strong>. Maintain regularity.
-            </p>
-          </div>
-        </div>
-      )}
-
-      <Card title="Subject-wise Attendance Breakdown" subtitle="75% minimum required for exam eligibility" badge={<Badge variant="teal" size="sm">Fall 2026</Badge>}>
-        <Table columns={attendanceColumns} data={summary.courseBreakdown} keyField="code" />
-      </Card>
-    </section>
-  );
-};
-
-// ─── 4. Assignments & Exams Section ─────────────────────────────────────────
-
-const AssignmentsSection = ({ results, assignments }) => {
-  const [activeTab, setActiveTab] = useState('all');
-
-  const allAssignments = (assignments && assignments.length > 0) ? assignments : DEMO_STUDENT.assignments;
-  const pending = allAssignments.filter((a) => (a.status || '').toLowerCase() === 'pending');
-  const submitted = allAssignments.filter((a) => (a.status || '').toLowerCase() === 'submitted');
-  const graded = allAssignments.filter((a) => (a.status || '').toLowerCase() === 'graded');
-  const overdue = pending.filter((a) => isOverdue(a.dueDate));
-
-  const examResults = (results || []).filter((r) => r.published);
-
-  const assignmentColumns = [
-    {
-      key: 'title',
-      header: 'Assignment',
-      render: (v, r) => (
-        <div>
-          <p className="font-bold text-xs text-[#111827] leading-snug">{v || r.assessmentName}</p>
-          <p className="text-[11px] text-[#4B5563] mt-0.5 font-medium">{r.course?.title || r.course || ''}</p>
-        </div>
-      ),
-    },
-    {
-      key: 'dueDate',
-      header: 'Deadline',
-      render: (v) => {
-        const od = isOverdue(v);
-        return <span className={`font-mono text-xs font-bold ${od ? 'text-[#D99A00]' : 'text-[#111827]'}`}>{formatDate(v)}{od ? ' ⚠' : ''}</span>;
-      },
-    },
-    {
-      key: 'weight',
-      header: 'Marks',
-      render: (v, r) => <span className="text-xs font-bold text-[#111827]">{v || `${r.maxMarks || '—'} Marks`}</span>,
-    },
-    {
-      key: 'status',
-      header: 'Status',
-      render: (v, r) => (
-        <div className="flex items-center gap-2">
-          <Badge variant={getStatusBadgeVariant(v)} size="sm" hasDot>{v}</Badge>
-          {(r.score !== undefined || r.marksObtained !== undefined) && (
-            <span className="text-xs font-bold text-[#111827] font-mono">({r.score ?? r.marksObtained}/{r.maxMarks})</span>
-          )}
-        </div>
-      ),
-    },
-    {
-      key: 'feedback',
-      header: 'Feedback',
-      render: (v) => v ? <span className="text-xs text-[#4B5563] italic">{v}</span> : <span className="text-xs text-[#4B5563]">—</span>,
-    },
-  ];
-
-  const examColumns = [
-    {
-      key: 'assessmentName',
-      header: 'Exam',
-      render: (v, r) => (
-        <div>
-          <p className="font-bold text-xs text-[#111827]">{v}</p>
-          <p className="text-[11px] text-[#4B5563] font-medium">{r.course?.courseCode || ''} &bull; {r.assessmentType}</p>
-        </div>
-      ),
-    },
-    { key: 'session', header: 'Session', render: (v) => <span className="text-xs font-bold font-mono text-[#111827]">{v}</span> },
-    {
-      key: 'marksObtained',
-      header: 'Result',
-      render: (v, r) => {
-        const pct = r.maxMarks > 0 ? Math.round(((v || 0) / r.maxMarks) * 100) : 0;
-        const g = getGradeLetter(pct);
-        return (
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-xs font-bold text-[#111827]">{v}/{r.maxMarks}</span>
-            <span className={`font-bold ${g.color}`}>{g.grade}</span>
-          </div>
-        );
-      },
-    },
-    { key: 'feedback', header: 'Remarks', render: (v) => v ? <span className="text-xs text-[#4B5563] italic">{v}</span> : <span className="text-[#4B5563] text-xs">—</span> },
-  ];
-
-  const TABS = [
-    { key: 'all', label: 'All', count: allAssignments.length },
-    { key: 'pending', label: 'Pending', count: pending.length },
-    { key: 'submitted', label: 'Submitted', count: submitted.length },
-    { key: 'graded', label: 'Graded', count: graded.length },
-    { key: 'exams', label: 'Exam Results', count: examResults.length },
-  ];
-
-  const tabData = { all: allAssignments, pending, submitted, graded };
-
-  return (
-    <section id="assignments" className="scroll-mt-20 space-y-6">
-      <div>
-        <h2 className="text-xl font-bold text-[#111827]">Assignments &amp; Exams</h2>
-        <p className="text-xs sm:text-sm text-[#4B5563] mt-0.5 font-medium">Pending, submitted, overdue assignments and published exam results</p>
-      </div>
-
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {[
-          { label: 'Pending', value: pending.length, num: 'text-[#D99A00]' },
-          { label: 'Submitted', value: submitted.length, num: 'text-[#111827]' },
-          { label: 'Graded', value: graded.length, num: 'text-[#D99A00]' },
-          { label: 'Overdue', value: overdue.length, num: 'text-[#111827]' },
-        ].map((c) => (
-          <div key={c.label} className="p-5 rounded-2xl bg-white border border-[#F1E7CF] text-center shadow-sm">
-            <p className={`text-3xl font-extrabold font-mono ${c.num}`}>{c.value}</p>
-            <p className="text-xs text-[#4B5563] font-bold uppercase tracking-wider mt-1.5">{c.label}</p>
-          </div>
-        ))}
-      </div>
-
-      <Card>
-        <div className="flex items-center gap-1.5 bg-[#FFFDF5] p-1.5 rounded-xl border border-[#F1E7CF] mb-5 overflow-x-auto">
-          {TABS.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`px-3.5 py-2 text-xs font-bold rounded-lg whitespace-nowrap transition-all flex items-center gap-2 ${activeTab === tab.key ? 'bg-[#D99A00] text-white shadow-sm' : 'text-[#111827] hover:bg-[#FFF8E6]'}`}
-            >
-              {tab.label}
-              {tab.count > 0 && (
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${activeTab === tab.key ? 'bg-white text-[#D99A00]' : 'bg-[#FFF8E6] text-[#111827]'}`}>{tab.count}</span>
-              )}
-            </button>
-          ))}
-        </div>
-
-        {activeTab === 'exams' ? (
-          examResults.length > 0 ? (
-            <Table columns={examColumns} data={examResults} keyField="_id" />
-          ) : (
-            <div className="text-center py-10">
-              <Award className="w-10 h-10 text-[#D99A00] mx-auto mb-3" />
-              <p className="text-sm font-bold text-[#111827]">No published exam results yet</p>
-              <p className="text-xs text-[#4B5563] mt-1 font-medium">Results will appear once published by faculty</p>
-            </div>
-          )
-        ) : (
-          <Table columns={assignmentColumns} data={tabData[activeTab] || allAssignments} keyField="id" />
-        )}
-      </Card>
-    </section>
-  );
-};
-
 // ─── 5. Fees Section ─────────────────────────────────────────────────────────
 
 const FeesSection = ({ fees }) => {
   const [receiptModal, setReceiptModal] = useState({ isOpen: false, item: null });
 
-  const feeData = (fees && fees.length > 0) ? fees : DEMO_STUDENT.fees;
+  const feeData = (fees && fees.length > 0) ? fees : [];
   const totalFees = feeData.reduce((s, f) => s + (f.amount || 0), 0);
   const paidFees = feeData.filter((f) => f.status === 'Paid').reduce((s, f) => s + (f.paidAmount || f.amount || 0), 0);
   const balance = totalFees - paidFees;
@@ -707,7 +309,7 @@ const FeesSection = ({ fees }) => {
       </div>
 
       <Card title="Fee Invoices &amp; Payment History" subtitle="Semester financial transactions and receipts" badge={<Badge variant="info" size="sm">Term 2026–27</Badge>}>
-        <Table columns={feeColumns} data={feeData} keyField="invoiceId" />
+        <Table columns={feeColumns} data={feeData} keyField="invoiceId" emptyMessage="No fee invoices or dues recorded yet." />
       </Card>
 
       <Modal
@@ -773,13 +375,18 @@ const FeesSection = ({ fees }) => {
 
 // ─── Overview Section ────────────────────────────────────────────────────────
 
-const OverviewSection = ({ profile, results, fees, notifications = [] }) => {
-  const overall = DEMO_STUDENT.attendanceSummary.overallPercentage;
-  const pendingAssignments = DEMO_STUDENT.assignments.filter((a) => a.status === 'Pending').length;
-  const feeList = (fees && fees.length > 0) ? fees : DEMO_STUDENT.fees;
-  const totalFees = feeList.reduce((s, f) => s + f.amount, 0);
+const OverviewSection = ({ profile, results, fees, notifications = [], attendanceReport, assignments = [] }) => {
+  const overall = attendanceReport?.overallPercentage ?? 0;
+  const pendingAssignments = (assignments || []).filter((a) => a.status === 'Pending' || a.submissionStatus === 'Pending').length;
+  const feeList = (fees && fees.length > 0) ? fees : [];
+  const totalFees = feeList.reduce((s, f) => s + (f.amount || 0), 0);
   const paidFees = feeList.filter((f) => f.status === 'Paid').reduce((s, f) => s + (f.paidAmount || f.amount || 0), 0);
   const feeDue = totalFees - paidFees;
+
+  const totalObtained = (results || []).reduce((acc, r) => acc + (r.marksObtained || 0), 0);
+  const totalMax = (results || []).reduce((acc, r) => acc + (r.maxMarks || 100), 0);
+  const hasResults = results && results.length > 0;
+  const cgpaValue = hasResults && totalMax > 0 ? ((totalObtained / totalMax) * 10).toFixed(2) : '0.00';
 
   const placementNotifs = notifications.filter(
     (n) => n.type === 'PLACEMENT_DRIVE' || n.category === 'Placement'
@@ -795,8 +402,8 @@ const OverviewSection = ({ profile, results, fees, notifications = [] }) => {
         headingPrefix="Welcome to"
         subtitle="Access your academic profile, course rosters, attendance, telemetry, and grades — all in one place."
         icon={<GraduationCap className="w-4 h-4" />}
-        userName={profile?.name || DEMO_STUDENT.name}
-        userIdentifier={profile?.studentId || DEMO_STUDENT.rollNumber}
+        userName={profile?.name || 'Student'}
+        userIdentifier={profile?.studentId || '—'}
         actions={
           <Link to="/student/profile">
             <Button variant="secondary" size="sm" leftIcon={<User className="w-3.5 h-3.5" />}>
@@ -810,18 +417,18 @@ const OverviewSection = ({ profile, results, fees, notifications = [] }) => {
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Attendance"
-          value={formatPercent(overall)}
-          subtitle="Semester average"
-          change="Safe standing"
-          changeType="increase"
+          value={overall > 0 ? formatPercent(overall) : '0%'}
+          subtitle={overall > 0 ? 'Semester average' : 'No records yet'}
+          change={overall >= 75 ? 'Safe standing' : 'Needs attention'}
+          changeType={overall >= 75 ? 'increase' : 'decrease'}
           colorVariant="gold"
           icon={<CalendarCheck className="w-5 h-5 text-[#D97706]" />}
         />
         <StatCard
           title="CGPA"
-          value={DEMO_STUDENT.cgpa.toFixed(2)}
-          subtitle={`Current SGPA: ${DEMO_STUDENT.currentSgpa}`}
-          change="+0.04 vs Sem 6"
+          value={cgpaValue}
+          subtitle={hasResults ? `${results.length} course(s) evaluated` : 'No results published yet'}
+          change={hasResults ? 'Active standing' : 'Pending evaluation'}
           changeType="increase"
           colorVariant="blue"
           icon={<GraduationCap className="w-5 h-5 text-[#2563EB]" />}
@@ -923,16 +530,19 @@ const OverviewSection = ({ profile, results, fees, notifications = [] }) => {
 
       <Card title="Recent Notices" subtitle="Latest verified campus communications" badge={<Badge variant="teal" size="sm">Notice Board</Badge>}>
         <div className="space-y-3">
-          {DEMO_STUDENT.notifications.slice(0, 3).map((n) => (
-            <div key={n.id} className="p-4 rounded-2xl border border-[#F1E7CF] bg-white hover:bg-[#FFFDF5] hover:border-[#FDE68A] transition-all text-xs">
+          {notifications.slice(0, 3).map((n) => (
+            <div key={n._id || n.id} className="p-4 rounded-2xl border border-[#F1E7CF] bg-white hover:bg-[#FFFDF5] hover:border-[#FDE68A] transition-all text-xs">
               <div className="flex items-center justify-between gap-2">
                 <span className="font-bold text-sm text-[#0F172A]">{n.title}</span>
-                <Badge variant={n.priority === 'High' ? 'warning' : 'neutral'} size="sm">{n.category}</Badge>
+                <Badge variant={n.priority === 'High' ? 'warning' : 'neutral'} size="sm">{n.category || 'General'}</Badge>
               </div>
-              <p className="text-[#64748B] text-xs mt-1.5 leading-relaxed font-medium">{n.message}</p>
-              <p className="text-[#64748B] text-[11px] font-semibold mt-1.5">{n.date}</p>
+              <p className="text-[#64748B] text-xs mt-1.5 leading-relaxed font-medium">{n.message || n.content}</p>
+              <p className="text-[#64748B] text-[11px] font-semibold mt-1.5">{n.date || (n.createdAt ? new Date(n.createdAt).toLocaleDateString('en-IN') : '')}</p>
             </div>
           ))}
+          {notifications.length === 0 && (
+            <div className="text-center text-[#64748B] text-sm py-6">No notices published yet</div>
+          )}
         </div>
       </Card>
     </div>
@@ -949,7 +559,8 @@ export const StudentDashboard = () => {
   const [results, setResults] = useState([]);
   const [fees, setFees] = useState([]);
   const [notifications, setNotifications] = useState([]);
-  const [assignments] = useState([]);
+  const [assignments, setAssignments] = useState([]);
+  const [attendanceReport, setAttendanceReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -962,18 +573,25 @@ export const StudentDashboard = () => {
     setLoading(true);
     setError('');
     try {
-      const [profileRes, resultsRes, feesRes, notifRes] = await Promise.allSettled([
+      const [profileRes, resultsRes, feesRes, notifRes, attRes, assignRes] = await Promise.allSettled([
         studentService.getMyProfile(),
         resultService.list({ limit: 100 }),
         feeService.list({ limit: 100 }),
         studentService.getMyNotifications({ limit: 50 }),
+        studentService.getAttendanceReport(),
+        assignmentService.getMyAssignments(),
       ]);
       if (profileRes.status === 'fulfilled' && profileRes.value?.success) setProfile(profileRes.value.data);
       if (resultsRes.status === 'fulfilled' && resultsRes.value?.success) setResults(resultsRes.value.data || []);
       if (feesRes.status === 'fulfilled' && feesRes.value?.success) setFees(feesRes.value.data || []);
       if (notifRes.status === 'fulfilled' && notifRes.value?.success) setNotifications(notifRes.value.data || []);
+      if (attRes.status === 'fulfilled' && attRes.value?.data) setAttendanceReport(attRes.value.data);
+      if (assignRes.status === 'fulfilled' && assignRes.value?.data) {
+        const list = assignRes.value.data?.assignments || assignRes.value.data || [];
+        setAssignments(Array.isArray(list) ? list : []);
+      }
     } catch {
-      setError('Some data could not be loaded. Showing demo data where applicable.');
+      setError('Some data could not be loaded. Please refresh.');
     } finally {
       setLoading(false);
     }
@@ -1001,7 +619,7 @@ export const StudentDashboard = () => {
     }
   };
 
-  const loggedInName = user?.name || user?.username || DEMO_STUDENT.name;
+  const loggedInName = user?.name || user?.username || 'Student';
 
   const SECTION_LABELS = {
     profile: 'My Profile',
@@ -1026,7 +644,7 @@ export const StudentDashboard = () => {
       {sectionLabel ? (
         <PageHeader
           title={sectionLabel}
-          subtitle={`${loggedInName} · ${profile?.studentId || DEMO_STUDENT.rollNumber} · ${profile?.department?.name || DEMO_STUDENT.department}`}
+          subtitle={`${loggedInName} · ${profile?.studentId || '—'} · ${profile?.department?.name || 'Computer Science & Engineering'}`}
           breadcrumbs={[
             { label: 'Student Portal', to: '/student' },
             { label: sectionLabel },
@@ -1075,6 +693,8 @@ export const StudentDashboard = () => {
               results={results}
               fees={fees}
               notifications={notifications}
+              attendanceReport={attendanceReport}
+              assignments={assignments}
             />
           )}
           {currentSection === 'profile' && (

@@ -26,9 +26,11 @@ import Button from '../../../components/common/Button';
 import LoadingSpinner from '../../../components/common/LoadingSpinner';
 import AlertBanner from '../../../components/common/AlertBanner';
 import PortalHeroBanner from '../../../components/common/PortalHeroBanner';
+import { useAuth } from '../../../context/AuthContext';
 import { adminService } from '../../../services/api';
 
 export const AdminOverview = ({ onOpenCreateCreds }) => {
+  const { user } = useAuth();
   const [stats, setStats] = useState(null);
   const [recentUsers, setRecentUsers] = useState([]);
   const [recentLogs, setRecentLogs] = useState([]);
@@ -91,8 +93,8 @@ export const AdminOverview = ({ onOpenCreateCreds }) => {
         headingPrefix="Welcome to"
         subtitle="Monitor campus-wide telemetry, department rosters, financial ledgers, examinations, and executive controls — all in one place."
         icon={<ShieldCheck className="w-4 h-4" />}
-        userName="Dr. Suresh Nambiar"
-        userIdentifier="Dean & Academic Registrar"
+        userName={user?.name || user?.username || 'Administrator'}
+        userIdentifier={user?.email || 'Dean & Academic Registrar'}
         actions={
           <div className="flex items-center gap-2">
             <Button

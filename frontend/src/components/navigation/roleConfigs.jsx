@@ -33,8 +33,8 @@ export const ROLE_CONFIGS = {
     label: 'Student Portal',
     badgeVariant: 'teal',
     basePath: '/student',
-    profileName: 'Aarav Singhania',
-    roleTitle: 'B.Tech CSE (7th Sem)',
+    profileName: 'Student',
+    roleTitle: 'Student Account',
     menuItems: [
       { label: 'Overview', to: '/student', icon: <LayoutDashboard className="w-4 h-4" /> },
       { label: 'My Profile', to: '/student/profile', icon: <User className="w-4 h-4" /> },
@@ -53,8 +53,8 @@ export const ROLE_CONFIGS = {
     label: 'Faculty Portal',
     badgeVariant: 'info',
     basePath: '/faculty',
-    profileName: 'Dr. Rajiv Menon',
-    roleTitle: 'Professor & AI Lab Lead',
+    profileName: 'Faculty Member',
+    roleTitle: 'Faculty Account',
     menuItems: [
       { label: 'Overview', to: '/faculty', icon: <LayoutDashboard className="w-4 h-4" /> },
       { label: 'My Profile', to: '/faculty/profile', icon: <User className="w-4 h-4" /> },
@@ -72,7 +72,7 @@ export const ROLE_CONFIGS = {
     label: 'Admin Console',
     badgeVariant: 'navy',
     basePath: '/admin',
-    profileName: 'Dr. Suresh Nambiar',
+    profileName: 'Administrator',
     roleTitle: 'Dean & Academic Registrar',
     menuItems: [
       { label: 'Executive Overview', to: '/admin', icon: <LayoutDashboard className="w-4 h-4" /> },
@@ -94,7 +94,7 @@ export const ROLE_CONFIGS = {
     label: 'Parent Portal',
     badgeVariant: 'teal',
     basePath: '/parent',
-    profileName: 'Rajendra Singhania',
+    profileName: 'Parent / Guardian',
     roleTitle: 'Parent / Guardian Console',
     menuItems: [
       { label: 'Ward Dashboard', to: '/parent', icon: <LayoutDashboard className="w-4 h-4" /> },
@@ -108,7 +108,7 @@ export const ROLE_CONFIGS = {
     label: 'Placement Cell',
     badgeVariant: 'success',
     basePath: '/placement',
-    profileName: 'Prof. Vikramaditya',
+    profileName: 'Placement Officer',
     roleTitle: 'Head of T&P Cell',
     menuItems: [
       { label: 'Placement Dashboard', to: '/placement', icon: <LayoutDashboard className="w-4 h-4" /> },
@@ -122,7 +122,7 @@ export const ROLE_CONFIGS = {
     label: 'Hostel Portal',
     badgeVariant: 'teal',
     basePath: '/staff',
-    profileName: 'M. Karthikeyan',
+    profileName: 'Staff Member',
     roleTitle: 'Chief Warden & Estate Lead',
     menuItems: [
       { label: 'Overview', to: '/staff', icon: <LayoutDashboard className="w-4 h-4" /> },
@@ -136,7 +136,7 @@ export const ROLE_CONFIGS = {
     label: 'Hostel Portal',
     badgeVariant: 'teal',
     basePath: '/hostel',
-    profileName: 'M. Karthikeyan',
+    profileName: 'Hostel Warden',
     roleTitle: 'Chief Warden & Estate Lead',
     menuItems: [
       { label: 'Overview', to: '/hostel', icon: <LayoutDashboard className="w-4 h-4" /> },

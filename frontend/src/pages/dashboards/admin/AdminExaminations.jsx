@@ -171,13 +171,13 @@ export const AdminExaminations = () => {
     setResultForm({
       student: students[0]?._id || '',
       course: courses[0]?._id || '',
-      assessmentName: 'Mid-Term Exam',
-      marksObtained: 35,
-      maxMarks: 50,
-      semester: 7,
-      session: '2025-2026 Autumn',
+      assessmentName: '',
+      marksObtained: '',
+      maxMarks: 100,
+      semester: 1,
+      session: '2026-2027',
       published: true,
-      feedback: 'Good analytical reasoning demonstrated.',
+      feedback: '',
     });
     setIsResultModalOpen(true);
   };

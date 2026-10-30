@@ -44,27 +44,6 @@ const Skeleton = ({ className = '' }) => (
   <div className={`animate-pulse bg-slate-200 rounded ${className}`} />
 );
 
-// ─── Demo Data (fallback when backend is unreachable) ───────────────────────
-const DEMO_STUDENTS = [
-  { _id: 's1', studentId: 'CS21B001', name: 'Aarav Singhania', email: 'aarav@campus.edu', semester: 7, department: { name: 'Computer Science' }, status: 'Active' },
-  { _id: 's2', studentId: 'CS21B002', name: 'Priya Nair', email: 'priya@campus.edu', semester: 7, department: { name: 'Computer Science' }, status: 'Active' },
-  { _id: 's3', studentId: 'CS21B003', name: 'Rohan Mehta', email: 'rohan@campus.edu', semester: 7, department: { name: 'Computer Science' }, status: 'Active' },
-  { _id: 's4', studentId: 'CS21B004', name: 'Sneha Kulkarni', email: 'sneha@campus.edu', semester: 5, department: { name: 'Computer Science' }, status: 'Active' },
-  { _id: 's5', studentId: 'CS21B005', name: 'Vikram Patel', email: 'vikram@campus.edu', semester: 5, department: { name: 'Computer Science' }, status: 'Active' },
-];
-const DEMO_TIMETABLE = [
-  { _id: 't1', dayOfWeek: 'Monday', startTime: '09:00', endTime: '10:00', course: { name: 'Artificial Intelligence', code: 'CS701' }, section: 'A', semester: 7, classroom: 'LH-301' },
-  { _id: 't2', dayOfWeek: 'Tuesday', startTime: '11:00', endTime: '12:00', course: { name: 'Machine Learning', code: 'CS702' }, section: 'B', semester: 7, classroom: 'LH-204' },
-  { _id: 't3', dayOfWeek: 'Wednesday', startTime: '14:00', endTime: '15:00', course: { name: 'Deep Learning Lab', code: 'CS703' }, section: 'A', semester: 7, classroom: 'Lab-101' },
-  { _id: 't4', dayOfWeek: 'Thursday', startTime: '09:00', endTime: '10:00', course: { name: 'Artificial Intelligence', code: 'CS701' }, section: 'B', semester: 7, classroom: 'LH-301' },
-  { _id: 't5', dayOfWeek: 'Friday', startTime: '10:00', endTime: '11:00', course: { name: 'Machine Learning', code: 'CS702' }, section: 'A', semester: 7, classroom: 'LH-204' },
-];
-const DEMO_NOTICES = [
-  { _id: 'n1', title: 'Mid-Term Examination Schedule', content: 'Mid-term exams scheduled for Nov 10–20. Faculty must submit question papers by Nov 5.', category: 'Exam', targetAudience: 'All', pinned: true, publishedAt: '2026-10-18', authorName: 'Academic Office' },
-  { _id: 'n2', title: 'Faculty Development Program', content: 'Workshop on AI in Education on Oct 28. Participation is mandatory for all faculty.', category: 'Event', targetAudience: 'Faculty', pinned: false, publishedAt: '2026-10-15', authorName: 'Principal' },
-  { _id: 'n3', title: 'Result Submission Deadline', content: 'All internal assessment marks must be submitted by Nov 1, 2026 via the portal.', category: 'Academic', targetAudience: 'Faculty', pinned: false, publishedAt: '2026-10-12', authorName: 'Examination Cell' },
-];
-
 // ─── Main Component ───────────────────────────────────────────────────────────
 export const FacultyDashboard = () => {
   const { section } = useParams();
@@ -202,8 +181,9 @@ export const FacultyDashboard = () => {
     setLoad('students', true);
     try {
       const res = await facultyService.getAssignedStudents();
-      setStudents(res?.students || res || DEMO_STUDENTS);
-    } catch { setStudents(DEMO_STUDENTS); }
+      const list = res?.students || res?.data || (Array.isArray(res) ? res : []);
+      setStudents(Array.isArray(list) ? list : []);
+    } catch { setStudents([]); }
     finally { setLoad('students', false); }
   }, []);
 
@@ -247,8 +227,9 @@ export const FacultyDashboard = () => {
     setLoad('timetable', true);
     try {
       const res = await facultyService.getMyTimetable();
-      setTimetable(res?.timetable || res || DEMO_TIMETABLE);
-    } catch { setTimetable(DEMO_TIMETABLE); }
+      const list = res?.timetable || res?.data || (Array.isArray(res) ? res : []);
+      setTimetable(Array.isArray(list) ? list : []);
+    } catch { setTimetable([]); }
     finally { setLoad('timetable', false); }
   }, []);
 
@@ -265,8 +246,9 @@ export const FacultyDashboard = () => {
     setLoad('notices', true);
     try {
       const res = await facultyService.getNotices();
-      setNotices(res?.notices || res || DEMO_NOTICES);
-    } catch { setNotices(DEMO_NOTICES); }
+      const list = res?.notices || res?.data || (Array.isArray(res) ? res : []);
+      setNotices(Array.isArray(list) ? list : []);
+    } catch { setNotices([]); }
     finally { setLoad('notices', false); }
   }, []);
 

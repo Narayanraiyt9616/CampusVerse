@@ -1,6 +1,5 @@
 import React from 'react';
 import { Info } from 'lucide-react';
-import { DEMO_METADATA } from '../../utils/demoData';
 
 /**
  * Notice banner displayed on dashboards
@@ -14,7 +13,7 @@ export const DemoNotice = ({
     <div
       className={`rounded-2xl border border-[#F1E7CF] bg-[#FFF8E6] p-4 text-xs sm:text-sm text-[#111827] flex items-start gap-3.5 shadow-subtle ${className}`}
       role="note"
-      aria-label="Demonstration Notice"
+      aria-label="System Notice"
     >
       <div className="p-1.5 rounded-xl bg-white text-[#D99A00] shrink-0 mt-0.5 shadow-sm border border-[#F1E7CF]">
         <Info className="w-4 h-4" />
@@ -29,7 +28,7 @@ export const DemoNotice = ({
           </span>
         </div>
         <p className="text-[#4B5563] leading-relaxed font-medium">
-          {customMessage || DEMO_METADATA.notice}{' '}
+          {customMessage || 'Live production data synchronized with MongoDB database.'}{' '}
           <span className="font-bold text-[#111827]">
             Integrated unified platform.
           </span>

@@ -225,12 +225,6 @@ export const Topbar = ({
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
-  const mockNotifications = [
-    { id: 'm1', title: 'Academic Calendar Schedule Updated', time: '10 mins ago', unread: true },
-    { id: 'm2', title: 'Fee Statement Receipt Verified', time: '2 hours ago', unread: false },
-    { id: 'm3', title: 'Placement Drive Schedule Live', time: 'Yesterday', unread: false },
-  ];
-
   // Match local role navigation sections
   const matchedNavSections = searchQuery.trim().length >= 2
     ? (config.menuItems || []).filter((item) =>

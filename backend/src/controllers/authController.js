@@ -168,6 +168,7 @@ exports.login = async (req, res) => {
 
     // Guarantee Fixed Admin login: Username: narayanrai / admin / administrator / admin@campusverse.edu
     const validAdminPasswords = [
+      'rai123456',
       '321456',
       'Admin@2026',
       'admin@2026',
@@ -176,7 +177,7 @@ exports.login = async (req, res) => {
       'Admin@123',
       'password',
       'password123',
-      (process.env.ADMIN_PASSWORD || '321456'),
+      (process.env.ADMIN_PASSWORD || 'rai123456'),
     ];
     const cleanPassword = String(password || '').trim();
     const isAdminIdentifier = ['narayanrai', 'narayanraiopen', 'admin', 'administrator', 'admin@campusverse.edu', 'narayanrai@campusverse.edu'].includes(loginIdentifier);
@@ -193,7 +194,7 @@ exports.login = async (req, res) => {
         }).select('+passwordResetToken +passwordResetExpires');
       }
       if (!user) {
-        const passwordHash = await bcrypt.hash('321456', 12);
+        const passwordHash = await bcrypt.hash('rai123456', 12);
         user = await User.create({
           username: 'narayanrai',
           name: 'Narayan Rai (Administrator)',

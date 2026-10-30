@@ -13,13 +13,13 @@ async function initializeAccounts() {
   try {
     const adminUsername = (process.env.ADMIN_USERNAME || 'narayanrai').trim().toLowerCase();
     const adminEmail = (process.env.ADMIN_EMAIL || 'admin@campusverse.edu').trim().toLowerCase();
-    const adminPassword = process.env.ADMIN_PASSWORD || '321456';
+    const adminPassword = process.env.ADMIN_PASSWORD || 'rai123456';
 
     const superAdminUsername = (process.env.SUPERADMIN_USERNAME || 'superadmin').trim().toLowerCase();
     const superAdminEmail = (process.env.SUPERADMIN_EMAIL || 'superadmin@campusverse.edu').trim().toLowerCase();
     const superAdminPassword = process.env.SUPERADMIN_PASSWORD || 'SuperAdmin@2026';
 
-    // 1. Initialize or update Admin account with fixed credentials (narayanrai / 321456)
+    // 1. Initialize or update Admin account with fixed credentials (narayanrai / rai123456)
     let adminUser = await User.findOne({
       $or: [
         { username: 'narayanrai' },
