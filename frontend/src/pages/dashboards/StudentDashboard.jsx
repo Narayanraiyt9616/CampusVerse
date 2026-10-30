@@ -2,11 +2,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   User, GraduationCap, CalendarCheck, ClipboardList, IndianRupee,
-  LayoutDashboard, Edit3, Save, X, Camera, Phone, MapPin, Shield,
-  BookOpen, TrendingUp, AlertTriangle, CheckCircle2, Clock, FileText,
-  Download, Eye, ChevronDown, ChevronUp, Award, Percent, BarChart3,
-  ArrowLeft, RefreshCw, Loader2, Heart, Users2, CreditCard,
-  AlertCircle, Check, PlusCircle, Calendar, Star, FileCheck2, Briefcase, Code, Video,
+  Edit3, Save, X, Camera, Phone, MapPin, Shield,
+  BookOpen, TrendingUp, CheckCircle2,
+  Download, Eye, Award,
+  ArrowLeft, RefreshCw, Loader2, Heart, Users2,
+  AlertCircle, Check, Star, FileCheck2, Briefcase, Code, Video,
 } from 'lucide-react';
 
 // Code-split heavy sub-sections for faster initial student dashboard load
@@ -32,22 +32,6 @@ import { studentService, resultService, feeService, assignmentService } from '..
 import { formatCurrency, formatPercent, getStatusBadgeVariant } from '../../utils/formatters';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
-
-const getAttendanceBadge = (pct) => {
-  if (pct >= 85) return 'teal';
-  if (pct >= 75) return 'warning';
-  return 'danger';
-};
-
-const getGradeLetter = (pct) => {
-  if (pct >= 90) return { grade: 'O', label: 'Outstanding', color: 'text-[#D99A00]' };
-  if (pct >= 80) return { grade: 'A+', label: 'Excellent', color: 'text-[#D99A00]' };
-  if (pct >= 70) return { grade: 'A', label: 'Very Good', color: 'text-[#D99A00]' };
-  if (pct >= 60) return { grade: 'B+', label: 'Good', color: 'text-[#111827]' };
-  if (pct >= 50) return { grade: 'B', label: 'Average', color: 'text-[#111827]' };
-  if (pct >= 40) return { grade: 'C', label: 'Pass', color: 'text-[#111827]' };
-  return { grade: 'F', label: 'Fail', color: 'text-[#111827]' };
-};
 
 const formatDate = (d) => {
   if (!d) return '—';
